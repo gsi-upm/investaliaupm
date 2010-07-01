@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+<string name="app_name">Investalia</string>
+<string name="main_title">Investalia</string>
+<string name="login_text">Introduzca su nombre de usuario y contraseña:</string>
+<string name="user">Usuario</string>
+<string name="pass">Contraseña</string>
+<string name="login_label">Iniciar sesión</string>
+<string name="new_user_button">Nuevo usuario</string>
+
+<string name="empty_field">Por favor, rellene todos los campos</string>
+<string name="user_created">Usuario creado correctamente, por favor, inicie sesión</string>
+<string name="user_error">Error al crear nuevo usuario</string>
+
+
+
+
+<string name="connecting_text">Conectando...</string>
+<string name="home">Home</string>
+<string name="profile">Perfil</string>
+<string name="messages">Mensajes</string>
+<string name="compose">Escribir</string>
+<string name="compose_topic">Tema</string>
+<string name="compose_title">Título</string>
+<string name="compose_text">Texto</string>
+<string name="send_button">Enviar</string>
+<string name="topic_button">Seleccionar tags</string>
+<string name="topic_title">Seleccionar tags</string>
+<string name="topic_none">No se ha seleccionado ningún tag</string>
+<string name="dialog_ok">OK</string>
+<string name="dialog_cancel">Cancelar</string>
+<string name="liked">Me gusta!</string>
+<string name="score">Puntuación</string>
+<string name="empty_user_pass">Por favor, introduzca el nombre de usuario y la contraseña</string>
+<string name="wrong_pass">Contraseña incorrecta</string>
+<string name="welcome">Bienvenido/a</string>
+<string name="welcome_text">Desde esta aplicación podrás acceder al blah, blah..</string>
+<string name="refresh">Actualizar</string>
+<string name="show">Mostrar mensajes</string>
+<string name="show_opt1_date">Ordenar por fecha</string>
+<string name="show_opt2_rating">Ordenar por popularidad</string>
+<string name="show_opt3_all_date">Todos los temas por fecha</string>
+<string name="show_opt4_all_rating">Todos los temas por popularidad</string>
+<string name="refresh_complete">Mensajes actualizados</string>
+<string name="compose_sent">Mensaje enviado correctamente</string>
+<string name="compose_error">Error al enviar el mensaje</string>
+
+
+<string name="profile_config">Configurar perfil:</string>
+<string name="location">Ubicación</string>
+<string name="profile_change_tags">Cambiar temas seguidos</string>
+<string name="profile_change">Cambiar datos de usuario</string>
+<string name="profile_update">Actualizar Perfil</string>
+
+<string name="user_data">Datos de usuario</string>
+
+<string name="user_name">Nombre</string>
+<string name="dialog_title_user_name">Editar nombre</string>
+<string name="user_nick_name">Usuario</string>
+<string name="dialog_title_user_nick_name">Editar nombre de usuario</string>
+<string name="user_email">Dirección de correo</string>
+<string name="dialog_title_user_email">Editar email</string>
+<string name="user_location">Ubicación</string>
+<string name="dialog_title_user_location">Editar Ubicación</string>
+<string name="user_password">Contraseña</string>
+<string name="dialog_title_user_password">Nueva contraseña</string>
+<string name="user_tags">Temas suscritos</string>
+<string name="dialog_title_user_tags">Seleccionar temas suscritos</string>
+
+<string name="user_save">Guardar cambios</string>
+<string name="user_cancel">Reestablecer datos</string>
+
+<string name="profile_save_cancel">Datos restablecidos</string>
+<string name="profile_save_ok">Datos guardados correctamente</string>
+<string name="logout">Cerrar sesión</string>
+
+
+</resources>

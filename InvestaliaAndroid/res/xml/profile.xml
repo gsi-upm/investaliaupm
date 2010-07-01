@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  
+    <PreferenceCategory
+            android:title="@string/user_data">
+            
+         <EditTextPreference         		
+                android:key="user_name" 
+                android:persistent="false"
+                android:title="@string/user_name"
+                android:singleLine="true"
+                android:summary="aqui va el nombre de usuario"
+                android:dialogTitle="@string/dialog_title_user_name" />
+                
+         <EditTextPreference
+                android:key="user_nick_name"
+                android:persistent="false"
+                 android:singleLine="true"                
+                android:title="@string/user_nick_name"
+                android:summary="aqui va el nick de usuario"
+                android:dialogTitle="@string/dialog_title_user_nick_name" />
+                
+          <EditTextPreference
+                android:key="user_email"
+                android:persistent="false"
+                 android:singleLine="true"
+                android:title="@string/user_email"
+                android:summary="aqui va el email"
+                android:dialogTitle="@string/dialog_title_user_email" />
+          
+          <EditTextPreference
+                android:key="user_location"
+                android:persistent="false"
+                 android:singleLine="true"
+                android:title="@string/user_location"
+                android:summary="aqui va el location"
+                android:dialogTitle="@string/dialog_title_user_location" />
+        
+           <EditTextPreference
+           		android:key="user_password"
+           		android:persistent="false"
+           		 android:singleLine="true"
+                android:title="@string/user_password"
+                android:summary="Cambiar contraseña"
+                android:password="true"
+                android:dialogTitle="@string/dialog_title_user_password" />  
+          
+    </PreferenceCategory>
+    
+       <PreferenceCategory
+            android:title="@string/user_tags">
+            
+                <PreferenceScreen
+                android:key="user_tags"
+                android:title="@string/user_tags"
+                android:summary="@string/dialog_title_user_tags">
+
+          
+        </PreferenceScreen>
+            
+    </PreferenceCategory>
+    
+     <PreferenceCategory
+            android:title="@string/user_save">
+            
+                <PreferenceScreen
+                android:key="user_save"
+                android:title="@string/user_save">        
+       			 </PreferenceScreen>
+       			 
+       			 <PreferenceScreen
+                android:key="user_cancel"
+                android:title="@string/user_cancel">        
+       			 </PreferenceScreen>
+            
+    </PreferenceCategory>
+
+  
+</PreferenceScreen>

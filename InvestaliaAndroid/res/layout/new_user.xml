@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView 
+        android:id="@+id/new_user_view1"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:gravity="left"
+
+        android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/user_nick_name"/>
+            
+    <EditText
+        android:id="@+id/new_user_nick_name"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:scrollHorizontally="true"
+        android:autoText="false"
+        android:capitalize="none"
+        android:gravity="fill_horizontal"
+                android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/new_user_view2"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:gravity="left"
+        android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/user_password"/>
+            
+    <EditText
+        android:id="@+id/new_user_password"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:scrollHorizontally="true"
+        android:autoText="false"
+        android:capitalize="none"
+        android:gravity="fill_horizontal"
+                android:singleLine="true"
+                android:password="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+           <TextView
+        android:id="@+id/new_user_view3"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:gravity="left"
+        android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/user_name"/>
+            
+    <EditText
+        android:id="@+id/new_user_name"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:scrollHorizontally="true"
+        android:autoText="false"
+        android:capitalize="none"
+        android:gravity="fill_horizontal"
+                android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+           <TextView
+        android:id="@+id/new_user_view4"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:gravity="left"
+        android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/user_email"/>
+            
+    <EditText
+        android:id="@+id/new_user_email"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:scrollHorizontally="true"
+        android:autoText="false"
+        android:capitalize="none"
+        android:gravity="fill_horizontal"
+                android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+           <TextView
+        android:id="@+id/new_user_view5"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:gravity="left"
+        android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/user_location"/>
+            
+    <EditText
+        android:id="@+id/new_user_location"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:scrollHorizontally="true"
+        android:autoText="false"
+        android:capitalize="none"
+        android:gravity="fill_horizontal"
+        
+                android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+    
+</LinearLayout>
+</ScrollView>

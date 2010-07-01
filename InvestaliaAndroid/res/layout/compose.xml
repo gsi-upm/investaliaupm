@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView android:id="@+id/scroll1" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<TableLayout android:id="@+id/table1"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical"
+		android:padding="8dip">
+		
+		
+		<!--	Cuadro de texto para dar un titulo al mensaje -->
+		
+				<TextView android:id="@+id/compose_text1" android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:text="@string/compose_title"
+					android:paddingTop="8dip">
+				</TextView>
+				<EditText android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:textSize="18sp"
+					android:id="@+id/compose_title" android:singleLine="true">
+				</EditText>
+
+		<!--	Texto del mensaje -->		
+
+		<TextView android:id="@+id/compose_text2" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/compose_text"
+			android:paddingTop="8dip">
+		</TextView>
+		<EditText android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textSize="18sp"
+			android:id="@+id/compose_text" android:maxLength="500"
+			android:scrollbars="vertical" android:lines="4"
+			android:gravity="top">
+		</EditText>
+		
+		
+			<!--	Selección de tags -->
+
+	<Button android:text="@string/topic_button" android:id="@+id/compose_topic_button"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+		
+	<TextView android:id="@+id/compose_selected_topics_text" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/topic_none"
+		android:paddingTop="3dip" android:paddingBottom="5dip">
+	</TextView>
+
+	
+		<Button android:text="@string/send_button" android:id="@+id/compose_send_button" 
+			android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+
+
+	</TableLayout>
+</ScrollView>
