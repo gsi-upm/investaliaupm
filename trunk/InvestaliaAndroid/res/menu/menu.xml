@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_refresh"
+        android:title="@string/refresh"
+        android:icon="@drawable/refresh" />
+
+    <item android:id="@+id/menu_show"
+        android:title="@string/show"
+        android:icon="@android:drawable/ic_menu_more" >
+        
+        <menu>
+            <group android:id="@+id/exclusive_checkable_group"
+                    android:checkableBehavior="single">
+                    
+                <item android:id="@+id/show_opt1_date"
+                        android:title="@string/show_opt1_date" 
+                        android:checked="true"/>
+                <item android:id="@+id/show_opt2_rating"
+                        android:title="@string/show_opt2_rating" />
+                <item android:id="@+id/show_opt3_all_date"
+                        android:title="@string/show_opt3_all_date" />
+                <item android:id="@+id/show_opt4_all_rating"
+                        android:title="@string/show_opt4_all_rating" />
+
+            </group>
+        </menu>
+        
+     </item>
+
+</menu>

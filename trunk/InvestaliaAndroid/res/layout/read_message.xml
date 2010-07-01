@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView android:id="@+id/read_scroll1" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+	
+<RelativeLayout android:id="@+id/read_layout"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:padding="12dip"
+	>
+	
+	<TextView android:id="@+id/read_date"
+	android:layout_toRightOf="@+id/read_user" android:layout_above="@+id/read_title"
+	android:layout_width="wrap_content" android:text="xx/xx/xxxx"
+	android:layout_height="wrap_content" android:paddingLeft="9dip">
+</TextView>
+
+
+	<TextView android:id="@+id/read_user" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_alignParentTop="true"
+		android:layout_toRightOf="@+id/read_user_image" android:textStyle="bold"
+		android:text="usuario" android:paddingTop="4dip">
+	</TextView>
+
+
+	<TextView android:id="@+id/read_title" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginTop="2dip"
+		android:layout_below="@+id/read_user" android:layout_alignLeft="@+id/read_user"
+		android:text="Titulo" android:paddingBottom="6dip"
+		android:layout_marginRight="6dip" android:textStyle="bold" android:textSize="18dip">
+	</TextView>
+
+	<!-- Para incluir una imagen de usuario	-->
+	<!--	<ImageView android:id="@+id/read_user_image" -->
+	<!--		android:layout_width="wrap_content"-->
+	<!--		android:layout_height="wrap_content" -->
+	<!--		android:layout_alignParentTop="true"-->
+	<!--		android:layout_alignParentLeft="true"-->
+	<!--		android:padding="5dip"-->
+	<!--		>-->
+	<!--	</ImageView>-->
+
+
+	<TextView android:id="@+id/read_score" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginTop="2dip"
+		android:layout_below="@+id/read_title" android:text="@string/score"
+		android:paddingBottom="6dip" android:textSize="11dip">
+	</TextView>
+
+
+	<RatingBar android:id="@+id/read_RatingBar"
+		android:layout_below="@+id/read_score" style="?android:attr/ratingBarStyleSmall"
+		android:layout_width="wrap_content" android:paddingBottom="6dip"
+		android:layout_height="wrap_content" android:layout_gravity="center_vertical" />
+
+
+
+	<TextView android:id="@+id/read_text" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginTop="2dip"
+		android:layout_below="@+id/read_RatingBar" android:layout_alignLeft="@+id/read_user"
+		android:text="texto" android:paddingBottom="6dip"
+		android:layout_marginRight="6dip">
+	</TextView>
+
+	<CheckBox android:text="@string/liked" android:layout_width="wrap_content"
+		android:id="@+id/read_liked" android:layout_height="wrap_content"
+		android:layout_below="@+id/read_text"></CheckBox>
+
+	
+		
+</RelativeLayout>
+
+</ScrollView>

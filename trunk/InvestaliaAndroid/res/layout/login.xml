@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:id="@+id/login_scroll1" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<TableLayout android:id="@+id/table_layout"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:padding="30dip" 
+		android:stretchColumns="1" 
+		android:layout_centerHorizontal="true">
+		<TextView android:id="@+id/main_title" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="@string/main_title" android:textSize="24.5sp" android:layout_marginBottom="45dip">
+		</TextView>
+		
+		<EditText android:id="@+id/user_text" android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" android:textSize="18sp" android:hint="@string/user" android:singleLine="true">
+		</EditText>
+		<EditText android:id="@+id/user_pass" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:textSize="18sp" android:hint="@string/pass" android:inputType="textPassword">
+		</EditText>
+		
+		<Button android:id="@+id/login_button" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:text="@string/login_label" android:layout_marginBottom="5dip">
+		</Button>
+
+		
+		<LinearLayout android:id="@+id/state_layout"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:visibility="invisible">
+			<ProgressBar android:id="@+id/widget60"
+				android:layout_width="20dip" android:layout_height="20dip"
+				android:layout_marginRight="5dip" android:indeterminate="true">
+			</ProgressBar>
+			<TextView android:id="@+id/widget61" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_marginBottom="5dip"
+				android:text="@string/connecting_text" android:textSize="18sp">
+			</TextView>
+		</LinearLayout>
+		
+		<Button android:text="@string/new_user_button" android:id="@+id/new_user_button"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dip"></Button>
+	
+
+
+</TableLayout>
+</ScrollView>

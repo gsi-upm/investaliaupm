@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/layout"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android" android:padding="4dip">
+	
+	<TextView android:id="@+id/date" 
+		android:layout_toRightOf="@+id/user"
+		android:layout_above="@+id/title"
+		android:layout_width="wrap_content" android:text="xx/xx/xxxx" android:layout_height="wrap_content" android:paddingLeft="9dip">
+	</TextView>
+	
+	<TextView android:id="@+id/title" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_marginTop="2dip"
+		android:layout_below="@+id/user" 
+		android:layout_alignLeft="@+id/user" android:text="title" android:paddingBottom="6dip" android:layout_marginRight="6dip">
+	</TextView>
+	
+	<TextView android:id="@+id/user" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_alignParentTop="true" 
+		android:layout_toRightOf="@+id/user_image"
+		android:textStyle="bold"
+		android:text="usuario" android:paddingTop="4dip">
+	</TextView>
+	
+	<ImageView android:id="@+id/user_image" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true"
+		android:padding="2dip"
+		>
+		
+	</ImageView>
+	
+</RelativeLayout>

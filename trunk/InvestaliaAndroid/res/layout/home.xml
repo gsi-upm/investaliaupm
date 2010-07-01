@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content" android:layout_height="wrap_content"
+	android:padding="10dip">
+
+	<TextView android:id="@+id/home_TextView01"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/main_title" android:paddingBottom="12dip" android:textSize="50dip"></TextView>
+
+	<TextView android:text="@+id/home_TextView02" android:id="@+id/home_TextView02"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingBottom="30dip" android:textSize="15dip"></TextView>
+
+	<TextView android:id="@+id/home_TextView03"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/welcome_text"></TextView>
+
+</TableLayout>
