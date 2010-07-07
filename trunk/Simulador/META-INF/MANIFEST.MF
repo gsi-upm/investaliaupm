@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Simulador Plug-in
+Bundle-SymbolicName: Simulador
+Bundle-Version: 1.0.0
+Require-Bundle: org.ascape.ui.swing;bundle-version="5.5.0"
+Import-Package: org.ascape.model
