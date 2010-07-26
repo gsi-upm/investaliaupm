@@ -1,5 +1,8 @@
 package gsi.investalia.android.app;
 
+import jade.core.AID;
+import jade.lang.acl.ACLMessage;
+
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -45,10 +48,12 @@ public class Login extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 
-		// If it's already logged, we send it directly to main
+		
+		//If it's already logged, we send it directly to main
 		//if (SQLiteInterface.getLoggedUser(this) != null) {
-			//finish();
-			//TODO goToMain();
+		//Log.v("LOGIN", SQLiteInterface.getLoggedUser(this).getName());
+		//	finish();
+		//	goToMain();
 		//}
 
 		// Get the views
@@ -62,7 +67,8 @@ public class Login extends Activity implements OnClickListener {
 
 		// Connect to JADE
 		jadeAdapter = new JadeAdapter();
-		jadeAdapter.jadeConnect("luis", this);
+		jadeAdapter.jadeConnect("android", this);
+			
 		
 		// Set the broadcast receiver
 		this.broadcastReceiver = new LoginBroadcastReceiver();
@@ -92,7 +98,7 @@ public class Login extends Activity implements OnClickListener {
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.v("LOGIN", "Calling onDestroy method");
-		//jadeAdapter.jadeDisconnect(this);
+		jadeAdapter.jadeDisconnect(this);
 	}
 
 	@Override
@@ -112,11 +118,12 @@ public class Login extends Activity implements OnClickListener {
 			} else {
 				String username = user_text.getText().toString();
 				String password = user_pass.getText().toString();
-				//TODO JadeAdapter.checkLogin(username, password, this);
-				JadeAdapter.checkLogin(username, password, this);
+				jadeAdapter.checkLogin(username, password, this);
 			}
 		}
 	}
+	
+	
 
 	private void wrongLogin() {
 		Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
@@ -132,6 +139,9 @@ public class Login extends Activity implements OnClickListener {
 		finish();
 	}
 
+	/**
+	 *  Dialog para registrar un nuevo usuario
+	*/
 	protected Dialog onCreateDialog(int id) {
 
 		LayoutInflater factory = LayoutInflater.from(this);

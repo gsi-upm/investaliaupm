@@ -28,10 +28,14 @@ public class JadeAdapter implements ConnectionListener {
 
 	// Jade
 	private JadeGateway gateway;
-	
+		
 	// App
+	private static final String IP = "10.0.2.2";
+	private static final String PORT = "1099";
 	private Context context;
 	private static final String TAG_LOGGER = "Adapter";
+	private static final String TAG_JADE = "JADE";
+
 	
 	// Broadcast actions
 	public static final String LOGGED_IN = "logged_in";
@@ -40,18 +44,31 @@ public class JadeAdapter implements ConnectionListener {
 	public JadeAdapter() {		
 	}
 
-	public static void checkLogin(String username, String password, Context context) {
+	public void checkLogin(String username, String password, Context context) {
 
+		try {
+			User user = new User(username, password);
+			gateway.execute(user);
+						
+		}  catch (Exception e) {
+			e.printStackTrace();
+		}
+
+				
+		// TEST		
 		// TODO this should be done by the JADE Receiver
+		
 		List<Tag> tags = new ArrayList<Tag>();
 		tags.add(new Tag(1, "Finanzas"));
 		tags.add(new Tag(2, "Banca"));
-		User user = new User(1, "user", "pw", "John Locke", "The Island",
+		User user2 = new User(1, "user", "pw", "John Locke", "The Island",
 				"john@lost.com", tags, 0);
-		// TODO/>
-
-		SQLiteInterface.saveLoggedUser(user, context);
+		SQLiteInterface.saveLoggedUser(user2, context);
+		//Solo ejecutar una vez en el terminal
+		//SQLiteInterface.saveExampleMessages(context);
 		context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
+		//	END TEST	
+		
 	}
 
 	/**
@@ -66,8 +83,7 @@ public class JadeAdapter implements ConnectionListener {
 	 */
 	public static boolean saveNewMessage(int userId, Message message) {
 		// TODO Auto-generated method stub
-		Log
-				.v(TAG_LOGGER, "User_id: " + userId + " Titulo: "
+		Log.v(TAG_LOGGER, "User_id: " + userId + " Titulo: "
 						+ message.getTitle() + " Texto: " + message.getText()
 						+ " Topics primer ID: "
 						+ message.getTags().get(0).getTagName());
@@ -123,10 +139,13 @@ public class JadeAdapter implements ConnectionListener {
 		// TODO Auto-generated method stub
 		return true;
 	}
+	
+	
+	
 
 	// // JADE
 	public void jadeConnect(String containerId, Context context) {
-		Log.v(TAG_LOGGER, "Starting Jade connection");
+		Log.v(TAG_JADE, "Starting Jade connection");
 
 		// Save the context
 		this.context = context;
@@ -135,44 +154,44 @@ public class JadeAdapter implements ConnectionListener {
 		Properties props = new Properties();
 
 		// TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
-		props.setProperty(Profile.MAIN_HOST, "10.0.2.2");
-		props.setProperty(Profile.MAIN_PORT, "1099");
+		props.setProperty(Profile.MAIN_HOST, IP);
+		props.setProperty(Profile.MAIN_PORT, PORT);
 		props.setProperty(JICPProtocol.MSISDN_KEY, containerId);
 
 		try {
 			// agentClassName, agentArgs, jadeProfile, context, listener 
 			JadeGateway.connect(AndroidAgent.class.getName(), null, props, context, this);
-			Log.v("LOGIN", "Connection sucessfull");
+			Log.v(TAG_JADE, "Connection sucessfull");
 		} catch (Exception e) {
-			Log.w("LOGIN", "Error connecting");
+			Log.w(TAG_JADE, "Error connecting");
 			Log.e("jade.android", e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public void onConnected(JadeGateway gw) {
-		Log.v("LOGIN", "Calling onConnected method");
+		Log.v(TAG_JADE, "Calling onConnected method");
 		gateway = gw;
+		
 		try {
 			// First, we create the MessageListener
-			User user = new User("user", "pw");
+		
 			gateway.execute(context); 
-			gateway.execute(user);
-			Log.v("LOGIN", "Agent created succesfully");
-			// TODO I think launching this activity is a bit annoying
-			// Intent i = new Intent(this, About.class);
-			// startActivity(i);
-		} catch (Exception e) {
-			Log.w("LOGIN", "Error creating agent");
+			Log.v(TAG_JADE, "Agent created succesfully");
+			
+			} catch (Exception e) {
+			Log.w(TAG_JADE, "Error creating agent");
 			Log.e("jade.android", e.getMessage(), e);
 		}
 	}
+	
+	
 
 	public void jadeDisconnect(Activity activity) {
-		Log.v("LOGIN", "Starting Jade disconnection");
+		Log.v(TAG_JADE, "Starting Jade disconnection");
 
 		if (gateway == null) {
-			Log.v("LOGIN", "The connection wasn't established.");
+			Log.v(TAG_JADE, "The connection wasn't established.");
 			return;
 		}
 
@@ -180,28 +199,31 @@ public class JadeAdapter implements ConnectionListener {
 		// behaviour	
 		try {
 			gateway.execute(new RestartBehaviour());
-			Log.v("LOGIN", "Workflow restarted");
+			Log.v(TAG_JADE, "Workflow restarted");
 		} catch (Exception e) {
-			Log.e("LOGIN", "Error restarting secretary workflow");
+			Log.e(TAG_JADE, "Error restarting secretary workflow");
 			// TODO We should finish the workflow and start a new one
 		}
 
 		try {
 			gateway.shutdownJADE();
 		} catch (ConnectException e) {
-			Log.w("LOGIN", "Error disconnecting Jade");
+			Log.w(TAG_JADE, "Error disconnecting Jade");
 			Log.e("jade.android", e.getMessage(), e);
 		}
 
 		gateway.disconnect(activity);
-		Log.v("LOGIN", "Disconnection successfull");
+		Log.v(TAG_JADE, "Disconnection successfull");
 	}
 
 	@Override
 	public void onDisconnected() {
-		Log.v("LOGIN", "Disconnected to Jade");
+		Log.v(TAG_JADE, "Disconnected to Jade");
 	}
 
 	// /END OF JADE
-
+	
 }
+
+
+
