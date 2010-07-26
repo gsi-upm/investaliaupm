@@ -215,7 +215,7 @@ public class MysqlInterface {
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			while (rs.next()) {
-				tags.add(Tag.valueOf(rs.getInt(1)));
+				tags.add(new Tag(rs.getInt(1), rs.getString(2)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -229,10 +229,12 @@ public class MysqlInterface {
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				return new User(rs.getInt(1), rs.getString(2), rs.getString(4),
+				return new User(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4),
 						rs.getString(5), rs.getString(6), getTagsFollowing(rs
-								.getInt(1)));
-				// Constructor: id,userName,name,location,email,tagsFollowing
+								.getInt(1)), 0);
+				// TODO LAST UPDATE
+
+				// Constructor: id,userName,PASSWORD,name,location,email,tagsFollowing, LASTUPDATE
 				// Db: IDUSER,USERNAME,PASSWORD,NAME,LOCATION,EMAIL
 			}
 		} catch (SQLException e) {

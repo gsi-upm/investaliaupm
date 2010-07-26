@@ -1,5 +1,7 @@
 package gsi.investalia.server.wade;
 
+import gsi.investalia.domain.User;
+import gsi.investalia.json.JSONAdapter;
 import jade.lang.acl.ACLMessage;
 
 import jade.lang.acl.MessageTemplate;
@@ -77,12 +79,15 @@ public class LoginWorkflow extends WorkflowBehaviour {
 
 	protected void executeCheckLogin() throws Exception {
 	
-		/* Example of login message : "login password 21" */
-		String[] content = login.getContent().split(" ");
-		String user = content[0];
-		String password = content[1];
-		int lastUpdate = Integer.parseInt(content[2]); //We get the last update in order to download
-													 // as few messages as possible.
+		/* JsontoUser */
+		String content = login.getContent();
+		User user = JSONAdapter.JSONToUser(content);
+		String userName = user.getUserName();
+		String password = user.getPassword();
+		int lastUpdate = user.getLastUpdate();
+	
+		
+		
 		boolean checkPasswordLogin = false;
 		//TODO: check if login and password match ( checkPasswordLogin would be true)
 		
