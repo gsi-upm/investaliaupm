@@ -47,7 +47,7 @@ public class AndroidAgent extends GatewayAgent {
 			final User user = (User) command;
 
 			// Launches the agent
-			Log.v(TAG_LOGGER, "Adding first behaviour to agent");
+			Log.v(TAG_LOGGER, "Sending login user");
 
 			SequentialBehaviour sb = new SequentialBehaviour(this);
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
@@ -58,7 +58,7 @@ public class AndroidAgent extends GatewayAgent {
 					} catch (JSONException e) {
 						Log.e(TAG_LOGGER, "Error parsing JSON");
 					}
-					// TODO Change to look for a secretary agent with DF
+					
 					AID login = new AID("login", AID.ISLOCALNAME);
 					msg.addReceiver(login);
 					send(msg);
@@ -72,7 +72,6 @@ public class AndroidAgent extends GatewayAgent {
 				}
 			});
 			addBehaviour(sb);
-
 			releaseCommand(command);
 			Log.v(TAG_LOGGER, "Releasing command outside behaviour");
 		} else {
@@ -80,7 +79,7 @@ public class AndroidAgent extends GatewayAgent {
 			releaseCommand(command);
 		}
 	}	
-	
+		
 	private class MessageReceiverBehaviour extends CyclicBehaviour {
 
 		public void action() {

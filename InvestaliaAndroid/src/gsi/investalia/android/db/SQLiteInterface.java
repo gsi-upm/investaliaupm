@@ -45,6 +45,7 @@ public class SQLiteInterface {
 				messageValues.put(MessagesDBHelper.IDMESSAGE, m.getId());
 				messageValues.put(MessagesDBHelper.USERNAME, m.getUserName());
 				messageValues.put(MessagesDBHelper.TITLE, m.getTitle());
+				messageValues.put(MessagesDBHelper.TEXT, m.getText());
 				messageValues.put(MessagesDBHelper.DATE, dateStr);
 				messageValues.put(MessagesDBHelper.LIKED, m.isLiked());
 				messageValues.put(MessagesDBHelper.READ, m.isRead());
@@ -144,6 +145,7 @@ public class SQLiteInterface {
 					date = new Date();
 				}
 				// Add the message
+				//TODO
 				return new Message(cursor.getInt(0), cursor.getString(1),
 						cursor.getString(2), cursor.getString(3), null, date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
@@ -179,6 +181,7 @@ public class SQLiteInterface {
 	public static User getLoggedUser(Context context) {
 		String userStr = context.getSharedPreferences(PREFERENCES_FILE,
 				Context.MODE_PRIVATE).getString(LOGGED_USER, null);
+		
 		if (userStr == null) {
 			return null;
 		} else {
@@ -205,7 +208,7 @@ public class SQLiteInterface {
 	public static void saveExampleMessages(Context context) {
 		List<Message> messages = new ArrayList<Message>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-
+		
 		try {
 			messages.add(new Message(1, "Locke",
 					"Nuevos planes de pensiones del santander", text,
@@ -239,6 +242,7 @@ public class SQLiteInterface {
 			Log.e("DATABASE", "Error parsing the date in example messages");
 		}
 		saveMessages(context, messages);
+		saveExampleTags(context);
 	}
 
 	private static void saveExampleTags(Context context) {
