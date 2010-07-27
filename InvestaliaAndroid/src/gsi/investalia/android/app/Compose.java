@@ -65,18 +65,19 @@ public class Compose extends Activity implements OnClickListener {
 			Tag tag = tags.get(i);
 			tagsCharSequence[i] = tag.getTagName();
 			selectedTags[i] = false;
-			for(Tag userTag: loggedUser.getTagsFollowing()) {
-				if(userTag.getId() == tag.getId()) {
-					selectedTags[i] = true;
-					break;
-				}
-			}
+			// No se activan las tags que sigue el autor para enviar un mensaje
+//			for(Tag userTag: loggedUser.getTagsFollowing()) {
+//				if(userTag.getId() == tag.getId()) {
+//					selectedTags[i] = true;
+//					break;
+//				}
+//			}
+			
 		}
 		
-		TextWatcher watcher = new TextWatcher() { // Watcher para controlar
-													// cuando se introduce texto
-													// para activar el botón de
-													// enviar
+		
+		// Watcher para controlar cuando se introduce texto para activar el botón de enviar
+		TextWatcher watcher = new TextWatcher() { 
 			public void afterTextChanged(Editable s) {
 				enableSendButton();
 			}
