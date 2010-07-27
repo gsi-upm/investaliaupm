@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/WADE"/>
+	<classpathentry kind="con" path="WADE-Classpath"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
