@@ -27,8 +27,9 @@ public class AndroidAgent extends GatewayAgent {
 
 	@Override
 	protected void processCommand(final Object command) {
-
+		final Object args[] = getArguments();
 		if (command instanceof Context && listener == null) {
+			Log.v("LISTENER","Listener recibidoNOnull");
 			listener = new JadeListener((Context) command);
 		}
 
@@ -43,22 +44,22 @@ public class AndroidAgent extends GatewayAgent {
 			});
 			addBehaviour(sb);
 
-		} else if (command instanceof User) {
-			final User user = (User) command;
-
+		} else if (command instanceof ACLMessageListener) {
 			// Launches the agent
 			Log.v(TAG_LOGGER, "Sending login user");
-
 			SequentialBehaviour sb = new SequentialBehaviour(this);
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
 				public void action() {
 					ACLMessage msg = new ACLMessage(ACLMessage.CFP);
 					try {
-						msg.setContent(JSONAdapter.userToJSON(user).toString());
-					} catch (JSONException e) {
+						String content = args[0].toString();
+						msg.setContent(content);
+
+
+					} catch (Exception e) {
 						Log.e(TAG_LOGGER, "Error parsing JSON");
 					}
-					
+
 					AID login = new AID("login", AID.ISLOCALNAME);
 					msg.addReceiver(login);
 					send(msg);
@@ -79,15 +80,20 @@ public class AndroidAgent extends GatewayAgent {
 			releaseCommand(command);
 		}
 	}	
-		
+
 	private class MessageReceiverBehaviour extends CyclicBehaviour {
 
 		public void action() {
 			ACLMessage msg = myAgent.receive();
-
+			Log.v("LISTENER","Listener recibido1");
 			// if a message is available and a listener is available
+			if(listener==null){
+				Log.v("LISTENER","Listener recibidonull");
+				listener = new JadeListener(null);
+			}
 			if (msg != null && listener != null) {
 				// Calls interface updater
+				Log.v("LISTENER","Listener recibidorweteg");
 				listener.onMessageReceived(msg);
 			} else {
 				block();
