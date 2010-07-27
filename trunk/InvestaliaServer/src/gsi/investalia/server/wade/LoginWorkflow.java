@@ -1,6 +1,10 @@
 package gsi.investalia.server.wade;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gsi.investalia.domain.User;
+import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
 import jade.lang.acl.ACLMessage;
 
@@ -86,10 +90,14 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		String password = user.getPassword();
 		int lastUpdate = user.getLastUpdate();
 	
-		
-		
+				
 		boolean checkPasswordLogin = false;
 		//TODO: check if login and password match ( checkPasswordLogin would be true)
+		
+		//TEST
+		if (userName.equals("test") && password.equals("test"))
+			checkPasswordLogin = true;
+		//END TEST
 		
 		if(checkPasswordLogin){
 			succesfulLogin = true;
@@ -112,6 +120,22 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	
 	protected void executeLoginSuccesful() throws Exception {
 		//TODO: Call the database to send the new messages
+		ACLMessage loginSuccesful = login.createReply();
+		loginSuccesful.setPerformative(ACLMessage.INFORM);
+		
+		//TODO recuperar de la base de datos Tags y datos del usuario y 
+		// mandarlos en el mensaje de login correcto
+		List<Tag> tags = new ArrayList<Tag>();
+		
+		////// TEST
+		tags.add(new Tag(1, "Finanzas"));
+		tags.add(new Tag(2, "Banca"));
+		User user = new User(1, "user", "pw", "John Locke", "The Island",
+				"john@lost.com", tags, 0);
+		///////
+		
+		loginSuccesful.setContent(JSONAdapter.userToJSON(user).toString());
+		myAgent.send(loginSuccesful);
 	}
 
 	protected boolean checkMessageReceived() throws Exception{
