@@ -98,6 +98,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		if (userName.equals("test") && password.equals("test"))
 			checkPasswordLogin = true;
 		//END TEST
+		System.out.println(userName + " es el user");
+		System.out.println(password + " es el pass");
 		
 		if(checkPasswordLogin){
 			succesfulLogin = true;
