@@ -53,21 +53,6 @@ public class JadeAdapter implements ConnectionListener {
 		}  catch (Exception e) {
 			e.printStackTrace();
 		}
-
-				
-		// TEST		
-		// TODO this should be done by the JADE Receiver
-		
-		List<Tag> tags = new ArrayList<Tag>();
-		tags.add(new Tag(1, "Finanzas"));
-		tags.add(new Tag(2, "Banca"));
-		User user2 = new User(1, "user", "pw", "John Locke", "The Island",
-				"john@lost.com", tags, 0);
-		SQLiteInterface.saveLoggedUser(user2, context);
-		//Solo ejecutar una vez en el terminal
-		//SQLiteInterface.saveExampleMessages(context);
-		context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
-		//	END TEST	
 		
 	}
 
