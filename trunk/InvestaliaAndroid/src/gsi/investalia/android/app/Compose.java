@@ -1,6 +1,7 @@
 package gsi.investalia.android.app;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import gsi.investalia.android.db.SQLiteInterface;
@@ -65,14 +66,6 @@ public class Compose extends Activity implements OnClickListener {
 			Tag tag = tags.get(i);
 			tagsCharSequence[i] = tag.getTagName();
 			selectedTags[i] = false;
-			// No se activan las tags que sigue el autor para enviar un mensaje
-//			for(Tag userTag: loggedUser.getTagsFollowing()) {
-//				if(userTag.getId() == tag.getId()) {
-//					selectedTags[i] = true;
-//					break;
-//				}
-//			}
-			
 		}
 		
 		
@@ -83,12 +76,10 @@ public class Compose extends Activity implements OnClickListener {
 			}
 
 			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
+					int after) {}
 
 			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
+					int count) {}
 		};
 		title.addTextChangedListener(watcher);
 		text.addTextChangedListener(watcher);
@@ -120,16 +111,18 @@ public class Compose extends Activity implements OnClickListener {
 
 		String titleStr = title.getText().toString();
 		String textStr = text.getText().toString();
-		List<Tag> tags = new ArrayList<Tag>();
+		List<Tag> tags_selected = new ArrayList<Tag>();
 		for (int i = 0; i < selectedTags.length; i++) {
 			if (selectedTags[i]) {
-				tags.add(tags.get(i));
+				tags_selected.add(tags.get(i));
 			}
 		}
 		
+		
+		
 		// Only fill the necessary attributes
 		Message message = new Message(-1, "", titleStr, textStr,
-		tags, null, false, false, 0, 0);
+		tags_selected, new Date(), false, false, 0, 0);
 
 		if (JadeAdapter.saveNewMessage(loggedUser.getId(), message)) {
 			Toast.makeText(getBaseContext(), R.string.compose_sent,
