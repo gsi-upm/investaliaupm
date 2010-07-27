@@ -2,20 +2,40 @@ package gsi.investalia.android.jade;
 
 import org.json.JSONException;
 
+import jade.lang.acl.ACLMessage;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.Toast;
+import gsi.investalia.android.app.Login;
+import gsi.investalia.android.app.Main;
+import gsi.investalia.android.app.R;
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
-import jade.lang.acl.ACLMessage;
 
-import android.util.Log;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-/**
- * This class is called by the agent to send notifications to the UI
- */
-public class JadeListener {
 
+/**
+ * This class implements the ACLMessageListener interface and it is called by
+ * the agent to update the GUI when a message is received
+ * 
+ * @author Stefano Semeria Reply Cluster
+ * @author Tiziana Trucco Telecomitalia
+ */
+
+public class JadeListener implements ACLMessageListener {
+
+	private Handler handl;
+	private Activity act;
 	private Context context; // Necessary for broadcasting
 	private final static String TAG_LOGGER = "JADE LISTENER";
 
@@ -23,9 +43,13 @@ public class JadeListener {
 		this.context = context;
 	}
 
+
 	public void onMessageReceived(ACLMessage message) {
+		Log.v("ANDROID", "onMessageReceived(): GuiUpdater has received message");
+		// What you should do when you receive the message
+
 		Log.v(TAG_LOGGER,
-				"onMessageReceived(): JadeListener has received message");
+		"onMessageReceived(): JadeListener has received message");
 
 		if (message.getPerformative() == ACLMessage.REJECT_PROPOSAL) {
 			Log.v(TAG_LOGGER, "Failure. Wrong user/password combination. Logging out");
@@ -41,4 +65,10 @@ public class JadeListener {
 			context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
 		}
 	}
+
+	public Activity getActivity() {
+		return act;
+	}
+
+
 }

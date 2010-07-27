@@ -66,8 +66,8 @@ public class Login extends Activity implements OnClickListener {
 		findViewById(R.id.new_user_button).setOnClickListener(this);
 
 		// Connect to JADE
-		jadeAdapter = new JadeAdapter();
-		jadeAdapter.jadeConnect("android", this);
+		//jadeAdapter = new JadeAdapter();
+		//jadeAdapter.jadeConnect("android", this);
 			
 		
 		// Set the broadcast receiver
@@ -118,7 +118,10 @@ public class Login extends Activity implements OnClickListener {
 			} else {
 				String username = user_text.getText().toString();
 				String password = user_pass.getText().toString();
-				jadeAdapter.checkLogin(username, password, this);
+				String [] args = { "login", username,password,"3"};
+				jadeAdapter = new JadeAdapter();
+				//jadeAdapter.jadeConnect(args, this,this);
+				jadeAdapter.checkLogin(username, password,this,this);
 			}
 		}
 	}
