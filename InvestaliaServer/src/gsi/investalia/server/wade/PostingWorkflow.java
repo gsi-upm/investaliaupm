@@ -1,5 +1,7 @@
 package gsi.investalia.server.wade;
 
+import gsi.investalia.domain.Message;
+import gsi.investalia.json.JSONAdapter;
 import jade.lang.acl.ACLMessage;
 
 
@@ -72,7 +74,13 @@ public class PostingWorkflow extends WorkflowBehaviour {
 	protected void executePosting() throws Exception {
 	
 		ACLMessage reply = messageToPost.createReply();
-		String lastUpdate = messageToPost.getContent();
+		String content = messageToPost.getContent(); //Contenido del mensaje en JSON
+		Message message = JSONAdapter.JSONToMessage(content);
+		
+		int userID = Integer.parseInt(messageToPost.getOntology()); //Id del usuario que postea
+		System.out.println(userID+" "+message.getTitle()+" "+
+				message.getText()+" "+message.getRating()+" "+message.getUserName());
+		
 		try{
 			//TODO: Add message to the database.
 			reply.setPerformative(ACLMessage.CONFIRM);
