@@ -37,10 +37,13 @@ public class Compose extends Activity implements OnClickListener {
 	private boolean[] selectedTags;
 	private int selected_tags;
 	private User loggedUser;
+	private JadeAdapter jadeAdapter;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.compose);
+		
+		jadeAdapter = new JadeAdapter();
 
 		loggedUser = SQLiteInterface.getLoggedUser(this);
 
@@ -121,10 +124,11 @@ public class Compose extends Activity implements OnClickListener {
 		
 		
 		// Only fill the necessary attributes
-		Message message = new Message(-1, "", titleStr, textStr,
+		// new Date() gets the current date
+		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
 		tags_selected, new Date(), false, false, 0, 0);
 
-		if (JadeAdapter.saveNewMessage(loggedUser.getId(), message)) {
+		if (jadeAdapter.saveNewMessage(loggedUser, message, this, this)) {
 			Toast.makeText(getBaseContext(), R.string.compose_sent,
 					Toast.LENGTH_SHORT).show();
 		} else {

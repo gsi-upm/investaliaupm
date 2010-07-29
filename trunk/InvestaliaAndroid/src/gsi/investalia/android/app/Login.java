@@ -41,6 +41,7 @@ public class Login extends Activity implements OnClickListener {
 	// Broadcasting
 	private LoginBroadcastReceiver broadcastReceiver;
 	private IntentFilter intentFilter;
+	private boolean logged;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -98,7 +99,8 @@ public class Login extends Activity implements OnClickListener {
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.v("LOGIN", "Calling onDestroy method");
-		jadeAdapter.jadeDisconnect(this);
+		
+		if(logged){	jadeAdapter.jadeDisconnect(this);}
 	}
 
 	@Override
@@ -122,6 +124,7 @@ public class Login extends Activity implements OnClickListener {
 				jadeAdapter = new JadeAdapter();
 				//jadeAdapter.jadeConnect(args, this,this);
 				jadeAdapter.checkLogin(username, password,this,this);
+				logged = true;
 			}
 		}
 	}
@@ -129,6 +132,8 @@ public class Login extends Activity implements OnClickListener {
 	
 
 	private void wrongLogin() {
+		jadeAdapter.jadeDisconnect(this);
+		logged = false;
 		Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 		user_pass.startAnimation(shake);
 		Toast.makeText(getBaseContext(), R.string.wrong_pass,

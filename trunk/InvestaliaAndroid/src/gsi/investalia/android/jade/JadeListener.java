@@ -48,8 +48,7 @@ public class JadeListener implements ACLMessageListener {
 		Log.v("ANDROID", "onMessageReceived(): GuiUpdater has received message");
 		// What you should do when you receive the message
 
-		Log.v(TAG_LOGGER,
-		"onMessageReceived(): JadeListener has received message");
+		Log.v(TAG_LOGGER, "onMessageReceived(): JadeListener has received message");
 
 		if (message.getPerformative() == ACLMessage.REJECT_PROPOSAL) {
 			Log.v(TAG_LOGGER, "Failure. Wrong user/password combination. Logging out");
