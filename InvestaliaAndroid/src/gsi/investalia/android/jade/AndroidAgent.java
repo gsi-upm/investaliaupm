@@ -46,26 +46,46 @@ public class AndroidAgent extends GatewayAgent {
 
 		} else if (command instanceof ACLMessageListener) {
 			// Launches the agent
-			Log.v(TAG_LOGGER, "Sending login user");
+			
 			SequentialBehaviour sb = new SequentialBehaviour(this);
+
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
-				public void action() {
+				public void action() {		
+
 					ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-					try {
-						String content = args[0].toString();
+
+					if (args[0].equals("checkLogin")) {
+						Log.v(TAG_LOGGER, "Sending login user");
+						String content = (String) args[1];
 						msg.setContent(content);
+						AID login = new AID("login", AID.ISLOCALNAME);
+						msg.addReceiver(login);
+						Log.v(TAG_LOGGER, "Login message sent");
 
+					} else if (args[0].equals("saveNewMessage")) {
+						
+						Log.v(TAG_LOGGER, "Sending posting");
+						
+						String content = (String) args[2];
+						msg.setContent(content);
+						AID posting = new AID("posting", AID.ISLOCALNAME);
+						msg.addReceiver(posting);
+						//TODO De momento, pasamos el id del usuario como "ontologia"
+						String id;
+						try {
+							id = ""+JSONAdapter.JSONToUser((String)args[1]).getId();
+							msg.setOntology(id);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}						
+						Log.v(TAG_LOGGER, "Posting message sent");
 
-					} catch (Exception e) {
-						Log.e(TAG_LOGGER, "Error parsing JSON");
 					}
 
-					AID login = new AID("login", AID.ISLOCALNAME);
-					msg.addReceiver(login);
 					send(msg);
-					Log.v(TAG_LOGGER, "Login message sent");
 				}
 			});
+
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
 				public void action() {
 					Log.v(TAG_LOGGER, "Releasing command from behaviour");

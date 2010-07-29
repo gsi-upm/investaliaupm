@@ -49,48 +49,48 @@ public class JadeAdapter implements ConnectionListener {
 	}
 
 	public void checkLogin(String username, String password,Context cnt,Activity act) {
+		
+		//SQLiteInterface.saveExampleMessages(context); //Solo ejecutar una vez en el terminal para introducir datos de prueba
+		
 		try {
 			User user = new User(username, password);
 			Log.v("ANDROID", "user creado"+ user.getUserName());
-			String [] args = {JSONAdapter.userToJSON(user).toString()};
+			String [] args = {"checkLogin", JSONAdapter.userToJSON(user).toString()};
 			jadeConnect(args,  act, cnt);
 
 		}  catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		// TEST		
-		// TODO this should be done by the JADE Receiver
-
-		List<Tag> tags = new ArrayList<Tag>();
-		tags.add(new Tag(1, "Finanzas"));
-		tags.add(new Tag(2, "Banca"));
-		User user2 = new User(1, "user", "pw", "John Locke", "The Island",
-				"john@lost.com", tags, 0);
-		//SQLiteInterface.saveLoggedUser(user2, context);
-		//Solo ejecutar una vez en el terminal
-		//SQLiteInterface.saveExampleMessages(context);
-		//context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
-		//	END TEST	
-
 	}
 
 	/**
 	 * Recibe los datos enviados desde la pantalla de escribir mensajes
 	 * 
-	 * @param userId
-	 *            Id del usuario que ha enviado el mensaje
+	 * @param user
+	 *            el usuario logeado que está enviando el mensaje
 	 * @param message
 	 *            mensaje
 	 * @return true si el mensaje se ha guardado correctamente, false en caso de
 	 *         error
 	 */
-	public static boolean saveNewMessage(int userId, Message message) {
+	public boolean saveNewMessage(User user, Message message,Context cnt,Activity act) {
 		// TODO Auto-generated method stub
-		Log.v(TAG_LOGGER, "User_id: " + userId + " Titulo: "
-				+ message.getTitle() + " Texto: " + message.getText()
-				+ " Topics primer ID: "
-				+ message.getTags().get(0).getTagName());
+		Log.v(TAG_LOGGER, "User name: " + user.getName() + " Titulo: "
+						+ message.getTitle() + " Texto: " + message.getText()+" Fecha: "+message.getDate().toLocaleString()
+						+ " Topics primer ID: "
+						+ message.getTags().get(0).getTagName());
+		
+		try {
+			Log.v(TAG_LOGGER, "enviando mensaje de "+ user.getName());
+			//Pasamos como parametros el método donde estamos, el usuario logeado y el mensaje.
+			String [] args = {"saveNewMessage",JSONAdapter.userToJSON(user).toString(), 
+					JSONAdapter.messageToJSON(message).toString()};
+			jadeConnect(args,  act, cnt);
+
+		}  catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return true;
 	}
@@ -144,6 +144,8 @@ public class JadeAdapter implements ConnectionListener {
 		return true;
 	}
 
+	
+	
 	public void jadeConnect(String[] args, Activity act, Context context) {
 		Log.v("LOGIN", "Starting Jade connection");
 
@@ -156,14 +158,17 @@ public class JadeAdapter implements ConnectionListener {
 		Properties props = new Properties();
 		String user = "error";
 		try {
-			JSONObject json = new JSONObject(args[0]);
+			//Para obtener el usuario que envia el mensaje
+			JSONObject json = new JSONObject(args[1]);
 			user = json.getString(JSONAdapter.USER_NAME);
+			Log.v(TAG_JADE,"Nombre del agente en jadeConnect: "+user);
+
 		} catch (JSONException e1) {
 			Log.v("JSON ERROR",e1.getMessage());
 		}
 		//TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
-		props.setProperty(Profile.MAIN_HOST, "10.0.2.2");
-		props.setProperty(Profile.MAIN_PORT, "1099");
+		props.setProperty(Profile.MAIN_HOST, IP);
+		props.setProperty(Profile.MAIN_PORT, PORT);
 		props.setProperty(JICPProtocol.MSISDN_KEY,user);
 
 		try {
@@ -233,15 +238,15 @@ public class JadeAdapter implements ConnectionListener {
 			return;
 		}
 
-		// First we restart secretary agent workflow with a new android
-		// behaviour	
-		try {
-			gateway.execute(new RestartBehaviour());
-			Log.v(TAG_JADE, "Workflow restarted");
-		} catch (Exception e) {
-			Log.e(TAG_JADE, "Error restarting secretary workflow");
-			// TODO We should finish the workflow and start a new one
-		}
+//		// First we restart secretary agent workflow with a new android
+//		// behaviour	
+//		try {
+//			gateway.execute(new RestartBehaviour());
+//			Log.v(TAG_JADE, "Workflow restarted");
+//		} catch (Exception e) {
+//			Log.e(TAG_JADE, "Error restarting secretary workflow");
+//			// TODO We should finish the workflow and start a new one
+//		}
 
 		try {
 			gateway.shutdownJADE();
