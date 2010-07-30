@@ -62,6 +62,12 @@ public class JadeListener implements ACLMessageListener {
 				Log.e(TAG_LOGGER, "Error parsing JSON");
 			}
 			context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
+		} else if (message.getPerformative() == ACLMessage.CONFIRM){			
+			Log.v(TAG_LOGGER, "Accept proposal. Logged in");	
+			//TODO
+			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));
+			
+			
 		}
 	}
 
