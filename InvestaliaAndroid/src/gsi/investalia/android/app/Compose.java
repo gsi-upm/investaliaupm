@@ -12,7 +12,11 @@ import gsi.investalia.domain.User;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,11 +43,21 @@ public class Compose extends Activity implements OnClickListener {
 	private User loggedUser;
 	private JadeAdapter jadeAdapter;
 
+	private ComposeBroadcastReceiver broadcastReceiver;
+	private IntentFilter intentFilter;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.compose);
 		
 		jadeAdapter = new JadeAdapter();
+		
+		this.broadcastReceiver = new ComposeBroadcastReceiver();
+		this.intentFilter = new IntentFilter();
+		this.intentFilter.addAction(JadeAdapter.MESSAGE_OK);
+		this.intentFilter.addAction(JadeAdapter.MESSAGE_FAIL);
+		registerReceiver(this.broadcastReceiver, this.intentFilter);
+
 
 		loggedUser = SQLiteInterface.getLoggedUser(this);
 
@@ -91,6 +105,8 @@ public class Compose extends Activity implements OnClickListener {
 	public void onResume() {
 		super.onResume();
 		enableSendButton();
+		registerReceiver(this.broadcastReceiver, this.intentFilter);
+
 	}
 
 	@Override
@@ -121,20 +137,13 @@ public class Compose extends Activity implements OnClickListener {
 			}
 		}
 		
-		
-		
 		// Only fill the necessary attributes
 		// new Date() gets the current date
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
 		tags_selected, new Date(), false, false, 0, 0);
+		
+		jadeAdapter.saveNewMessage(loggedUser, message, this.getApplicationContext(), this);	
 
-		if (jadeAdapter.saveNewMessage(loggedUser, message, this, this)) {
-			Toast.makeText(getBaseContext(), R.string.compose_sent,
-					Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(getBaseContext(), R.string.compose_error,
-					Toast.LENGTH_SHORT).show();
-		}
 	}
 
 	/**
@@ -192,5 +201,37 @@ public class Compose extends Activity implements OnClickListener {
 		} else {
 			send_button.setEnabled(true);
 		}
+	}
+	
+	private void sendOK() {
+		Toast.makeText(getBaseContext(), R.string.compose_sent,
+				Toast.LENGTH_SHORT).show();
+		//jadeAdapter.jadeDisconnect(this.getParent());
+	}
+	private void sendFail(){
+		Toast.makeText(getBaseContext(), R.string.compose_error,
+				Toast.LENGTH_SHORT).show();
+	//	jadeAdapter.jadeDisconnect(this);
+
+		
+	}
+	
+
+	/**
+	 * Receiver to listen to updates
+	 */
+	private class ComposeBroadcastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(JadeAdapter.MESSAGE_OK)) {
+				sendOK();
+				
+			}
+			else if (intent.getAction().equals(JadeAdapter.MESSAGE_FAIL)) {
+				sendFail();
+			}
+
+		}
+		
 	}
 }

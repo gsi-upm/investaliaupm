@@ -99,7 +99,7 @@ public class Login extends Activity implements OnClickListener {
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.v("LOGIN", "Calling onDestroy method");
-		
+		unregisterReceiver(this.broadcastReceiver);
 		if(logged){	jadeAdapter.jadeDisconnect(this);}
 	}
 
