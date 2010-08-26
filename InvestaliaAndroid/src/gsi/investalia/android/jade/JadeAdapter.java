@@ -52,7 +52,7 @@ public class JadeAdapter implements ConnectionListener {
 
 	public void checkLogin(String username, String password,Context cnt,Activity act) {
 		
-		//SQLiteInterface.saveExampleMessages(context); //Solo ejecutar una vez en el terminal para introducir datos de prueba
+		SQLiteInterface.saveExampleMessages(cnt); //Solo ejecutar una vez en el terminal para introducir datos de prueba
 		
 		try {
 			User user = new User(username, password);
