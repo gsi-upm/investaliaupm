@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MessagesDBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "messages.db";
-	private static final int DATABASE_VERSION = 7;
+	private static final int DATABASE_VERSION = 9;
 
 	// Messages table
 	public static final String MESSAGES_TABLE = "messages";
