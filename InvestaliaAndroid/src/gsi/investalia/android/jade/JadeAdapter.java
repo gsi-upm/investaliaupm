@@ -31,41 +31,45 @@ import android.util.Log;
 public class JadeAdapter implements ConnectionListener {
 
 	// Jade
-	private JadeGateway gateway;
-
-	// App
+	private static final String TAG_JADE = "JADE";
 	private static final String IP = "10.0.2.2";
 	private static final String PORT = "1099";
-	private Context context;
-	private static final String TAG_LOGGER = "Adapter";
-	private static final String TAG_JADE = "JADE";
+	private JadeGateway gateway;
+	private JadeListener listener;
 
-	private JadeListener updater;
+	// App
+	private static final String TAG_LOGGER = "Adapter";
+	private Activity activity;
+	
 	// Broadcast actions
 	public static final String LOGGED_IN = "logged_in";
 	public static final String WRONG_LOGIN = "wrong_login";
 	public static final String MESSAGE_OK = "message_ok";
 	public static final String MESSAGE_FAIL = "message_fail";
+	public static final String USER_CREATED = "user_created";
+	public static final String WRONG_NEW_USER = "wrong_new_user";
+	
+	// Agent actions
+	public static final String CHECK_LOGIN = "check_login";
+	public static final String SAVE_MESSAGE = "save_message";
+	public static final String NEW_USER = "new_user";
+	
 
-	public JadeAdapter() {		
+	public JadeAdapter(Activity activity) {	
+		this.activity = activity;
 	}
 
-	public void checkLogin(String username, String password,Context cnt,Activity act) {
-		
-		SQLiteInterface.saveExampleMessages(cnt); //Solo ejecutar una vez en el terminal para introducir datos de prueba
-		
+	public void checkLogin(User user) {
 		try {
-			User user = new User(username, password);
-			Log.v("ANDROID", "user creado"+ user.getUserName());
-			String [] args = {"checkLogin", JSONAdapter.userToJSON(user).toString()};
-			jadeConnect(args,  act, cnt);			
-
+			Log.v("ANDROID", "Try to log, username: " + user.getUserName());
+			// We pass the action and the user
+			String [] args = {CHECK_LOGIN, JSONAdapter.userToJSON(user).toString()};
+			jadeConnect(args);			
 		}  catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
-
+	
 	/**
 	 * Recibe los datos enviados desde la pantalla de escribir mensajes
 	 * 
@@ -76,7 +80,7 @@ public class JadeAdapter implements ConnectionListener {
 	 * @return true si el mensaje se ha guardado correctamente, false en caso de
 	 *         error
 	 */
-	public void saveNewMessage(User user, Message message,Context cnt,Activity act) {
+	public void saveNewMessage(User user, Message message) {
 		
 		Log.v(TAG_LOGGER, "User name: " + user.getName() + " Titulo: "
 						+ message.getTitle() + " Texto: " + message.getText()+" Fecha: "+message.getDate().toLocaleString()
@@ -85,18 +89,13 @@ public class JadeAdapter implements ConnectionListener {
 		
 		try {
 			Log.v(TAG_LOGGER, "enviando mensaje de "+ user.getName());
-			//Pasamos como parametros el método donde estamos, el usuario logeado y el mensaje.
-			String [] args = {"saveNewMessage",JSONAdapter.userToJSON(user).toString(), 
+			// We pass the action, the user and the message
+			String [] args = {SAVE_MESSAGE, JSONAdapter.userToJSON(user).toString(), 
 					JSONAdapter.messageToJSON(message).toString()};
-			jadeConnect(args,  act, cnt);
-			
-
-
+			jadeConnect(args);
 		}  catch (Exception e) {
 			e.printStackTrace();
 		}
-
-	
 	}
 
 	/**
@@ -143,77 +142,53 @@ public class JadeAdapter implements ConnectionListener {
 	 * @return true si el usuario se crea correctamente, false si se produce
 	 *         algun error
 	 */
-	public static boolean newUser(User user) {
-		// TODO Auto-generated method stub
-		return true;
+	public void newUser(User user) {
+		try {
+			Log.i("ANDROID", "Try to create new user: " + user.getUserName());
+			// We pass the action and the user
+			String [] args = {NEW_USER, JSONAdapter.userToJSON(user).toString()};
+			jadeConnect(args);			
+		}  catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	
 	
-	public void jadeConnect(String[] args, Activity act, Context context) {
+	private void jadeConnect(String[] args) {
 		Log.v("LOGIN", "Starting Jade connection");
 
-		// Save the context
-		this.context = context;
-		// CREATE THE UI UPDATER
-		updater = new JadeListener(context);
+		// Create the listener
+		listener = new JadeListener(activity);
 
 		// Create JADE properties class
 		Properties props = new Properties();
-		String user = "error";
+		User user = new User("void", "void");
 		try {
-			//Para obtener el usuario que envia el mensaje
-			JSONObject json = new JSONObject(args[1]);
-			user = json.getString(JSONAdapter.USER_NAME);
-			Log.v(TAG_JADE,"Nombre del agente en jadeConnect: "+user);
+			// Get the user
+			JSONObject jsonObj = new JSONObject(args[1]);
+			user = JSONAdapter.JSONToUser(jsonObj.toString());
+			Log.v(TAG_JADE, "Agent name: " + user.getUserName());
 
 		} catch (JSONException e1) {
-			Log.v("JSON ERROR",e1.getMessage());
+			Log.v("JSON ERROR", e1.getMessage());
 		}
 		//TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
 		props.setProperty(Profile.MAIN_HOST, IP);
 		props.setProperty(Profile.MAIN_PORT, PORT);
-		props.setProperty(JICPProtocol.MSISDN_KEY,user);
+		props.setProperty(JICPProtocol.MSISDN_KEY, user.getUserName());
 
 		try {
 			JadeGateway.connect(AndroidAgent.class.getName(), args, props,
-					context,this);
-
-
-		}catch (Exception e) {
+					activity, this);
+		} catch (Exception e) {
 			Log.w("LOGIN", "Error connecting");
 			Log.e("jade.android", e.getMessage(), e);
 		}
-
 	}
 
-
-
-	// // JADE
-//	public void jadeConnect(String containerId, Context context) {
-//		Log.v(TAG_JADE, "Starting Jade connection");
-//
-//		// Save the context
-//		this.context = context;
-//
-//		// Create JADE properties class
-//		Properties props = new Properties();
-//
-//		// TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
-//		props.setProperty(Profile.MAIN_HOST, IP);
-//		props.setProperty(Profile.MAIN_PORT, PORT);
-//		props.setProperty(JICPProtocol.MSISDN_KEY, containerId);
-//
-//		try {
-//			// agentClassName, agentArgs, jadeProfile, context, listener 
-//			JadeGateway.connect(AndroidAgent.class.getName(), null, props, context, this);
-//			Log.v(TAG_JADE, "Connection sucessfull");
-//		} catch (Exception e) {
-//			Log.w(TAG_JADE, "Error connecting");
-//			Log.e("jade.android", e.getMessage(), e);
-//		}
-//	}
-
+	
+	
 	@Override
 	public void onConnected(JadeGateway gw) {
 		Log.v(TAG_JADE, "Calling onConnected method");
@@ -221,9 +196,9 @@ public class JadeAdapter implements ConnectionListener {
 
 		try {
 			// First, we creat0e the MessageListener
-			if (context == null) Log.v("CONTEXT", "null");
-			gateway.execute(context);
-			gateway.execute(updater); 
+			if (activity == null) Log.v("CONTEXT", "null");
+			gateway.execute(activity);
+			gateway.execute(listener); 
 			Log.v(TAG_JADE, "Agent created succesfully");
 
 		} catch (Exception e) {
@@ -234,7 +209,7 @@ public class JadeAdapter implements ConnectionListener {
 
 
 
-	public void jadeDisconnect(Activity activity) {
+	public void jadeDisconnect() {
 		Log.v(TAG_JADE, "Starting Jade disconnection");
 
 		if (gateway == null) {

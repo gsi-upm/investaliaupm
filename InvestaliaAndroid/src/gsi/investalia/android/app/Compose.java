@@ -50,7 +50,7 @@ public class Compose extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.compose);
 		
-		jadeAdapter = new JadeAdapter();
+		jadeAdapter = new JadeAdapter(this);
 		
 		this.broadcastReceiver = new ComposeBroadcastReceiver();
 		this.intentFilter = new IntentFilter();
@@ -142,7 +142,7 @@ public class Compose extends Activity implements OnClickListener {
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
 		tags_selected, new Date(), false, false, 0, 0);
 		
-		jadeAdapter.saveNewMessage(loggedUser, message, this.getApplicationContext(), this);	
+		jadeAdapter.saveNewMessage(loggedUser, message);	
 
 	}
 

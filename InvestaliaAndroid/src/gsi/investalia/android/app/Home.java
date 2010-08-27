@@ -32,12 +32,16 @@ public class Home extends Activity {
 		return true;
 	}
 	
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		// There is only one option: logout
-		super.onMenuItemSelected(featureId, item);
+	public void logOut() {
 		SQLiteInterface.removeLoggedUser(this);
 		startActivity(new Intent(this, Login.class));
 		finish();
+	}
+	
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		super.onMenuItemSelected(featureId, item);
+		// There is only one option: log out
+		logOut();
 		return true;
 	}
 }

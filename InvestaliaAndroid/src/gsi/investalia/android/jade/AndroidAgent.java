@@ -54,7 +54,7 @@ public class AndroidAgent extends GatewayAgent {
 
 					ACLMessage msg = new ACLMessage(ACLMessage.CFP);
 
-					if (args[0].equals("checkLogin")) {
+					if (args[0].equals(JadeAdapter.CHECK_LOGIN)) {
 						Log.v(TAG_LOGGER, "Sending login user");
 						String content = (String) args[1];
 						msg.setContent(content);
@@ -62,7 +62,7 @@ public class AndroidAgent extends GatewayAgent {
 						msg.addReceiver(login);
 						Log.v(TAG_LOGGER, "Login message sent");
 
-					} else if (args[0].equals("saveNewMessage")) {
+					} else if (args[0].equals(JadeAdapter.SAVE_MESSAGE)) {
 						
 						Log.v(TAG_LOGGER, "Sending posting");
 						
@@ -73,7 +73,7 @@ public class AndroidAgent extends GatewayAgent {
 						//TODO De momento, pasamos el id del usuario como "ontologia"
 						String id;
 						try {
-							id = ""+JSONAdapter.JSONToUser((String)args[1]).getId();
+							id = "" + JSONAdapter.JSONToUser((String)args[1]).getId();
 							msg.setOntology(id);
 						} catch (JSONException e) {
 							e.printStackTrace();

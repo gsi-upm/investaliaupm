@@ -73,6 +73,20 @@ public class SQLiteInterface {
 			dbHelper.close();
 		}
 	}
+	
+	public static void deleteAllMessages(Context context) {
+		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
+		try {
+			// Get the database
+			SQLiteDatabase db = dbHelper.getWritableDatabase();
+			db.delete(MessagesDBHelper.MESSAGES_TABLE, null, null);
+			db.delete(MessagesDBHelper.TAGS_TABLE, null, null);
+			db.delete(MessagesDBHelper.MESSAGES_TAGS_TABLE, null, null);			
+		} finally {
+			// Always close the dbHelper
+			dbHelper.close();
+		}
+	}
 
 	public static void addMessages(Activity activity, List<Message> messages,
 			String orderBy) {
@@ -206,6 +220,11 @@ public class SQLiteInterface {
 	private static final String text = "La señal de alarma que ayer encendió en Europa la rebaja de la calidad de la deuda griega al nivel de bono basura y la llamada de atención sobre Portugal sigue sonando en los principales mercados: Bolsas, euro y deuda. En este último, hoy está teniendo un especial protagonismo España, cuya prima de riesgo ha marcado un máximo desde que entró en la eurozona en 2000 por la hipótesis de que será la próxima en ver recortada su calificación. La incertidumbre sobre el futuro del país mediterráneo, la demostración de que la crisis ha cruzado ya sus fronteras y se dirige hacia Portugal y el posible contagio al resto de países con una situación fiscal delicada como España, Irlanda y, en menor medida, Italia, está pesando demasiado en el ánimo de los inversores como para dar por finiquitado el ajuste con el varapalo sufrido en la jornada anterior.";
 
 	public static void saveExampleMessages(Context context) {
+		
+		// Delete all the messages and tags
+		deleteAllMessages(context);
+		
+		// Create the example messages
 		List<Message> messages = new ArrayList<Message>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 		
