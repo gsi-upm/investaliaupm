@@ -22,6 +22,10 @@ public class Inversores extends CellOccupant {
 	protected static int setId = 1;
 	private static int EXPERIMENTED_INVESTOR = 0;
 	private static int AMATEUR_INVESTOR = 1;
+	private static int RANDOM_INVESTOR = 2;
+	
+	private InvestorType investor;
+	
 	private static int FREQUENT_USER = 0;
 	private static int OCASIONAL_USER = 1;
 	private static int GOOD_WRITER = 0;
@@ -42,15 +46,20 @@ public class Inversores extends CellOccupant {
 	private int followerHistory[];
 	private int uniqueFollowerHistory[];
 	
-	private double liquidez;
+	//protected double liquidez;
 	// The limit of money that one investor can invest
-	private double maxValorCompra;
+	//public double maxValorCompra;
 	// activity factor
-	private double actividadComprar;
-	private double actividadVender;
+	//protected double actividadComprar;
+	//protected double actividadVender;
 	//profitability
-	private double rentabilidadVenta;
-	private double rentabilidadCompra;
+	//private double rentabilidadVenta;
+	//private double rentabilidadCompra;
+	/* Thresholds to sell (buy). If a share get down (up) a number of
+	 * iteracionesVenta (iteracionesCompra) the investor makes a decision */
+	//private int iteracionesVenta;
+	//public int iteraccionesCompra;
+	
 	//messages and comments probabilities:
 	private double probabilidadLeer;
 	private double probabilidadComentar;
@@ -64,12 +73,6 @@ public class Inversores extends CellOccupant {
 	private int globalLiquidity = 0;
 	private double globalReturn = 0;
 	private double activityReputation[];
-	
-	/* Thresholds to sell (buy). If a share get down (up) a number of
-	 * iteracionesVenta (iteracionesCompra) the investor makes a decision 
-	 */
-	private int iteracionesVenta;
-	private int iteraccionesCompra;
 	
 	
 	//create the list of rules for scape
@@ -100,34 +103,31 @@ public class Inversores extends CellOccupant {
     	followerHistory = new int[]{0,0};
     	uniqueFollowerHistory = new int[]{0,0};
     	//Investor:
-        if (randomInRange(0, 1) > 0) {
-            //setColor(Color.darkGray);
-            tipoAgente[0] = EXPERIMENTED_INVESTOR;
+    	int investorType = randomInRange(0, 3);
+        if (investorType < 2) {
+            tipoAgente[0] = EXPERIMENTED_INVESTOR;            
+            investor = new IntelligentInvestor(this);
             //aggressive investor
-            iteraccionesCompra = 3;
-            iteracionesVenta = 2;
-            setLiquidez(randomInRange(3000,10000));
-            maxValorCompra = getLiquidez()*0.7;
-            actividadComprar = 0.6;
-            actividadVender = 0.7;
-            //if one share along the movements decrease his value in 15% you might buy
-            rentabilidadCompra = -0.15;
-            //if one share along the movements increase his value in 10% you may sell
-            rentabilidadVenta = 0.1;         
-        } else {
+            //iteraccionesCompra = 3;
+            //iteracionesVenta = 2;
+            //calm investor            
+        } else if(investorType == 2) {
         	tipoAgente[0] = AMATEUR_INVESTOR;
-            //setColor(Color.magenta);
-            //calm investor
+        	investor = new AmateurInvestor(this);
+        	/*//calm investor
             iteraccionesCompra = 4;
             iteracionesVenta = 5;
-            setLiquidez(randomInRange(1000,3000));
-            maxValorCompra = getLiquidez()*0.4;
-            actividadComprar = 0.6;
+            setLiquidez(Properties.INITIAL_LIQUIDITY/4); //setLiquidez(randomInRange(1000,3000));
+            maxValorCompra = getLiquidez()*0.1;
+            actividadComprar = Properties.BUY_PROBABILITY;
             actividadVender = 0.4;
             //if one share along the movements decrease his value in 22% you might buy
-            rentabilidadCompra = -0.22;
+            rentabilidadCompra = 0.22;
             //if one share along the movements increase his value in 17% you may sell
-            rentabilidadVenta = 0.17;
+            //rentabilidadVenta = 0.17;*/        	           
+        } else {
+        	tipoAgente[0] = RANDOM_INVESTOR;
+        	investor = new RandomInvestor(this);
         }
         //Activity of the user:
         if(randomInRange(0, 1) > 0) {
@@ -160,9 +160,10 @@ public class Inversores extends CellOccupant {
     	float blue;
     	if(tipoAgente[0] == EXPERIMENTED_INVESTOR) {
     		red = 0;
-    	} else {
+    	} else if(tipoAgente[0] == AMATEUR_INVESTOR){
+    		red = 0.5f;
+    	} else
     		red = 1;
-    	}
     	if(tipoAgente[1] == FREQUENT_USER) {
     		green = 0;
     	} else {
@@ -429,12 +430,11 @@ public class Inversores extends CellOccupant {
 	 */
 	public void jugarEnBolsa(Ibex35 miBolsa){
 		//posiblidad de si entra en vender, la probabilidad de entrar en comprar sea menor 
-		//y al reves
-
-		//cojo todas las acciones de la bolsa
-
-		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
-
+		//y al reves		
+		investor.jugarEnBolsa(miBolsa);
+		
+	
+		/*HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
 		//vender
 		if (randomInRange(0,1)> actividadVender){
 			//elegir empresa antes?, ver la mejor*probabilidad de vender??			
@@ -443,11 +443,9 @@ public class Inversores extends CellOccupant {
 			for(int id = 0; id < misAcciones.size(); id++) {
 				Accion miAccion = misAcciones.get(id);
 				Acciones accionesBolsa = accionesDeBolsa.get(miAccion.getIdCompany());
-				/*
-				 *  I have the share, I have to check if is a good moment to
-				 *  sell the share. look the movements. 
-				 *  If the sum of last movements is better than the profitability sell it.
-				*/
+				//  I have the share, I have to check if is a good moment to
+				//  sell the share. look the movements. 
+				//  If the sum of last movements is better than the profitability sell it.				
 				double rentabilidad = 0;
 				ArrayList<Double> historico = accionesBolsa.getHistoricoAccion();
 				
@@ -515,7 +513,7 @@ public class Inversores extends CellOccupant {
 			}
 			//Estimates the capital I have.
 			setCapital(miBolsa);
-		}
+		}*/
 	}
 	
 	public void updateFinancialReputation (double inversionLiquidity, double inversionReturn) {
@@ -822,18 +820,14 @@ public class Inversores extends CellOccupant {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
+	public int getTime() {
+		return time;
+	}
+		
 	public double getGlobal_return () {
 		return globalReturn;
 	}
-	
-	public void setLiquidez(double liquidez) {
-		this.liquidez = liquidez;
-	}
-
-	public double getLiquidez() {
-		return liquidez;
-	}	
 	
 	public double getFinancialReputation() {
 		return globalReturn;
@@ -843,7 +837,7 @@ public class Inversores extends CellOccupant {
 		this.financialReputation = financialReputation;
 	}
 
-	public void setCapital(Ibex35 miBolsa){
+	public void setCapital(Ibex35 miBolsa, double liquidez){
 		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
 		double suma = 0;
 		for(Acciones accionBolsa : accionesDeBolsa.values()){
@@ -898,8 +892,10 @@ public class Inversores extends CellOccupant {
 		String agentType = "[";
 		if(tipoAgente[0] == EXPERIMENTED_INVESTOR)
 			agentType += "EXP_IN,";
-		else
+		else if(tipoAgente[0] == AMATEUR_INVESTOR)
 			agentType += "AMA_IN,";
+		else
+			agentType += "RAM_IN,";
 		if(tipoAgente[1] == FREQUENT_USER)
 			agentType += "FRE_US";
 		else
@@ -909,6 +905,6 @@ public class Inversores extends CellOccupant {
 			agentType += "GOOD_WR";
 		else
 			agentType += "BAD_WRI";
-		return agentType +":"+String.format("%.2f", probabilidadBuenMensaje)+"]";
+		return agentType +":"+String.format("%.2f", probabilidadBuenMensaje)+"]"+investor.getAgentTypeToString();
 	}
 }

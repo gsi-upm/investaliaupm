@@ -5,12 +5,14 @@ public class Accion {
 	/**
 	 * A share (accion) has amount, price, id_company and date
 	 */
+	private int initialQuantity;
 	private int cantidad;
 	private double valorCompra;
 	private String idCompany;
 	private int date;
 	
 	public Accion(int cantidad, double valorCompra, String idCompany, int date){
+		this.initialQuantity = cantidad;
 		this.setCantidad(cantidad);
 		this.setValorCompra(valorCompra);
 		this.setIdCompany(idCompany);
@@ -49,4 +51,7 @@ public class Accion {
 		return date;
 	}
 	
+	public int getInitialQuantity() {
+		return initialQuantity;
+	}
 }
