@@ -57,8 +57,6 @@ public class SimulateSocialExchange extends Scape {
         add(bolsa);	
 	
         Rule jugarEnBolsa = new Rule("Invertir en bolsa") {
-	        /**        * 
-	         */
 	        private static final long serialVersionUID = 665608531104091849L;
 	
 	        public void execute(Agent a) {
