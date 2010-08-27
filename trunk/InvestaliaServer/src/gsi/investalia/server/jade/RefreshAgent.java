@@ -51,7 +51,7 @@ public class RefreshAgent extends WorkflowEngineAgent {
 			e.printStackTrace();
 		}	
 	}
-	
+	 
 	//This class indicates when and why the workflow execution has stopped.
 	//If we find an error, we restart the workflow
 	private class loginListener implements WorkflowResultListener {

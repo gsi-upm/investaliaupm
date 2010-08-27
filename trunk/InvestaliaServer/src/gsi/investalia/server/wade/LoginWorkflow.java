@@ -6,6 +6,7 @@ import java.util.List;
 import gsi.investalia.domain.User;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
+import gsi.investalia.server.db.HsqldbInterface;
 import jade.lang.acl.ACLMessage;
 
 import jade.lang.acl.MessageTemplate;
@@ -21,7 +22,9 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 @WorkflowLayout(transitions = { @TransitionLayout(routingpoints = "(310,146)", to = "WaitForLogin", from = "LoginFailure"), @TransitionLayout(routingpoints = "(117,224)", to = "WaitForLogin", from = "INITIAL") }, entryPoint = @MarkerLayout(position = "(31,203)", activityName = "WaitForLogin"), activities = { @ActivityLayout(position = "(478,252)", name = "LoginSuccesful"), @ActivityLayout(position = "(466,121)", name = "LoginFailure"), @ActivityLayout(size = "(135,50)", position = "(292,173)", name = "CheckLogin"), @ActivityLayout(size = "(122,50)", position = "(118,194)", name = "WaitForLogin") })
 public class LoginWorkflow extends WorkflowBehaviour {
 
-	ACLMessage login;
+	private ACLMessage aclMessage;
+	private User loggedUser;
+	
 
 	/* Activities for this workflow */
 	public static final String WAITFORLOGIN_ACTIVITY = "WaitForLogin";
@@ -35,7 +38,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	public static final String WRONGLOGIN_CONDITION = "WrongLogin";
 	public static final String MESSAGERECEIVED_CONDITION = "MessageReceived";
 
-	private boolean loginMessage, succesfulLogin , unsuccesfulLogin;
+	private boolean loginMessage, succesfulLogin, unsuccesfulLogin;
 
 	private void defineActivities() {
 		CodeExecutionBehaviour waitForLoginActivity = new CodeExecutionBehaviour(
@@ -73,8 +76,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeWaitForLogin() throws Exception {
-		login = myAgent.blockingReceive();
-		if (login != null && login.getPerformative() == ACLMessage.CFP) {
+		aclMessage = myAgent.blockingReceive();
+		if (aclMessage != null && aclMessage.getPerformative() == ACLMessage.CFP) {
 			/* We have received the login message */
 			loginMessage = true;
 		}
@@ -83,30 +86,24 @@ public class LoginWorkflow extends WorkflowBehaviour {
 
 	protected void executeCheckLogin() throws Exception {
 	
-		/* JsontoUser */
-		String content = login.getContent();
-		User user = JSONAdapter.JSONToUser(content);
-		String userName = user.getUserName();
-		String password = user.getPassword();
-		int lastUpdate = user.getLastUpdate();
+		// Json to User
+		String content = aclMessage.getContent();
+		User loginAttemptUser = JSONAdapter.JSONToUser(content);
 	
-				
 		boolean checkPasswordLogin = false;
-		//TODO: check if login and password match ( checkPasswordLogin would be true)
-		
-		//TEST
-		if (userName.equals("test") && password.equals("test"))
+		// TODO change to mysql
+		loggedUser = HsqldbInterface.getUser(loginAttemptUser.getUserName(), 
+			loginAttemptUser.getPassword());
+		if(loggedUser != null) {
 			checkPasswordLogin = true;
-		//END TEST
-		System.out.println(userName + " es el user");
-		System.out.println(password + " es el pass");
+		}
 		
+		// Conditions
 		if(checkPasswordLogin){
 			succesfulLogin = true;
 		}else{
 			unsuccesfulLogin = true;
 		}
-		
 	}
 	
 	protected void executeRecommendation() throws Exception {
@@ -115,28 +112,23 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeLoginFailure() throws Exception {
-		ACLMessage loginFailure = login.createReply();
+		System.out.println("Login failure");
+		ACLMessage loginFailure = aclMessage.createReply();
 		loginFailure.setPerformative(ACLMessage.REJECT_PROPOSAL);
 		myAgent.send(loginFailure);
 	}
 	
 	protected void executeLoginSuccesful() throws Exception {
+		System.out.println("Login successful");
+		
+		// Log
+		System.out.println("user: " + loggedUser.getUserName());
+		System.out.println("password: " + loggedUser.getPassword());
+		
 		//TODO: Call the database to send the new messages
-		ACLMessage loginSuccesful = login.createReply();
+		ACLMessage loginSuccesful = aclMessage.createReply();
 		loginSuccesful.setPerformative(ACLMessage.INFORM);
-		
-		//TODO recuperar de la base de datos Tags y datos del usuario y 
-		// mandarlos en el mensaje de login correcto
-		List<Tag> tags = new ArrayList<Tag>();
-		
-		////// TEST
-		tags.add(new Tag(1, "Finanzas"));
-		tags.add(new Tag(2, "Banca"));
-		User user = new User(1, "user", "pw", "John Locke", "The Island",
-				"john@lost.com", tags, 0);
-		///////
-		
-		loginSuccesful.setContent(JSONAdapter.userToJSON(user).toString());
+		loginSuccesful.setContent(JSONAdapter.userToJSON(loggedUser).toString());
 		myAgent.send(loginSuccesful);
 	}
 

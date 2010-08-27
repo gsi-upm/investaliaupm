@@ -18,7 +18,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 public class RefreshWorkflow extends WorkflowBehaviour {
 
 	ACLMessage askForRefresh;
-
+ 
 	/* Activities for this workflow */
 	public static final String WAITFORPROPOSAL_ACTIVITY = "WaitForProposal";
 	public static final String REFRESH_ACTIVITY = "Refresh";

@@ -14,7 +14,7 @@ import gsi.investalia.json.JSONAdapter;
 public class JSONInterface {
 
 	/**
-	 * Saves a new message
+	 * Saves a new message 
 	 */
 	public static void saveMessage(String jsonStr) throws JSONException {
 		HsqldbInterface.saveMessage(JSONAdapter.JSONToMessage(jsonStr));
