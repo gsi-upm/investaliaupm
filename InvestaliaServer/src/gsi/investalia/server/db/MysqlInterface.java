@@ -332,7 +332,7 @@ public class MysqlInterface {
 			return null;
 		}
 
-	}
+	} 
 
 	private static List<Message> getRecommendedMessages (int idUser) {
 		connectToDatabase();

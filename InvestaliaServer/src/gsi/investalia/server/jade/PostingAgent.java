@@ -50,7 +50,7 @@ public class PostingAgent extends WorkflowEngineAgent {
 		} catch (WorkflowException e) {
 			e.printStackTrace();
 		}	
-	}
+	} 
 	
 	//This class indicates when and why the workflow execution has stopped.
 	//If we find an error, we restart the workflow

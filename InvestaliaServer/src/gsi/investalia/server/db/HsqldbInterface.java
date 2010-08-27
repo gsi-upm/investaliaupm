@@ -142,11 +142,19 @@ public class HsqldbInterface {
 				+ userName + "'");
 	}
 
-	/**
+	/** 
 	 * Gets a user by its id
 	 */
 	public static User getUser(int idUser) {
 		return getUserFromQuery("SELECT * FROM users WHERE idUser = " + idUser);
+	}
+	
+	/**
+	 * Gets a user by its userName and password
+	 */
+	public static User getUser(String userName, String password) {
+		return getUserFromQuery("SELECT * FROM users WHERE userName = '"
+				+ userName + "' AND password = '" + password + "'");
 	}
 
 	/**

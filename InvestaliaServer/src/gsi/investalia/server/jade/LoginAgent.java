@@ -74,7 +74,7 @@ public class LoginAgent extends WorkflowEngineAgent {
 			//The execution of the workflow failed
 			System.out.println("Execution error ("+executionId+")");
 			
-			//We start a new one
+			//We start a new one 
 			WorkflowDescriptor wd = new WorkflowDescriptor("gsi.investalia.server.wade.LoginWorkflow");
 			try {
 				//Dispatch the workflow to myself 

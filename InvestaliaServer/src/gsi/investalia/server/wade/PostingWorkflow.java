@@ -20,7 +20,7 @@ public class PostingWorkflow extends WorkflowBehaviour {
 
 	ACLMessage messageToPost;
 
-	/* Activities for this workflow */
+	/* Activities for this workflow */ 
 	public static final String WAITFORPROPOSAL_ACTIVITY = "WaitForProposal";
 	public static final String POSTING_ACTIVITY = "Posting";
 	public static final String RECOMMENDATION_ACTIVITY = "Recommendation";
