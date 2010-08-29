@@ -65,6 +65,12 @@ public class AndroidAgent extends GatewayAgent {
 						msg.addReceiver(new AID("posting", AID.ISLOCALNAME));	
 					} else if (args[0].equals(JadeAdapter.DOWNLOAD_MESSAGES)) {
 						msg.addReceiver(new AID("refresh", AID.ISLOCALNAME));					
+					}else if (args[0].equals(JadeAdapter.NEW_USER)) {
+						Log.v(TAG_LOGGER, "Registering a new user");
+						AID newuser = new AID("newuser", AID.ISLOCALNAME);
+						msg.addReceiver(newuser);
+						Log.v(TAG_LOGGER, "'New user' message sent");
+
 					}
 					send(msg);
 				}

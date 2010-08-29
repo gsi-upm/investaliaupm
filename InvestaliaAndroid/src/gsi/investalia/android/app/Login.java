@@ -204,9 +204,11 @@ public class Login extends Activity implements OnClickListener {
 			} else if (intent.getAction().equals(JadeAdapter.USER_CREATED)) {
 				Toast.makeText(getBaseContext(), R.string.user_created,
 						Toast.LENGTH_SHORT).show();
+				jadeAdapter.jadeDisconnect();
 			} else if (intent.getAction().equals(JadeAdapter.WRONG_NEW_USER)) {
 				Toast.makeText(getBaseContext(), R.string.user_error,
 						Toast.LENGTH_SHORT).show();
+				jadeAdapter.jadeDisconnect();
 			}	
 		}
 	}

@@ -93,6 +93,12 @@ public class JadeListener implements ACLMessageListener {
 			} catch (JSONException e) {
 				Log.e(TAG_LOGGER, "Error parsing JSON");			
 			}	
+		}else if (message.getPerformative() == ACLMessage.AGREE){			
+			Log.i(TAG_LOGGER, "User created");	
+			context.sendBroadcast(new Intent(JadeAdapter.USER_CREATED));	
+		}else if (message.getPerformative() == ACLMessage.DISCONFIRM){			
+			Log.i(TAG_LOGGER, "wrong new user");	
+			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));	
 		} 	
 	}
 }
