@@ -216,68 +216,6 @@ public class SQLiteInterface {
 				.edit().remove(LOGGED_USER).commit();
 	}
 
-	// Text for example messages
-	private static final String text = "La señal de alarma que ayer encendió en Europa la rebaja de la calidad de la deuda griega al nivel de bono basura y la llamada de atención sobre Portugal sigue sonando en los principales mercados: Bolsas, euro y deuda. En este último, hoy está teniendo un especial protagonismo España, cuya prima de riesgo ha marcado un máximo desde que entró en la eurozona en 2000 por la hipótesis de que será la próxima en ver recortada su calificación. La incertidumbre sobre el futuro del país mediterráneo, la demostración de que la crisis ha cruzado ya sus fronteras y se dirige hacia Portugal y el posible contagio al resto de países con una situación fiscal delicada como España, Irlanda y, en menor medida, Italia, está pesando demasiado en el ánimo de los inversores como para dar por finiquitado el ajuste con el varapalo sufrido en la jornada anterior.";
-
-	public static void saveExampleMessages(Context context) {
-		
-		// Delete all the messages and tags
-		deleteAllMessages(context);
-		
-		// Create the example messages
-		List<Message> messages = new ArrayList<Message>();
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		
-		try {
-			messages.add(new Message(1, "Locke",
-					"Nuevos planes de pensiones del santander", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-10"), true,
-					true, 7, 5));
-			messages.add(new Message(2, "Locke",
-					"Google presenta resultados y no convencen", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-11"), true,
-					true, 7, 5));
-			messages.add(new Message(3, "Locke",
-					"BBVA y los mensajes contradictorios", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-10"), true,
-					true, 7, 5));
-			messages.add(new Message(4, "Locke",
-					"El IPC se situa en el 1,4% en el mes de marzo", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-09"), true,
-					true, 7, 5));
-			messages.add(new Message(5, "Locke",
-					"¿Ha sido Saab la marca peor gestionada?", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-12"), true,
-					true, 7, 5));
-			messages.add(new Message(6, "Locke",
-					"Nuevos planes de pensiones del santander", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-10"), true,
-					true, 7, 5));
-			messages.add(new Message(7, "Locke",
-					"BBVA y los mensajes contradictorios", text,
-					new ArrayList<Tag>(), dateFormat.parse("2010-04-9"), true,
-					true, 7, 5));
-		} catch (ParseException e) {
-			Log.e("DATABASE", "Error parsing the date in example messages");
-		}
-		saveMessages(context, messages);
-		saveExampleTags(context);
-	}
-
-	private static void saveExampleTags(Context context) {
-		List<Tag> tags = new ArrayList<Tag>();
-		tags.add(new Tag(1, "Ibex 35"));
-		tags.add(new Tag(2, "Mercados internacionales"));
-		tags.add(new Tag(3, "Divisas"));
-		tags.add(new Tag(4, "Hipotecas"));
-		tags.add(new Tag(5, "Bancos y cajas"));
-		tags.add(new Tag(6, "Empresas"));
-		tags.add(new Tag(7, "Inversiones"));
-		tags.add(new Tag(8, "Laboral y empleo"));
-		tags.add(new Tag(9, "Off-Topic"));
-		
-		saveTags(context, tags);
-	}
 	
 	public static void saveTags(Context context, List<Tag> tags) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
@@ -335,18 +273,4 @@ public class SQLiteInterface {
 		Log.i("DATABASE", tags.size() + " tags from db");
 		return tags;
 	}
-
-	
-
-	/**
-	 * TODO delete
-	 * IDUSER(posicion dentro del array), USERNAME, PASSWORD, NAME, LOCATION,
-	 * EMAIL
-	 */
-	private static final String[][] USERS = {
-			{ "Jack", "1234", "Jack", "The island", "jack@email.com" },
-			{ "Desmond", "1234", "Desmond", "The island", "des@email.com" },
-			{ "Kate", "1234", "Kate Austen", "The island", "kate@email.com" },
-			{ "Locke", "1234", "John Locke", "The island", "locke@email.com" },
-			{ "Sawyer", "1234", "James Ford", "The island", "sawyer@email.com" }, };
 }

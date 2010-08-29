@@ -1,5 +1,6 @@
 package gsi.investalia.android.app;
 
+import gsi.investalia.android.jade.JadeAdapter;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -13,6 +14,9 @@ import android.widget.TabHost;
 
 public class Main extends TabActivity {
 
+	// Jade
+	private JadeAdapter jadeAdapter;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tabs);
@@ -42,5 +46,19 @@ public class Main extends TabActivity {
 		host.addTab(host.newTabSpec("profile").setIndicator(
 				this.getString(R.string.profile),
 				res.getDrawable(R.drawable.profile)).setContent(profile));
+	}
+	
+	public JadeAdapter getJadeAdapter() {
+		return jadeAdapter;
+	}
+	
+	public void setJadeAdapter(JadeAdapter jadeAdapter) {
+		this.jadeAdapter = jadeAdapter;
+	}
+	
+	@Override 
+	public void onDestroy() {
+		super.onDestroy();
+		jadeAdapter.jadeDisconnect();
 	}
 }

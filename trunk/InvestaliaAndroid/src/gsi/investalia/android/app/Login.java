@@ -85,8 +85,8 @@ public class Login extends Activity implements OnClickListener {
 		// We hide the "loading..." message when the activity is paused
 		stateLayout.setVisibility(View.INVISIBLE);
 
-		// Stop listening
-		registerReceiver(this.broadcastReceiver, this.intentFilter);
+		// Stop listening TODO > the app crashes... don't know why!
+		//unregisterReceiver(this.broadcastReceiver);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class Login extends Activity implements OnClickListener {
 		super.onDestroy();
 		Log.v("LOGIN", "Calling onDestroy method");
 		unregisterReceiver(this.broadcastReceiver);
-		// Disconnect to Jade (works fine although its not connected)
+		// Disconnect to Jade (two activities can't be connected at the same time)
 		jadeAdapter.jadeDisconnect();
 	}
 
@@ -121,7 +121,8 @@ public class Login extends Activity implements OnClickListener {
 	}
 
 	private void wrongLogin() {
-		// Delete the agent
+		// Delete the agent (if the username is wrong, a new agent with the
+		// correct name has to be created)
 		jadeAdapter.jadeDisconnect();
 		Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 		user_pass.startAnimation(shake);
