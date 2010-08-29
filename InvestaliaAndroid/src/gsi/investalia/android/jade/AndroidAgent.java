@@ -51,37 +51,21 @@ public class AndroidAgent extends GatewayAgent {
 
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
 				public void action() {		
-
+					Log.i(TAG_LOGGER, "Agent action: " + args[0]);
 					ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-
+					
+					// Set the content
+					String content = (String) args[1];
+					msg.setContent(content);
+					
+					// Set the agent receiver
 					if (args[0].equals(JadeAdapter.CHECK_LOGIN)) {
-						Log.v(TAG_LOGGER, "Sending login user");
-						String content = (String) args[1];
-						msg.setContent(content);
-						AID login = new AID("login", AID.ISLOCALNAME);
-						msg.addReceiver(login);
-						Log.v(TAG_LOGGER, "Login message sent");
-
+						msg.addReceiver(new AID("login", AID.ISLOCALNAME));	
 					} else if (args[0].equals(JadeAdapter.SAVE_MESSAGE)) {
-						
-						Log.v(TAG_LOGGER, "Sending posting");
-						
-						String content = (String) args[2];
-						msg.setContent(content);
-						AID posting = new AID("posting", AID.ISLOCALNAME);
-						msg.addReceiver(posting);
-						//TODO De momento, pasamos el id del usuario como "ontologia"
-						String id;
-						try {
-							id = "" + JSONAdapter.JSONToUser((String)args[1]).getId();
-							msg.setOntology(id);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}						
-						Log.v(TAG_LOGGER, "Posting message sent");
-
+						msg.addReceiver(new AID("posting", AID.ISLOCALNAME));	
+					} else if (args[0].equals(JadeAdapter.DOWNLOAD_MESSAGES)) {
+						msg.addReceiver(new AID("refresh", AID.ISLOCALNAME));					
 					}
-
 					send(msg);
 				}
 			});

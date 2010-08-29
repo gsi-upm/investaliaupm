@@ -1,6 +1,7 @@
 package gsi.investalia.android.app;
 
 import gsi.investalia.android.db.SQLiteInterface;
+import gsi.investalia.android.jade.JadeAdapter;
 import gsi.investalia.domain.User;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,18 +13,28 @@ import android.widget.TextView;
 
 public class Home extends Activity {
 
-	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
+	// Jade
+	private JadeAdapter jadeAdapter;
 
-        // Get the user from the shared preferences
-    	User loggedUser = SQLiteInterface.getLoggedUser(this);
-               
-    	// Set the views
-        TextView username = (TextView) findViewById(R.id.home_TextView02);
-        username.setText(getString(R.string.welcome) + " " + loggedUser.getName());   
-    }
-	
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.home);
+
+		// Get the user from the shared preferences
+		User loggedUser = SQLiteInterface.getLoggedUser(this);
+
+		// Set the views
+		TextView username = (TextView) findViewById(R.id.home_TextView02);
+		username.setText(getString(R.string.welcome) + " "
+				+ loggedUser.getName());
+
+		// Create the JadeAdapter
+		jadeAdapter = new JadeAdapter(this.getParent());
+		Main parent = (Main) getParent();
+		parent.setJadeAdapter(jadeAdapter);
+		jadeAdapter.donwloadNewMessages();
+	}
+
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		// Creates the menu from the xml
@@ -31,13 +42,13 @@ public class Home extends Activity {
 		inflater.inflate(R.menu.home, menu);
 		return true;
 	}
-	
+
 	public void logOut() {
 		SQLiteInterface.removeLoggedUser(this);
 		startActivity(new Intent(this, Login.class));
 		finish();
 	}
-	
+
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
 		// There is only one option: log out

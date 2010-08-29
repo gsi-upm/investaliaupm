@@ -2,6 +2,7 @@ package gsi.investalia.android.app;
 
 import gsi.investalia.android.db.MessagesDBHelper;
 import gsi.investalia.android.db.SQLiteInterface;
+import gsi.investalia.android.jade.JadeAdapter;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.User;
 
@@ -10,9 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,12 +33,22 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class MessageList extends Activity implements OnItemClickListener {
 
+	// App
 	private static final String TAG_LOGGER = "Messages activity";
-	private List<Message> messages;
-	private User loggedUser;
-	private ArrayAdapter<Message> arrayAdapter;
 	private static final String DATE_FORMAT_SHOW = "dd/MM/yyyy";
 	private int orderingBy;
+	private ArrayAdapter<Message> arrayAdapter;
+	
+	// Jade
+	private JadeAdapter jadeAdapter;
+	
+	// Domain
+	private List<Message> messages;
+	private User loggedUser;
+	
+	// Broadcasting
+	private MessageListBroadcastReceiver broadcastReceiver;
+	private IntentFilter intentFilter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,7 +63,6 @@ public class MessageList extends Activity implements OnItemClickListener {
 
 		// List of messages
 		messages = new ArrayList<Message>();
-		SQLiteInterface.addMessages(this, messages, null);
 		
 		// ListView
 		ListView listView = (ListView) findViewById(R.id.message_list);
@@ -92,6 +105,34 @@ public class MessageList extends Activity implements OnItemClickListener {
 			}
 		};	
 		listView.setAdapter(arrayAdapter);
+		
+		// Create the JadeAdapter
+		jadeAdapter = ((Main) getParent()).getJadeAdapter();
+		
+		// Set the broadcast receiver
+		this.broadcastReceiver = new MessageListBroadcastReceiver();
+		this.intentFilter = new IntentFilter();
+		this.intentFilter.addAction(JadeAdapter.MESSAGES_DOWNLOADED);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		// Add messages from database
+		SQLiteInterface.addMessages(this, messages, null);
+		arrayAdapter.notifyDataSetChanged();
+		
+		// Start listening
+		registerReceiver(this.broadcastReceiver, this.intentFilter);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		// Stop listening
+		unregisterReceiver(this.broadcastReceiver);
 	}
 
 	/**
@@ -126,9 +167,8 @@ public class MessageList extends Activity implements OnItemClickListener {
 
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
-			// TODO ask JADE to get the messages
-			Toast.makeText(getBaseContext(), R.string.refresh_complete,
-					Toast.LENGTH_SHORT).show();
+			Log.i(TAG_LOGGER, "Message list: ask for new messages");
+			jadeAdapter.donwloadNewMessages();
 			break;
 		case R.id.menu_show:
 			break;
@@ -154,5 +194,23 @@ public class MessageList extends Activity implements OnItemClickListener {
 			break;
 		}
 		return true;
+	}
+	
+	/**
+	 * Receiver to listen to updates
+	 */
+	private class MessageListBroadcastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(JadeAdapter.MESSAGES_DOWNLOADED)) {
+				Log.i(TAG_LOGGER, "Messages downloaded broadcast receipt: " + this.toString());
+				// Add messages from database
+				SQLiteInterface.addMessages(MessageList.this, messages, null);
+				arrayAdapter.notifyDataSetChanged();
+				// Notify as a toast
+				Toast.makeText(getBaseContext(), R.string.refresh_complete,
+						Toast.LENGTH_SHORT).show();				
+			} 
+		}
 	}
 }

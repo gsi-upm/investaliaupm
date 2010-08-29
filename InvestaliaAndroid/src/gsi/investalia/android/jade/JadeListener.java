@@ -1,5 +1,7 @@
 package gsi.investalia.android.jade;
 
+import java.util.List;
+
 import org.json.JSONException;
 
 import jade.lang.acl.ACLMessage;
@@ -7,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import android.util.Log;
 
 import gsi.investalia.android.db.SQLiteInterface;
+import gsi.investalia.domain.Message;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 
@@ -50,11 +53,12 @@ public class JadeListener implements ACLMessageListener {
 				User loggedUser = JSONAdapter.JSONToUser(message.getContent());
 				SQLiteInterface.saveLoggedUser(loggedUser, context);
 				
-				// TODO: Example messages. Delete when server interaction is ready
-				SQLiteInterface.saveExampleMessages(context); 
+				// TODO Decide if deleting or not
+				SQLiteInterface.deleteAllMessages(context);
 				
 				// Correct parsing: logged user
 				context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
+
 			} catch (JSONException e) {
 				Log.e(TAG_LOGGER, "Error parsing JSON");
 				
@@ -66,6 +70,29 @@ public class JadeListener implements ACLMessageListener {
 			Log.i(TAG_LOGGER, "Accept proposal. Logged in");	
 			//TODO
 			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));	
-		}
+			
+		}else if (message.getPerformative() == ACLMessage.PROPOSE) {
+			Log.i(TAG_LOGGER, "Propose. Messages downloaded");	
+			try {		
+				// Save the messages to db
+				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
+				List<Message> messages = JSONAdapter.JSONToMessageList(message.getContent());
+				SQLiteInterface.saveMessages(context, messages); 
+				
+				// Save new lastUpdate
+				if (!messages.isEmpty()) {
+					int newLastUpdate = messages.get(messages.size() - 1).getId();
+					User loggedUser = SQLiteInterface.getLoggedUser(context);
+					loggedUser.setLastUpdate(newLastUpdate);
+					SQLiteInterface.saveLoggedUser(loggedUser, context);
+				}
+				
+				// Broadcast reception
+				context.sendBroadcast(new Intent(JadeAdapter.MESSAGES_DOWNLOADED));
+				Log.i(TAG_LOGGER, "Messages downloaded broadcast sent");
+			} catch (JSONException e) {
+				Log.e(TAG_LOGGER, "Error parsing JSON");			
+			}	
+		} 	
 	}
 }
