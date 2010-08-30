@@ -11,12 +11,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Saves and gets all the needed information of the database. It works
- * with the domain classes.
+ * Saves and gets all the needed information of the database. It works with the
+ * domain classes.
+ * 
  * @author luis
  */
 public class HsqldbInterface {
@@ -76,16 +76,16 @@ public class HsqldbInterface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Updates the read and liked properties for a message list and user
 	 */
 	public static void updateReadAndLiked(List<Message> messages, int idUser) {
-		for(Message m: messages) {
+		for (Message m : messages) {
 			updateReadAndLiked(m, idUser);
 		}
 	}
-	
+
 	/**
 	 * Updates the read and liked properties for a message and user
 	 */
@@ -94,39 +94,49 @@ public class HsqldbInterface {
 
 		Message oldMessage = getMessage(m, idUser);
 		// If the "new message" is not read, the method does nothing
-		if(!m.isRead()) {
+		if (!m.isRead()) {
 			return;
 		}
 		// New and old message read
-		if(oldMessage.isRead()) {
+		if (oldMessage.isRead()) {
 			try {
 				// If liked does not change, the method does nothing
-				if(m.isLiked() == oldMessage.isLiked()) {
+				if (m.isLiked() == oldMessage.isLiked()) {
 					return;
 				}
 				// Liked has changed, update the db
-				stmt.executeQuery("UPDATE read SET liked = true WHERE idmessage = " + m.getId() + " AND idUser = " + idUser);
+				stmt
+						.executeQuery("UPDATE read SET liked = true WHERE idmessage = "
+								+ m.getId() + " AND idUser = " + idUser);
 				// Old disliked and new likes: rating++
-				if(m.isLiked()) {
-					stmt.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = " + m.getId());		
+				if (m.isLiked()) {
+					stmt
+							.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = "
+									+ m.getId());
 				}
 				// Old liked and new dislikes: rating--
 				else {
-					stmt.executeQuery("UPDATE messages SET rating = (rating - 1) WHERE idMessage = " + m.getId());	
+					stmt
+							.executeQuery("UPDATE messages SET rating = (rating - 1) WHERE idMessage = "
+									+ m.getId());
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		}
-		else {	
+		} else {
 			try {
 				// Increase timesRead
-				stmt.executeQuery("UPDATE messages SET times_read = (times_read + 1) WHERE idMessage = " + m.getId());
+				stmt
+						.executeQuery("UPDATE messages SET times_read = (times_read + 1) WHERE idMessage = "
+								+ m.getId());
 				// Add row in read table
-				stmt.executeQuery("INSERT INTO read VALUES (Null, " + m.getId() + ", " +  idUser + ", " + m.isLiked() + ")");
+				stmt.executeQuery("INSERT INTO read VALUES (Null, " + m.getId()
+						+ ", " + idUser + ", " + m.isLiked() + ")");
 				// If liked, rating++
-				if(m.isLiked()) {
-					stmt.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = " + m.getId());
+				if (m.isLiked()) {
+					stmt
+							.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = "
+									+ m.getId());
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -142,13 +152,13 @@ public class HsqldbInterface {
 				+ userName + "'");
 	}
 
-	/** 
+	/**
 	 * Gets a user by its id
 	 */
 	public static User getUser(int idUser) {
 		return getUserFromQuery("SELECT * FROM users WHERE idUser = " + idUser);
 	}
-	
+
 	/**
 	 * Gets a user by its userName and password
 	 */
@@ -157,25 +167,50 @@ public class HsqldbInterface {
 				+ userName + "' AND password = '" + password + "'");
 	}
 
+	public static boolean saveNewUser(User user) {
+		// Check the username is not already used
+		User alreadyRegisteredUser = getUser(user.getUserName());
+		if (alreadyRegisteredUser != null) {
+			System.out.println("Already registered user");
+			return false;
+		}
+
+		// Save the user
+		String query = "INSERT INTO users values (Null, ?, ?, ?, ?, ?)";
+		PreparedStatement prep;
+		try {
+			prep = con.prepareStatement(query);
+			prep.setString(1, user.getUserName());
+			prep.setString(2, user.getPassword());
+			prep.setString(3, user.getName());
+			prep.setString(4, user.getLocation());
+			prep.setString(5, user.getEmail());
+			prep.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			System.out.println("SQL exception inserting new user");
+			return false;
+		}
+	}
+
 	/**
 	 * Gets the list of all the messages that a user is following
 	 */
 	public static List<Message> getAllUserMessages(String userName) {
 		int idUser = getUser(userName).getId();
-		return getMessagesFromQuery(
-				"SELECT DISTINCT m.* FROM messages AS m, users_tags AS ut WHERE m.idUser = ut.idUser AND m.idUser = "
-						+ idUser, idUser);
+		return getMessagesFromQuery("SELECT * FROM messages WHERE idUser = "
+				+ idUser + idUser, idUser);
 	}
 
 	/**
 	 * Gets the list of the messages that a user is following after one given
-	 */	
+	 */
 	public static List<Message> getUserMessagesSinceLast(String userName,
 			int idMessageLast) {
 		int idUser = getUser(userName).getId();
-		return getMessagesFromQuery(
-				"SELECT DISTINCT m.* FROM messages AS m, users_tags AS ut WHERE m.idUser = ut.idUser AND m.idUser = "
-						+ idUser + " AND idMessage > " + idMessageLast, idUser);
+		String query = "SELECT * FROM messages WHERE idUser = " + idUser
+				+ " AND idMessage > " + idMessageLast;
+		return getMessagesFromQuery(query, idUser);
 	}
 
 	/**
@@ -183,9 +218,11 @@ public class HsqldbInterface {
 	 */
 	private static Message getMessage(Message m, int idUser) {
 		connectToDatabase();
-		
+
 		try {
-			ResultSet rs = stmt.executeQuery("SELECT * FROM messages WHERE idMessage = " + m.getId());
+			ResultSet rs = stmt
+					.executeQuery("SELECT * FROM messages WHERE idMessage = "
+							+ m.getId());
 			if (rs.next()) {
 				return getMessageFromRS(rs, idUser);
 			}
@@ -194,14 +231,14 @@ public class HsqldbInterface {
 		}
 		return null;
 	}
-	
+
 	private static List<Message> getMessagesFromQuery(String query, int idUser) {
 		connectToDatabase();
 		List<Message> messages = new ArrayList<Message>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			while (rs.next()) {
-				getMessageFromRS(rs, idUser);
+				messages.add(getMessageFromRS(rs, idUser));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -229,13 +266,12 @@ public class HsqldbInterface {
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				return new User(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4),
-						rs.getString(5), rs.getString(6), getTagsFollowing(rs
-								.getInt(1)), rs.getInt(7));
-				// TODO Check if "LAST UPDATE" is OK
-				
-				// Constructor: id,userName,PASSWORD,name,location,email,tagsFollowing, LASTUPDATE
-				// Db: IDUSER,USERNAME,PASSWORD,NAME,LOCATION,EMAIL, ¿LASTUPDATE?
+				return new User(rs.getInt(1), rs.getString(2), rs.getString(3),
+						rs.getString(4), rs.getString(5), rs.getString(6),
+						getTagsFollowing(rs.getInt(1)), 0 /* irrelevant */);
+				// Constructor:
+				// id,userName,password,name,location,email,tagsFollowing,lastUpdate
+				// Db: IDUSER,USERNAME,PASSWORD,NAME,LOCATION,EMAIL
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -296,13 +332,14 @@ public class HsqldbInterface {
 							.getInt(1)), rs.getDate(5), false, false, rs
 							.getInt(6), rs.getInt(7));
 		} catch (SQLException e) {
+			System.out.println("SQL Exception");
 			return null;
 		}
 		// Set the read and liked properties
 		setReadAndLiked(m, idUser);
 		return m;
-		// Constructor: id,userName,title,text,tags,date,read,liked,rating,timesRead
+		// Constructor:
+		// id,userName,title,text,tags,date,read,liked,rating,timesRead
 		// Db: IDMESSAGE,IDUSER,TITLE,TEXT,DATE,RATING,TIMES_READ
 	}
-
 }

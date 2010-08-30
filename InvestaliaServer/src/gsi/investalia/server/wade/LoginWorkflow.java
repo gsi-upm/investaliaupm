@@ -19,7 +19,7 @@ import com.tilab.wade.performer.CodeExecutionBehaviour;
 import com.tilab.wade.performer.Transition;
 import com.tilab.wade.performer.WorkflowBehaviour;
 
-@WorkflowLayout(transitions = { @TransitionLayout(routingpoints = "(310,146)", to = "WaitForLogin", from = "LoginFailure"), @TransitionLayout(routingpoints = "(117,224)", to = "WaitForLogin", from = "INITIAL") }, entryPoint = @MarkerLayout(position = "(31,203)", activityName = "WaitForLogin"), activities = { @ActivityLayout(position = "(478,252)", name = "LoginSuccesful"), @ActivityLayout(position = "(466,121)", name = "LoginFailure"), @ActivityLayout(size = "(135,50)", position = "(292,173)", name = "CheckLogin"), @ActivityLayout(size = "(122,50)", position = "(118,194)", name = "WaitForLogin") })
+@WorkflowLayout(transitions = { @TransitionLayout(routingpoints = "(310,146)", to = "WaitForLogin", from = "LoginFailure"), @TransitionLayout(routingpoints = "(117,224)", to = "WaitForLogin", from = "INITIAL") }, entryPoint = @MarkerLayout(position = "(31,203)", activityName = "WaitForLogin"), activities = { @ActivityLayout(position = "(478,252)", name = "LoginSuccessful"), @ActivityLayout(position = "(466,121)", name = "LoginFailure"), @ActivityLayout(size = "(135,50)", position = "(292,173)", name = "CheckLogin"), @ActivityLayout(size = "(122,50)", position = "(118,194)", name = "WaitForLogin") })
 public class LoginWorkflow extends WorkflowBehaviour {
 
 	private ACLMessage aclMessage;
@@ -30,7 +30,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	public static final String WAITFORLOGIN_ACTIVITY = "WaitForLogin";
 	public static final String LOGINFAILURE_ACTIVITY = "LoginFailure";
 	public static final String CHECKLOGIN_ACTIVITY = "CheckLogin";
-	public static final String LOGINSUCCESFUL_ACTIVITY = "LoginSuccesful";
+	public static final String LOGINSUCCESSFUL_ACTIVITY = "LoginSuccessful";
 	public static final String RECOMMENDATION_ACTIVITY = "Recommendation";
 
 	/* Conditions for the transitions */
@@ -38,7 +38,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	public static final String WRONGLOGIN_CONDITION = "WrongLogin";
 	public static final String MESSAGERECEIVED_CONDITION = "MessageReceived";
 
-	private boolean loginMessage, succesfulLogin, unsuccesfulLogin;
+	private boolean loginMessage, successfulLogin;
 
 	private void defineActivities() {
 		CodeExecutionBehaviour waitForLoginActivity = new CodeExecutionBehaviour(
@@ -50,9 +50,9 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		CodeExecutionBehaviour checkLoginActivity = new CodeExecutionBehaviour(
 				CHECKLOGIN_ACTIVITY, this);
 		registerActivity(checkLoginActivity);
-		CodeExecutionBehaviour loginSuccesfulActivity = new CodeExecutionBehaviour(
-				LOGINSUCCESFUL_ACTIVITY, this);
-		registerActivity(loginSuccesfulActivity);
+		CodeExecutionBehaviour loginSuccessfulActivity = new CodeExecutionBehaviour(
+				LOGINSUCCESSFUL_ACTIVITY, this);
+		registerActivity(loginSuccessfulActivity);
 		CodeExecutionBehaviour recommendationActivity = new CodeExecutionBehaviour(
 				RECOMMENDATION_ACTIVITY, this);
 		registerActivity(recommendationActivity);
@@ -63,13 +63,13 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		registerTransition(new Transition(MESSAGERECEIVED_CONDITION, this),
 				WAITFORLOGIN_ACTIVITY, CHECKLOGIN_ACTIVITY);
 		registerTransition(new Transition(CORRECTLOGIN_CONDITION, this),
-				CHECKLOGIN_ACTIVITY, LOGINSUCCESFUL_ACTIVITY);
+				CHECKLOGIN_ACTIVITY, LOGINSUCCESSFUL_ACTIVITY);
 		registerTransition(new Transition(), CHECKLOGIN_ACTIVITY,
 				LOGINFAILURE_ACTIVITY);
 		registerTransition(new Transition(), LOGINFAILURE_ACTIVITY,
 				WAITFORLOGIN_ACTIVITY);
 		registerTransition(new Transition(MESSAGERECEIVED_CONDITION,this), 
-				LOGINSUCCESFUL_ACTIVITY, RECOMMENDATION_ACTIVITY);
+				LOGINSUCCESSFUL_ACTIVITY, RECOMMENDATION_ACTIVITY);
 		registerTransition(new Transition(), RECOMMENDATION_ACTIVITY,
 				WAITFORLOGIN_ACTIVITY);
 
@@ -89,21 +89,13 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		// Json to User
 		String content = aclMessage.getContent();
 		User loginAttemptUser = JSONAdapter.JSONToUser(content);
-	
-		boolean checkPasswordLogin = false;
+
 		// TODO change to mysql
 		loggedUser = HsqldbInterface.getUser(loginAttemptUser.getUserName(), 
 			loginAttemptUser.getPassword());
-		if(loggedUser != null) {
-			checkPasswordLogin = true;
-		}
 		
-		// Conditions
-		if(checkPasswordLogin){
-			succesfulLogin = true;
-		}else{
-			unsuccesfulLogin = true;
-		}
+		// Condition
+		successfulLogin = loggedUser != null;
 	}
 	
 	protected void executeRecommendation() throws Exception {
@@ -118,18 +110,17 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		myAgent.send(loginFailure);
 	}
 	
-	protected void executeLoginSuccesful() throws Exception {
+	protected void executeLoginSuccessful() throws Exception {
 		System.out.println("Login successful");
 		
 		// Log
 		System.out.println("user: " + loggedUser.getUserName());
 		System.out.println("password: " + loggedUser.getPassword());
 		
-		//TODO: Call the database to send the new messages
-		ACLMessage loginSuccesful = aclMessage.createReply();
-		loginSuccesful.setPerformative(ACLMessage.INFORM);
-		loginSuccesful.setContent(JSONAdapter.userToJSON(loggedUser).toString());
-		myAgent.send(loginSuccesful);
+		ACLMessage loginSuccessful = aclMessage.createReply();
+		loginSuccessful.setPerformative(ACLMessage.INFORM);
+		loginSuccessful.setContent(JSONAdapter.userToJSON(loggedUser).toString());
+		myAgent.send(loginSuccessful);
 	}
 
 	protected boolean checkMessageReceived() throws Exception{
@@ -137,10 +128,10 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 
 	protected boolean checkCorrectLogin() throws Exception{
-		return succesfulLogin;
+		return successfulLogin;
 	}
 	
 	protected boolean checkWrongLogin() throws Exception{
-		return unsuccesfulLogin;
+		return !successfulLogin;
 	}
 }
