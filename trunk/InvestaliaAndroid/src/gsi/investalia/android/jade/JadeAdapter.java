@@ -183,7 +183,7 @@ public class JadeAdapter implements ConnectionListener {
 		// TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
 		props.setProperty(Profile.MAIN_HOST, IP);
 		props.setProperty(Profile.MAIN_PORT, PORT);
-		props.setProperty(JICPProtocol.MSISDN_KEY, "test-agent");
+		props.setProperty(JICPProtocol.MSISDN_KEY, user.getUserName());
 
 		try {
 			JadeGateway.connect(AndroidAgent.class.getName(), args, props,
