@@ -1,4 +1,4 @@
-package gsi.investalia.android.app;
+	package gsi.investalia.android.app;
 
 import gsi.investalia.android.jade.JadeAdapter;
 import android.app.TabActivity;

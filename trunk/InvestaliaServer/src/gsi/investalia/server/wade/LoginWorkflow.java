@@ -76,6 +76,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeWaitForLogin() throws Exception {
+		System.out.println("Wait for login");
+		
 		aclMessage = myAgent.blockingReceive();
 		if (aclMessage != null && aclMessage.getPerformative() == ACLMessage.CFP) {
 			/* We have received the login message */
@@ -84,7 +86,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 
 	}
 
-	protected void executeCheckLogin() throws Exception {
+	protected void executeCheckLogin() throws Exception {	
+		System.out.println("Check login");
 	
 		// Json to User
 		String content = aclMessage.getContent();
@@ -114,8 +117,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		System.out.println("Login successful");
 		
 		// Log
-		System.out.println("user: " + loggedUser.getUserName());
-		System.out.println("password: " + loggedUser.getPassword());
+		System.out.println("us: " + loggedUser.getUserName());
+		System.out.println("pass: " + loggedUser.getPassword());
 		
 		ACLMessage loginSuccessful = aclMessage.createReply();
 		loginSuccessful.setPerformative(ACLMessage.INFORM);

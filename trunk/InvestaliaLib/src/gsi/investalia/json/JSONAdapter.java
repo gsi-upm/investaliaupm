@@ -1,7 +1,5 @@
 package gsi.investalia.json;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,25 +13,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JSONAdapter {
-	
+
 	public static final String DATE_MILIS = "date";
 	public static final String EMAIL = "email";
 	public static final String ID = "id";
 	public static final String LIKED = "liked";
 	public static final String LOCATION = "location";
+	public static final String MESSAGES = "messages";
 	public static final String NAME = "name";
 	public static final String RATING = "rating";
 	public static final String READ = "read";
 	public static final String TAG = "tag";
 	public static final String TAGS = "tags";
 	public static final String TEXT = "text";
-	public static final String TIMES_READ ="times_read";
-	public static final String TITLE = "title";	
+	public static final String TIMES_READ = "times_read";
+	public static final String TITLE = "title";
 	public static final String USER_NAME = "user_name";
 	public static final String PASSWORD = "password";
+	public static final String LAST_TAG = "last_tag";
 	public static final String LAST_UPDATE = "last_update";
-	
-	public static JSONObject messageToJSON(Message message) throws JSONException {
+
+	public static JSONObject messageToJSON(Message message)
+			throws JSONException {
 		if (message == null) {
 			throw new IllegalArgumentException("null message");
 		}
@@ -47,33 +48,48 @@ public class JSONAdapter {
 		jsonObj.put(READ, message.isRead());
 		jsonObj.put(LIKED, message.isLiked());
 		jsonObj.put(RATING, message.getRating());
-		jsonObj.put(TIMES_READ, message.getTimesRead());	
+		jsonObj.put(TIMES_READ, message.getTimesRead());
 		return jsonObj;
 	}
 
 	public static Message JSONToMessage(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
-		
+
 		return new Message(jsonObj.getInt(ID), jsonObj.getString(USER_NAME),
-				jsonObj.getString(TITLE), jsonObj.getString(TEXT), 
-				JSONToTagList(jsonObj.getString(TAGS)), 
-				new Date(jsonObj.getLong(DATE_MILIS)), 
-				jsonObj.getBoolean(READ), jsonObj.getBoolean(LIKED), 
-				jsonObj.getInt(RATING), jsonObj.getInt(TIMES_READ));
+				jsonObj.getString(TITLE), jsonObj.getString(TEXT),
+				JSONToTagList(jsonObj.getString(TAGS)), new Date(jsonObj
+						.getLong(DATE_MILIS)), jsonObj.getBoolean(READ),
+				jsonObj.getBoolean(LIKED), jsonObj.getInt(RATING), jsonObj
+						.getInt(TIMES_READ));
 	}
-	
-	public static List<Message> JSONToMessageList(String jsonStr) throws JSONException {
-		List<Message> messages = new ArrayList<Message>();
+
+	public static void JSONToMessageList(String jsonStr, List<Message> messages)
+			throws JSONException {
 		JSONArray jsonArray = new JSONArray(jsonStr);
 		for (int i = 0; i < jsonArray.length(); i++) {
 			messages.add(JSONToMessage(jsonArray.getJSONObject(i).toString()));
 		}
-		return messages;
 	}
-	
-	public static JSONArray messageListToJSON (List<Message> messages) throws JSONException {
+
+	public static void JSONToMessageListAndTagList(String jsonStr,
+			List<Message> messages, List<Tag> tags) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		JSONToMessageList(jsonObj.getJSONArray(MESSAGES).toString(), messages);
+		JSONToTagList(jsonObj.getJSONArray(TAGS).toString(), tags);
+	}
+
+	public static JSONObject messageListAndTagListToJSON(
+			List<Message> messages, List<Tag> tags) throws JSONException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put(MESSAGES, messageListToJSON(messages));
+		jsonObj.put(TAGS, tagListToJSON(tags));
+		return jsonObj;
+	}
+
+	public static JSONArray messageListToJSON(List<Message> messages)
+			throws JSONException {
 		JSONArray jsonArr = new JSONArray();
-		for(Message message : messages) {
+		for (Message message : messages) {
 			jsonArr.put(messageToJSON(message));
 		}
 		return jsonArr;
@@ -91,18 +107,23 @@ public class JSONAdapter {
 		return new Tag(jsonObj.getInt(ID), jsonObj.getString(TAG));
 	}
 
-	public static List<Tag> JSONToTagList(String jsonStr) throws JSONException {
-		List<Tag> tags = new ArrayList<Tag>();
+	public static void JSONToTagList(String jsonStr, List<Tag> tags)
+			throws JSONException {
 		JSONArray jsonArray = new JSONArray(jsonStr);
 		for (int i = 0; i < jsonArray.length(); i++) {
 			tags.add(JSONToTag(jsonArray.getJSONObject(i).toString()));
 		}
+	}
+
+	public static List<Tag> JSONToTagList(String jsonStr) throws JSONException {
+		List<Tag> tags = new ArrayList<Tag>();
+		JSONToTagList(jsonStr, tags);
 		return tags;
 	}
-	
-	public static JSONArray tagListToJSON (List<Tag> tags) throws JSONException {
+
+	public static JSONArray tagListToJSON(List<Tag> tags) throws JSONException {
 		JSONArray jsonArr = new JSONArray();
-		for(Tag tag : tags) {
+		for (Tag tag : tags) {
 			jsonArr.put(tagToJSON(tag));
 		}
 		return jsonArr;
@@ -126,14 +147,15 @@ public class JSONAdapter {
 
 	public static User JSONToUser(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
-		return new User(jsonObj.getInt(ID), jsonObj.getString(USER_NAME), 
-				jsonObj.getString(PASSWORD),
-				jsonObj.getString(NAME), jsonObj.getString(LOCATION), 
-				jsonObj.getString(EMAIL), JSONToTagList(jsonObj.getString(TAGS)),
-						jsonObj.getInt(LAST_UPDATE));
+		return new User(jsonObj.getInt(ID), jsonObj.getString(USER_NAME),
+				jsonObj.getString(PASSWORD), jsonObj.getString(NAME), jsonObj
+						.getString(LOCATION), jsonObj.getString(EMAIL),
+				JSONToTagList(jsonObj.getString(TAGS)), jsonObj
+						.getInt(LAST_UPDATE));
 	}
-	
-	public static List<User> JSONToUserList(String jsonStr) throws JSONException {
+
+	public static List<User> JSONToUserList(String jsonStr)
+			throws JSONException {
 		List<User> users = new ArrayList<User>();
 		JSONArray jsonArray = new JSONArray(jsonStr);
 		for (int i = 0; i < jsonArray.length(); i++) {
@@ -141,12 +163,31 @@ public class JSONAdapter {
 		}
 		return users;
 	}
-	
-	public static JSONArray userListToJSON (List<User> users) throws JSONException {
+
+	public static JSONArray userListToJSON(List<User> users)
+			throws JSONException {
 		JSONArray jsonArr = new JSONArray();
-		for(User user : users) {
+		for (User user : users) {
 			jsonArr.put(userToJSON(user));
 		}
 		return jsonArr;
+	}
+
+	public static JSONObject updatesToJSON(int lastUpdate, int lastTag)
+			throws JSONException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put(LAST_UPDATE, lastUpdate);
+		jsonObj.put(LAST_TAG, lastTag);
+		return jsonObj;
+	}
+
+	public static int JSONToLastUpdate(String jsonStr) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		return jsonObj.getInt(LAST_UPDATE);
+	}
+	
+	public static int JSONToLastTag(String jsonStr) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		return jsonObj.getInt(LAST_TAG);
 	}
 }

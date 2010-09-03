@@ -223,6 +223,9 @@ public class SQLiteInterface {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+			// TODO 
+			Log.i(TAG_LOGGER, "tag count: " + tags.size());
+			
 			for (Tag tag : tags) {
 				// Container for the values
 				ContentValues tagValues = new ContentValues();
@@ -255,7 +258,7 @@ public class SQLiteInterface {
 
 			// Execute the query
 			Cursor cursor = db.query(MessagesDBHelper.TAGS_TABLE, null,
-					null, null, null, null, null);
+					null, null, null, null, MessagesDBHelper.IDTAG);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
@@ -272,5 +275,17 @@ public class SQLiteInterface {
 		}
 		Log.i("DATABASE", tags.size() + " tags from db");
 		return tags;
+	}
+	
+	/**
+	 * Gets the the id of the last tag saved in database
+	 */
+	public static int getLastIdTag(Activity activity) {
+		// Tags are ordered by its id
+		List<Tag> tags = getTags(activity);
+		if(tags.isEmpty()) {
+			return 0;
+		}
+		return tags.get(tags.size() - 1).getId();
 	}
 }

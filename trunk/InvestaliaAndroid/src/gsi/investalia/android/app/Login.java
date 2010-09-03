@@ -21,6 +21,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.Toast;
 import gsi.investalia.android.app.R;
+import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.android.jade.JadeAdapter;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
@@ -44,13 +45,6 @@ public class Login extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
-
-		// If it's already logged, we send it directly to main
-		// if (SQLiteInterface.getLoggedUser(this) != null) {
-		// Log.v("LOGIN", SQLiteInterface.getLoggedUser(this).getName());
-		// finish();
-		// goToMain();
-		// }
 
 		// Get the views
 		user_text = (EditText) findViewById(R.id.user_text);
@@ -78,6 +72,12 @@ public class Login extends Activity implements OnClickListener {
 
 		// Start listening
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
+		
+		// If it's already logged, we send it directly to main
+		if (SQLiteInterface.getLoggedUser(this) != null) {
+			Log.v("LOGIN", SQLiteInterface.getLoggedUser(this).getName());
+			goToMain();
+		}
 	}
 
 	public void onPause() {
@@ -86,14 +86,14 @@ public class Login extends Activity implements OnClickListener {
 		stateLayout.setVisibility(View.INVISIBLE);
 
 		// Stop listening TODO > the app crashes... don't know why!
-		//unregisterReceiver(this.broadcastReceiver);
+		unregisterReceiver(this.broadcastReceiver);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.v("LOGIN", "Calling onDestroy method");
-		unregisterReceiver(this.broadcastReceiver);
+
 		// Disconnect to Jade (two activities can't be connected at the same time)
 		jadeAdapter.jadeDisconnect();
 	}

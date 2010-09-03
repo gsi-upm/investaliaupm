@@ -105,20 +105,20 @@ public class HsqldbInterface {
 					return;
 				}
 				// Liked has changed, update the db
-				stmt
-						.executeQuery("UPDATE read SET liked = true WHERE idmessage = "
-								+ m.getId() + " AND idUser = " + idUser);
+				stmt.executeQuery("UPDATE read "
+						+ " SET liked = true WHERE idmessage = " + m.getId()
+						+ " AND idUser = " + idUser);
 				// Old disliked and new likes: rating++
 				if (m.isLiked()) {
-					stmt
-							.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = "
-									+ m.getId());
+					stmt.executeQuery("UPDATE messages "
+							+ "SET rating = (rating + 1) WHERE idMessage = "
+							+ m.getId());
 				}
 				// Old liked and new dislikes: rating--
 				else {
-					stmt
-							.executeQuery("UPDATE messages SET rating = (rating - 1) WHERE idMessage = "
-									+ m.getId());
+					stmt.executeQuery("UPDATE messages "
+							+ "SET rating = (rating - 1) WHERE idMessage = "
+							+ m.getId());
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -126,17 +126,17 @@ public class HsqldbInterface {
 		} else {
 			try {
 				// Increase timesRead
-				stmt
-						.executeQuery("UPDATE messages SET times_read = (times_read + 1) WHERE idMessage = "
-								+ m.getId());
+				stmt.executeQuery("UPDATE messages "
+						+ "SET times_read = (times_read + 1) "
+						+ "WHERE idMessage = " + m.getId());
 				// Add row in read table
 				stmt.executeQuery("INSERT INTO read VALUES (Null, " + m.getId()
 						+ ", " + idUser + ", " + m.isLiked() + ")");
 				// If liked, rating++
 				if (m.isLiked()) {
-					stmt
-							.executeQuery("UPDATE messages SET rating = (rating + 1) WHERE idMessage = "
-									+ m.getId());
+					stmt.executeQuery("UPDATE messages "
+							+ "SET rating = (rating + 1) WHERE idMessage = "
+							+ m.getId());
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -193,6 +193,60 @@ public class HsqldbInterface {
 		}
 	}
 
+	public static boolean updateUser(User user) {
+		connectToDatabase();
+
+		// User with the new username from database
+		User newUsernameUser = HsqldbInterface.getUser(user.getUserName());
+		// Check if the new username (if changed) is not used
+		if (newUsernameUser != null && newUsernameUser.getId() != user.getId()) {
+			return false;
+		}
+
+		// Update the user
+		String query = "UPDATE users SET username=?, password=?, name=?, location=?, email=? WHERE iduser=?";
+		PreparedStatement prep;
+		try {
+			prep = con.prepareStatement(query);
+			prep.setString(1, user.getUserName());
+			prep.setString(2, user.getPassword());
+			prep.setString(3, user.getName());
+			prep.setString(4, user.getLocation());
+			prep.setString(5, user.getEmail());
+			prep.setInt(6, user.getId());
+			prep.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("SQL exception updating user details");
+			return false;
+		}
+		
+		// Delete old tags
+		query = "DELETE FROM users_tags WHERE iduser = ?";
+		try {
+			prep = con.prepareStatement(query);
+			prep.setInt(1, user.getId());
+			prep.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("SQL exception deleting the old tags");
+			return false;
+		}
+		
+		// Save the new tags
+		query = "INSERT INTO users_tags VALUES (Null, ?, ?)";
+		try {
+			prep = con.prepareStatement(query);
+			for(Tag tag: user.getTagsFollowing()) {
+				prep.setInt(1, user.getId());
+				prep.setInt(2, tag.getId());
+				prep.executeUpdate();
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL exception deleting the old tags");
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Gets the list of all the messages that a user is following
 	 */
@@ -220,8 +274,8 @@ public class HsqldbInterface {
 		connectToDatabase();
 
 		try {
-			ResultSet rs = stmt
-					.executeQuery("SELECT * FROM messages WHERE idMessage = "
+			ResultSet rs = stmt.executeQuery("SELECT * "
+					+ "FROM messages WHERE idMessage = "
 							+ m.getId());
 			if (rs.next()) {
 				return getMessageFromRS(rs, idUser);
@@ -280,13 +334,18 @@ public class HsqldbInterface {
 	}
 
 	private static List<Tag> getTagsFollowing(int idUser) {
-		return getTagListFromQuery("SELECT idtag FROM users_tags WHERE idUser = "
+		return getTagListFromQuery("SELECT t.* FROM users_tags AS ut, tags AS t WHERE idUser = "
 				+ idUser);
 	}
 
 	private static List<Tag> getMessageTags(int idMessage) {
-		return getTagListFromQuery("SELECT idtag FROM messages_tags WHERE idMessage = "
+		return getTagListFromQuery("SELECT t.* FROM messages_tags AS mt, tags AS t WHERE idMessage = "
 				+ idMessage);
+	}
+
+	public static List<Tag> getTagsSinceLast(int idLastTag) {
+		return getTagListFromQuery("SELECT * FROM tags WHERE idtag > "
+				+ idLastTag);
 	}
 
 	private static void setMessageId(Message message) {
@@ -311,9 +370,9 @@ public class HsqldbInterface {
 		connectToDatabase();
 
 		try {
-			ResultSet rs = stmt
-					.executeQuery("SELECT liked FROM read WHERE iduser = "
-							+ idUser + " AND idmessage = " + m.getId());
+			ResultSet rs = stmt.executeQuery("SELECT liked "
+					+ "FROM read WHERE iduser = " + idUser
+					+ " AND idmessage = " + m.getId());
 			if (rs.next()) {
 				m.setRead(true);
 				m.setLiked(rs.getBoolean(1));
