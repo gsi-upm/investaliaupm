@@ -1,5 +1,6 @@
 package gsi.investalia.android.jade;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
@@ -10,6 +11,7 @@ import android.util.Log;
 
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 
@@ -67,7 +69,7 @@ public class JadeListener implements ACLMessageListener {
 			}
 			
 		} else if (message.getPerformative() == ACLMessage.CONFIRM){			
-			Log.i(TAG_LOGGER, "Accept proposal. Logged in");	
+			Log.i(TAG_LOGGER, "Confirm. Message sent");	
 			//TODO
 			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));	
 			
@@ -76,8 +78,12 @@ public class JadeListener implements ACLMessageListener {
 			try {		
 				// Save the messages to db
 				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
-				List<Message> messages = JSONAdapter.JSONToMessageList(message.getContent());
+				List<Message> messages = new ArrayList<Message>();
+				List<Tag> tags = new ArrayList<Tag>();
+				JSONAdapter.JSONToMessageListAndTagList(message.getContent(), 
+						messages, tags);
 				SQLiteInterface.saveMessages(context, messages); 
+				SQLiteInterface.saveTags(context, tags); 
 				
 				// Save new lastUpdate
 				if (!messages.isEmpty()) {
@@ -99,6 +105,9 @@ public class JadeListener implements ACLMessageListener {
 		}else if (message.getPerformative() == ACLMessage.DISCONFIRM){			
 			Log.i(TAG_LOGGER, "wrong new user");	
 			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));	
+		} 	else if (message.getPerformative() == ACLMessage.INFORM_REF){			
+			Log.i(TAG_LOGGER, "User modified");	
+			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));	
 		} 	
 	}
 }

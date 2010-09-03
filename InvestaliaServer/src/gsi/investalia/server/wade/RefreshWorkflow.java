@@ -3,14 +3,11 @@ package gsi.investalia.server.wade;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.db.HsqldbInterface;
 import jade.lang.acl.ACLMessage;
 
-
-import jade.lang.acl.MessageTemplate;
-
-import com.tilab.wade.performer.layout.TransitionLayout;
 import com.tilab.wade.performer.layout.MarkerLayout;
 import com.tilab.wade.performer.layout.ActivityLayout;
 import com.tilab.wade.performer.layout.WorkflowLayout;
@@ -60,23 +57,31 @@ public class RefreshWorkflow extends WorkflowBehaviour {
 
 	protected void executeRefresh() throws Exception {
 	
-		/* Example of refresh message : "21" */
 		System.out.println("Executing refresh");
-		String lastUpdateStr = aclMessage.getContent();
-		int lastUpdate = Integer.parseInt(lastUpdateStr); 
+		String jsonStr = aclMessage.getContent();
+		// TODO 
+		System.out.println("jsonStr" + jsonStr);
+		int lastUpdate = JSONAdapter.JSONToLastUpdate(jsonStr); 
+		int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
+		// TODO 
+		System.out.println("last tag" + lastTag);
 		
-		// Get the message list from db
+		// Get the username
 		String userName = aclMessage.getSender().getLocalName();
 		System.out.println("username: " + userName);
+		
 		// TODO change to mysql
+		// Get the message list and tags from db
 		List<Message> messages = HsqldbInterface.getUserMessagesSinceLast(userName, lastUpdate);
 		System.out.println("message count: " + messages.size());
+		List<Tag> tags = HsqldbInterface.getTagsSinceLast(lastTag);
 		
 		// Send it as reply
 		ACLMessage reply = aclMessage.createReply();
 		reply.setPerformative(ACLMessage.PROPOSE);
-		System.out.println("content: " + JSONAdapter.messageListToJSON(messages).toString());
-		reply.setContent(JSONAdapter.messageListToJSON(messages).toString());
+		String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
+		System.out.println("content: " + content);
+		reply.setContent(content);
 		myAgent.send(reply);
 	}
 

@@ -44,11 +44,14 @@ public class JadeAdapter implements ConnectionListener {
 	public static final String MESSAGES_DOWNLOADED = "messages_donwloaded";
 	public static final String USER_CREATED = "user_created";
 	public static final String WRONG_NEW_USER = "wrong_new_user";
+	public static final String USER_UPDATED = "user_created";
+	public static final String USER_NOT_UPDATED = "user_not_updated";
 
 	// Agent actions
 	public static final String CHECK_LOGIN = "check_login";
 	public static final String SAVE_MESSAGE = "save_message";
 	public static final String NEW_USER = "new_user";
+	public static final String UPDATE_USER = "update_user";
 	public static final String DOWNLOAD_MESSAGES = "download_messages";
 
 	public JadeAdapter(Activity activity) {
@@ -56,8 +59,8 @@ public class JadeAdapter implements ConnectionListener {
 	}
 
 	public void checkLogin(User user) {
+		Log.v("ANDROID", "Try to log, username: " + user.getUserName());
 		try {
-			Log.v("ANDROID", "Try to log, username: " + user.getUserName());
 			// We pass the action and the user
 			String[] args = { CHECK_LOGIN,
 					JSONAdapter.userToJSON(user).toString() };
@@ -109,8 +112,20 @@ public class JadeAdapter implements ConnectionListener {
 		Log.i("ANDROID", "Ask for new messages");
 		// Get the loggedUser
 		User loggedUser = SQLiteInterface.getLoggedUser(activity);
-		// Pass the last update in the content
-		String[] args = { DOWNLOAD_MESSAGES, "" + loggedUser.getLastUpdate() };
+		
+		// Pass the last update and last tag in the content
+		String content;
+		try {
+			content = JSONAdapter.updatesToJSON(loggedUser.getLastUpdate(), 
+					SQLiteInterface.getLastIdTag(activity)).toString();
+			// TODO
+			Log.i(TAG_LOGGER, "content: " + content);
+		} catch (JSONException e1) {
+			Log.e(TAG_LOGGER, "Error parsing JSON to ask for updates");
+			return;
+		}
+		String[] args = { DOWNLOAD_MESSAGES, content };
+		
 		// Send the message
 		try {
 			jadeConnect(args);
@@ -119,21 +134,20 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 
-	/**
-	 * Guarda los nuevos valores del perfil
-	 * 
-	 * @param user
-	 * @return false en caso de error, true si los datos se han guardado
-	 *         correctamente
-	 */
-	public static boolean setUserProfile(User user) {
-
+	
+	public void setUserProfile(User user) {
+		String jsonStr;
+		try {
+			jsonStr = JSONAdapter.userToJSON(user).toString();
+		} catch (JSONException e) {
+			Log.e(TAG_LOGGER, "JSON Exception parsing user to update");
+			return;
+		}
+		Log.i(TAG_LOGGER, "Update user: " + jsonStr);
+		String[] args = { UPDATE_USER, jsonStr };
 		// TODO
-		Log.v(TAG_LOGGER, user.getName() + " " + user.getUserName() + " "
-				+ user.getEmail() + " " + user.getLocation() + " "
-				+ user.getPassword());
-
-		return true;
+		Log.i(TAG_LOGGER, "agent action jadeadapter: " + args[0]);
+		jadeConnect(args);
 	}
 
 	/**
@@ -157,6 +171,7 @@ public class JadeAdapter implements ConnectionListener {
 
 	private void jadeConnect(String[] args) {
 		Log.v("LOGIN", "Starting Jade connection");
+		Log.i(TAG_LOGGER, "zzz Agent action: " + args[0]);
 
 		// Create the listener
 		listener = new JadeListener(activity);
@@ -200,7 +215,6 @@ public class JadeAdapter implements ConnectionListener {
 		gateway = gw;
 
 		try {
-			// First, we creat0e the MessageListener
 			if (activity == null)
 				Log.v("CONTEXT", "null");
 			gateway.execute(activity);
@@ -246,7 +260,4 @@ public class JadeAdapter implements ConnectionListener {
 	public void onDisconnected() {
 		Log.v(TAG_JADE, "Disconnected to Jade");
 	}
-
-	// /END OF JADE
-
 }

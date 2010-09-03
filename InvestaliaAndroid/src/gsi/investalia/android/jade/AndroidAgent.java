@@ -25,12 +25,12 @@ public class AndroidAgent extends GatewayAgent {
 	protected void processCommand(final Object command) {
 		final Object args[] = getArguments();
 		if (command instanceof Context && listener == null) {
-			Log.v("LISTENER", "Listener recibidoNOnull");
+			Log.v("LISTENER", "zzz Listener recibidoNOnull");
 			listener = new JadeListener((Context) command);
 		}
 
 		if (command instanceof Behaviour) {
-			Log.v(TAG_LOGGER, "Adding a new behaviour");
+			Log.v(TAG_LOGGER, "zzz Adding a new behaviour");
 			SequentialBehaviour sb = new SequentialBehaviour(this);
 			sb.addSubBehaviour((Behaviour) command);
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
@@ -47,7 +47,7 @@ public class AndroidAgent extends GatewayAgent {
 
 			sb.addSubBehaviour(new OneShotBehaviour(this) {
 				public void action() {
-					Log.i(TAG_LOGGER, "Agent action: " + args[0]);
+					Log.i(TAG_LOGGER, "zzz Agent action: " + args[0]);
 					ACLMessage msg = new ACLMessage(ACLMessage.CFP);
 
 					// Set the content
@@ -63,6 +63,8 @@ public class AndroidAgent extends GatewayAgent {
 						msg.addReceiver(new AID("refresh", AID.ISLOCALNAME));
 					} else if (args[0].equals(JadeAdapter.NEW_USER)) {
 						msg.addReceiver(new AID("newuser", AID.ISLOCALNAME));
+					} else if (args[0].equals(JadeAdapter.UPDATE_USER)) {
+						msg.addReceiver(new AID("updateuser", AID.ISLOCALNAME));
 					}
 					
 					// Send the message
