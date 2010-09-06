@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,7 +52,7 @@ public class HsqldbInterface {
 			prep.setInt(1, getUser(message.getUserName()).getId());
 			prep.setString(2, message.getTitle());
 			prep.setString(3, message.getText());
-			prep.setDate(4, (java.sql.Date) message.getDate());
+			prep.setLong(4, message.getDate().getTime());
 			prep.setInt(5, 0); // Rating = 0 at start
 			prep.setInt(6, 0); // Not still read
 			prep.executeUpdate();
@@ -80,34 +81,35 @@ public class HsqldbInterface {
 	/**
 	 * Updates the read and liked properties for a message list and user
 	 */
-	public static void updateReadAndLiked(List<Message> messages, int idUser) {
+	public static void updateReadAndLiked(List<Message> messages) {
 		for (Message m : messages) {
-			updateReadAndLiked(m, idUser);
+			updateReadAndLiked(m);
 		}
 	}
 
 	/**
 	 * Updates the read and liked properties for a message and user
 	 */
-	public static void updateReadAndLiked(Message m, int idUser) {
+	public static boolean updateReadAndLiked(Message m) {
 		connectToDatabase();
 
+		int idUser = getUser(m.getUserName()).getId();
 		Message oldMessage = getMessage(m, idUser);
 		// If the "new message" is not read, the method does nothing
 		if (!m.isRead()) {
-			return;
+			return true;
 		}
 		// New and old message read
 		if (oldMessage.isRead()) {
 			try {
 				// If liked does not change, the method does nothing
 				if (m.isLiked() == oldMessage.isLiked()) {
-					return;
+					return true;
 				}
 				// Liked has changed, update the db
 				stmt.executeQuery("UPDATE read "
-						+ " SET liked = true WHERE idmessage = " + m.getId()
-						+ " AND idUser = " + idUser);
+						+ " SET liked = " + m.isLiked() + " WHERE idmessage = " 
+						+ m.getId() + " AND idUser = " + idUser);
 				// Old disliked and new likes: rating++
 				if (m.isLiked()) {
 					stmt.executeQuery("UPDATE messages "
@@ -120,8 +122,10 @@ public class HsqldbInterface {
 							+ "SET rating = (rating - 1) WHERE idMessage = "
 							+ m.getId());
 				}
+				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return false;
 			}
 		} else {
 			try {
@@ -138,8 +142,10 @@ public class HsqldbInterface {
 							+ "SET rating = (rating + 1) WHERE idMessage = "
 							+ m.getId());
 				}
+				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return false;
 			}
 		}
 	}
@@ -349,7 +355,7 @@ public class HsqldbInterface {
 	}
 
 	private static void setMessageId(Message message) {
-		String query = "SELECT idmessage FROM messages WHERE iduser = ? AND message = ? ORDER BY idmessage DESC LIMIT 1";
+		String query = "SELECT idmessage FROM messages WHERE iduser = ? AND text = ? ORDER BY idmessage DESC LIMIT 1";
 		try {
 			PreparedStatement prep = con.prepareStatement(query);
 			prep.setInt(1, getUser(message.getUserName()).getId());
@@ -388,7 +394,7 @@ public class HsqldbInterface {
 		try {
 			m = new Message(rs.getInt(1), getUser(rs.getInt(2)).getUserName(),
 					rs.getString(3), rs.getString(4), getMessageTags(rs
-							.getInt(1)), rs.getDate(5), false, false, rs
+							.getInt(1)), new Date(rs.getLong(5)), false, false, rs
 							.getInt(6), rs.getInt(7));
 		} catch (SQLException e) {
 			System.out.println("SQL Exception");

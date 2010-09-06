@@ -38,13 +38,13 @@ public class MessageList extends Activity implements OnItemClickListener {
 	private static final String DATE_FORMAT_SHOW = "dd/MM/yyyy";
 	private int orderingBy;
 	private ArrayAdapter<Message> arrayAdapter;
+	private Message selectedMessage;
 	
 	// Jade
 	private JadeAdapter jadeAdapter;
 	
 	// Domain
 	private List<Message> messages;
-	private User loggedUser;
 	
 	// Broadcasting
 	private MessageListBroadcastReceiver broadcastReceiver;
@@ -54,15 +54,13 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.message_list);
-		
-		// Logged user
-		loggedUser = SQLiteInterface.getLoggedUser(this);
-		
+
 		// Set orderingBy by default
 		orderingBy = R.id.show_opt1_date;
 
 		// List of messages
 		messages = new ArrayList<Message>();
+		selectedMessage = null;
 		
 		// ListView
 		ListView listView = (ListView) findViewById(R.id.message_list);
@@ -106,6 +104,10 @@ public class MessageList extends Activity implements OnItemClickListener {
 		};	
 		listView.setAdapter(arrayAdapter);
 		
+		// Add messages from database
+		SQLiteInterface.addMessages(this, messages, null);
+		arrayAdapter.notifyDataSetChanged();
+		
 		// Create the JadeAdapter
 		jadeAdapter = ((Main) getParent()).getJadeAdapter();
 		
@@ -119,9 +121,11 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		
-		// Add messages from database
-		SQLiteInterface.addMessages(this, messages, null);
-		arrayAdapter.notifyDataSetChanged();
+		// Update the last message read (if any)
+		if (selectedMessage != null) {
+			jadeAdapter.updateMessage(selectedMessage);
+			selectedMessage = null;
+		}
 		
 		// Start listening
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
@@ -140,12 +144,13 @@ public class MessageList extends Activity implements OnItemClickListener {
 	 */
 	@Override
 	public void onItemClick(AdapterView av, View v, int index, long arg3) {		
-		// Para enviar parametros a las nuevas actividades
-		Bundle bun = new Bundle();
-		bun.putInt("message_id", messages.get(index).getId());
-		Intent read_message = new Intent(this, ReadMessage.class);
-		read_message.putExtras(bun);
-		startActivity(read_message);
+		// Send the message id
+		Bundle bundle = new Bundle();
+		selectedMessage = messages.get(index);
+		bundle.putInt("message_id", selectedMessage.getId());
+		Intent intent = new Intent(this, ReadMessage.class);
+		intent.putExtras(bundle);
+		startActivity(intent);
 	}
 	
 	/**

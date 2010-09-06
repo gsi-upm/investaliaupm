@@ -1,16 +1,16 @@
 package gsi.investalia.server.jade;
 
 
-public class NewUserAgent extends InvestaliaAgent {
+public class UpdateMessageAgent extends InvestaliaAgent {
 	
 	@Override
 	protected String getAgentName() {
-		return "newUser";
+		return "updateMessage";
 	}
 
 	@Override
 	protected String getWorkflow() {
-		return "NewUserWorkflow";
+		return "UpdateMessageWorkflow";
 	}
 }
 

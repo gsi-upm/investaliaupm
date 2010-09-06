@@ -17,7 +17,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 
 
 @WorkflowLayout(entryPoint = @MarkerLayout(position = "(29,74)", activityName = "WaitForLogin"), activities = { @ActivityLayout(position = "(336,71)", name = "Refresh"), @ActivityLayout(position = "(137,69)", name = "WaitForProposal"), @ActivityLayout(position = "(195,34)", name = "LoginSuccesful"), @ActivityLayout(position = "(207,121)", name = "CheckLogin"), @ActivityLayout(position = "(85,151)", name = "WaitForLogin"), @ActivityLayout(position = "(333,199)", name = "LoginFailure") })
-public class RefreshWorkflow extends WorkflowBehaviour {
+public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 
 	ACLMessage aclMessage;
  

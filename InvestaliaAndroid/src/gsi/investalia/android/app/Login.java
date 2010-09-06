@@ -39,6 +39,9 @@ public class Login extends Activity implements OnClickListener {
 	// Broadcasting
 	private LoginBroadcastReceiver broadcastReceiver;
 	private IntentFilter intentFilter;
+	
+	// App
+	private User newUser;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -65,11 +68,20 @@ public class Login extends Activity implements OnClickListener {
 		this.intentFilter.addAction(JadeAdapter.WRONG_LOGIN);
 		this.intentFilter.addAction(JadeAdapter.USER_CREATED);
 		this.intentFilter.addAction(JadeAdapter.WRONG_NEW_USER);
+		/* If the user has logged out, the activity could still be
+		   connected to Main. If so, it will connect to jade when the
+		   disconnection is successful */
+		if(JadeAdapter.isConnected()) {
+			this.intentFilter.addAction(JadeAdapter.JADE_DISCONNECTED);
+		// Otherwise, connect directly
+		} else {
+			jadeAdapter.jadeConnect();
+		}
 	}
 
 	public void onResume() {
 		super.onResume();
-
+		
 		// Start listening
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
 		
@@ -82,10 +94,11 @@ public class Login extends Activity implements OnClickListener {
 
 	public void onPause() {
 		super.onPause();
+		
 		// We hide the "loading..." message when the activity is paused
 		stateLayout.setVisibility(View.INVISIBLE);
 
-		// Stop listening TODO > the app crashes... don't know why!
+		// Stop listening
 		unregisterReceiver(this.broadcastReceiver);
 	}
 
@@ -121,20 +134,17 @@ public class Login extends Activity implements OnClickListener {
 	}
 
 	private void wrongLogin() {
-		// Delete the agent (if the username is wrong, a new agent with the
-		// correct name has to be created)
-		jadeAdapter.jadeDisconnect();
 		Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 		user_pass.startAnimation(shake);
 		Toast.makeText(getBaseContext(), R.string.wrong_pass,
 				Toast.LENGTH_SHORT).show();
 	}
-
+	
 	private void goToMain() {
-		// Start the main activity
-		startActivity(new Intent(this, Main.class));
 		// Close the login activity
 		finish();
+		// Start the main activity
+		startActivity(new Intent(this, Main.class));
 	}
 
 	/**
@@ -171,11 +181,11 @@ public class Login extends Activity implements OnClickListener {
 									R.string.empty_field, Toast.LENGTH_SHORT)
 									.show();
 						} else {
-							User user = new User(-1, userName.getText().toString(),
+							newUser = new User(-1, userName.getText().toString(),
 									password.getText().toString(), name.getText().toString(),
 									location.getText().toString(), email.getText().toString(),
 									new ArrayList<Tag>(), 0);
-							jadeAdapter.newUser(user);
+							jadeAdapter.newUser(newUser);
 						}
 					}
 				});
@@ -204,12 +214,14 @@ public class Login extends Activity implements OnClickListener {
 			} else if (intent.getAction().equals(JadeAdapter.USER_CREATED)) {
 				Toast.makeText(getBaseContext(), R.string.user_created,
 						Toast.LENGTH_SHORT).show();
-				jadeAdapter.jadeDisconnect();
+				// Send directly to Main
+				jadeAdapter.checkLogin(newUser);
 			} else if (intent.getAction().equals(JadeAdapter.WRONG_NEW_USER)) {
 				Toast.makeText(getBaseContext(), R.string.user_error,
 						Toast.LENGTH_SHORT).show();
-				jadeAdapter.jadeDisconnect();
-			}	
+			} else if (intent.getAction().equals(JadeAdapter.JADE_DISCONNECTED)) {
+				jadeAdapter.jadeConnect();
+			} 
 		}
 	}
 }

@@ -17,9 +17,12 @@ import com.tilab.wade.performer.descriptors.WorkflowDescriptor;
 import com.tilab.wade.performer.ontology.ExecutionError;
 
 
-public class RefreshAgent extends WorkflowEngineAgent {
+public abstract class InvestaliaAgent extends WorkflowEngineAgent {
 	//Object used to start the execution of workflows
 	private DispatchingCapabilities dc = new DispatchingCapabilities();
+	
+	protected abstract String getAgentName();
+	protected abstract String getWorkflow();
 
 	//Put agent initializations here
 	protected void agentSpecificSetup() throws AgentInitializationException {
@@ -29,8 +32,8 @@ public class RefreshAgent extends WorkflowEngineAgent {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType("refresh");
-		sd.setName("JADE-investalia-refresh");
+		sd.setType(getAgentName());
+		sd.setName("JADE-investalia-" + getAgentName());
 		dfd.addServices(sd);
 		try {
 			DFService.register(this, dfd);
@@ -43,18 +46,18 @@ public class RefreshAgent extends WorkflowEngineAgent {
 		dc.init(this);
 		
 		//Launches the execution of the workflow returnSubjectsWorkflow
-		WorkflowDescriptor wd = new WorkflowDescriptor("gsi.investalia.server.wade.RefreshWorkflow");
+		WorkflowDescriptor wd = new WorkflowDescriptor("gsi.investalia.server.wade." + getWorkflow());
 		try {
 			//Dispatch the workflow to myself 
-			dc.launchWorkflow(getAID(), wd, new loginListener(), null);	
+			dc.launchWorkflow(getAID(), wd, new InvestaliaListener(), null);	
 		} catch (WorkflowException e) {
 			e.printStackTrace();
 		}	
 	}
-	 
+	
 	//This class indicates when and why the workflow execution has stopped.
 	//If we find an error, we restart the workflow
-	private class loginListener implements WorkflowResultListener {
+	private class InvestaliaListener implements WorkflowResultListener {
 		public void handleAssignedId(AID executor, String executionId) {
 			//The workflow was properly loaded and a unique ID was assigned to it
 			System.out.println("Workflow correctly loaded by performer "+executor.getLocalName());	
@@ -74,11 +77,11 @@ public class RefreshAgent extends WorkflowEngineAgent {
 			//The execution of the workflow failed
 			System.out.println("Execution error ("+executionId+")");
 			
-			//We start a new one
-			WorkflowDescriptor wd = new WorkflowDescriptor("gsi.investalia.server.wade.RefreshWorkflow");
+			//We start a new one 
+			WorkflowDescriptor wd = new WorkflowDescriptor("gsi.investalia.server.wade." + getWorkflow());
 			try {
 				//Dispatch the workflow to myself 
-				dc.launchWorkflow(getAID(), wd, new loginListener(), null);	
+				dc.launchWorkflow(getAID(), wd, new InvestaliaListener(), null);	
 			} catch (WorkflowException e) {
 				e.printStackTrace();
 			}	
@@ -101,7 +104,7 @@ public class RefreshAgent extends WorkflowEngineAgent {
 		}
 
 		//Printout a dismissal message
-		System.out.println("Refresh-agent " + getAID().getName() + " terminating.");
+		System.out.println("Agent " + getAgentName() + " " + getAID().getName() + " terminating.");
 	}
 	
 	public DispatchingCapabilities getDC() {

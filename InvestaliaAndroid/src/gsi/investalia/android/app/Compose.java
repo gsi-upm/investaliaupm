@@ -41,8 +41,11 @@ public class Compose extends Activity implements OnClickListener {
 	private boolean[] selectedTags;
 	private int selected_tags;
 	private User loggedUser;
+	
+	// Jade
 	private JadeAdapter jadeAdapter;
 
+	// Broadcasting
 	private ComposeBroadcastReceiver broadcastReceiver;
 	private IntentFilter intentFilter;
 
@@ -50,7 +53,8 @@ public class Compose extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.compose);
 		
-		jadeAdapter = new JadeAdapter(this);
+		// Create the JadeAdapter
+		jadeAdapter = ((Main) getParent()).getJadeAdapter();
 		
 		this.broadcastReceiver = new ComposeBroadcastReceiver();
 		this.intentFilter = new IntentFilter();
@@ -59,7 +63,7 @@ public class Compose extends Activity implements OnClickListener {
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
 
 
-		loggedUser = SQLiteInterface.getLoggedUser(this);
+		
 
 		Button topic_button = (Button) findViewById(R.id.compose_topic_button);
 		selected_topics_text = (TextView) findViewById(R.id.compose_selected_topics_text);
@@ -104,9 +108,21 @@ public class Compose extends Activity implements OnClickListener {
 
 	public void onResume() {
 		super.onResume();
+		
+		loggedUser = SQLiteInterface.getLoggedUser(this);
+		
 		enableSendButton();
+		
+		// Start listening
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
 
+		// Stop listening
+		unregisterReceiver(this.broadcastReceiver);
 	}
 
 	@Override
@@ -142,12 +158,11 @@ public class Compose extends Activity implements OnClickListener {
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
 		tags_selected, new Date(), false, false, 0, 0);
 		
-		jadeAdapter.saveNewMessage(loggedUser, message);	
-
+		jadeAdapter.saveNewMessage(message);	
 	}
 
 	/**
-	 * Crea el dialog para selccionar tags
+	 * Creates the dialog to select tags
 	 */
 	protected Dialog onCreateDialog(int id) {
 

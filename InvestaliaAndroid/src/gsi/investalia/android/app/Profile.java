@@ -51,13 +51,6 @@ public class Profile extends PreferenceActivity implements
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.profile);
 
-		loggedUser = SQLiteInterface.getLoggedUser(this);
-		tags = SQLiteInterface.getTags(this);
-		tagsCharsequence = new CharSequence[tags.size()];
-		for (int i = 0; i < tags.size(); i++) {
-			tagsCharsequence[i] = tags.get(i).getTagName();
-		}
-
 		// Get the views from the xml
 		user_name = (EditTextPreference) findPreference("user_name");
 		user_nick_name = (EditTextPreference) findPreference("user_nick_name");
@@ -69,14 +62,15 @@ public class Profile extends PreferenceActivity implements
 		Preference user_save = (Preference) findPreference("user_save");
 		Preference user_cancel = (Preference) findPreference("user_cancel");
 
-		// Create the JadeAdapter
+		// Get the jadeAdapter from the main activity
 		jadeAdapter = ((Main) getParent()).getJadeAdapter();
 
-		// Añadir un listener onClick para las opciones especiales
+		// Set the preference CLICK listener for the special fields
 		user_tags.setOnPreferenceClickListener(this);
 		user_save.setOnPreferenceClickListener(this);
 		user_cancel.setOnPreferenceClickListener(this);
 
+		// Create the preference listener
 		OnPreferenceChangeListener changeListener = new OnPreferenceChangeListener() {
 			public boolean onPreferenceChange(Preference preference,
 					Object newValue) {
@@ -85,6 +79,7 @@ public class Profile extends PreferenceActivity implements
 			}
 		};
 
+		// Set the listener to the views
 		user_name.setOnPreferenceChangeListener(changeListener);
 		user_nick_name.setOnPreferenceChangeListener(changeListener);
 		user_email.setOnPreferenceChangeListener(changeListener);
@@ -140,13 +135,27 @@ public class Profile extends PreferenceActivity implements
 	/**
 	 * Gets the data saved
 	 */
-	private void loadData() {
+	private void loadData() {	
+		Log.i(TAG_LOGGER, "Loading data"); 
+		
+		// Get the logged user
+		loggedUser = SQLiteInterface.getLoggedUser(this);
+		
+		// Get the tags
+		tags = SQLiteInterface.getTags(this);
+		tagsCharsequence = new CharSequence[tags.size()];
+		for (int i = 0; i < tags.size(); i++) {
+			tagsCharsequence[i] = tags.get(i).getTagName();
+		}
+		
 		// Creates a boolean array to indicate which ones are selected
 		selected = new boolean[tagsCharsequence.length];
 
 		// Check the following tags
-		for (Tag tag : loggedUser.getTagsFollowing()) {
-			selected[tag.getId()] = true;
+		if (!tags.isEmpty()) { 
+			for (Tag tag : loggedUser.getTagsFollowing()) {
+				selected[tag.getId() - 1] = true;
+			}
 		}
 	}
 
@@ -169,8 +178,8 @@ public class Profile extends PreferenceActivity implements
 		// Create a new user object with the modified attributes
 		List<Tag> selectedTags = new ArrayList<Tag>();
 		for (int i = 0; i < selected.length; i++) {
-			if (selected[i] == true) { // TODO is it okay?
-				selectedTags.add(new Tag(i, ""));
+			if (selected[i]) { // TODO is it okay?
+				selectedTags.add(new Tag(i + 1, ""));
 			}
 		}
 		User modifiedUser = new User(loggedUser.getId(), user_nick_name
@@ -178,7 +187,7 @@ public class Profile extends PreferenceActivity implements
 				user_location.getText(), user_email.getText(), selectedTags, 0);
 
 		// Saves the user profile
-		jadeAdapter.setUserProfile(modifiedUser);
+		jadeAdapter.updateUser(modifiedUser);
 	}
 
 	@Override
