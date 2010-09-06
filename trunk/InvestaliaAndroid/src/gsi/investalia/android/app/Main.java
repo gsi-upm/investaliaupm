@@ -46,6 +46,8 @@ public class Main extends TabActivity {
 		host.addTab(host.newTabSpec("profile").setIndicator(
 				this.getString(R.string.profile),
 				res.getDrawable(R.drawable.profile)).setContent(profile));
+		
+		
 	}
 	
 	public JadeAdapter getJadeAdapter() {

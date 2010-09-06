@@ -18,7 +18,6 @@ import gsi.investalia.json.JSONAdapter;
 import android.content.Context;
 import android.content.Intent;
 
-
 /**
  * This class implements the ACLMessageListener interface and it is called by
  * the agent to update the GUI when a message is received
@@ -36,78 +35,75 @@ public class JadeListener implements ACLMessageListener {
 		this.context = context;
 	}
 
-
 	public void onMessageReceived(ACLMessage message) {
-		
+
 		// What you should do when you receive the message
-		Log.i(TAG_LOGGER, "onMessageReceived(): JadeListener has received message");
+		Log.i(TAG_LOGGER,
+				"onMessageReceived(): JadeListener has received message");
+		Log.v(TAG_LOGGER, "message content: " + message.getContent());
 
 		// Wrong login message
 		if (message.getPerformative() == ACLMessage.REJECT_PROPOSAL) {
 			Log.i(TAG_LOGGER, "Failure. Wrong user/password. Logging out");
 			context.sendBroadcast(new Intent(JadeAdapter.WRONG_LOGIN));
-			
-		// Correct login message	
-		} else if (message.getPerformative() == ACLMessage.INFORM) {
-			Log.i(TAG_LOGGER, "Accept proposal. Logged in");	
-			try {
-				// Save the logged user in the phone memory
-				User loggedUser = JSONAdapter.JSONToUser(message.getContent());
-				SQLiteInterface.saveLoggedUser(loggedUser, context);
-				
-				// TODO Decide if deleting or not
-				SQLiteInterface.deleteAllMessages(context);
-				
-				// Correct parsing: logged user
-				context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
 
-			} catch (JSONException e) {
-				Log.e(TAG_LOGGER, "Error parsing JSON");
-				
-				// Error parsing: not logged user
-				context.sendBroadcast(new Intent(JadeAdapter.WRONG_LOGIN));
-			}
-			
-		} else if (message.getPerformative() == ACLMessage.CONFIRM){			
-			Log.i(TAG_LOGGER, "Confirm. Message sent");	
-			//TODO
-			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));	
-			
-		}else if (message.getPerformative() == ACLMessage.PROPOSE) {
-			Log.i(TAG_LOGGER, "Propose. Messages downloaded");	
-			try {		
+			// Correct login message
+		} else if (message.getPerformative() == ACLMessage.INFORM) {
+			Log.i(TAG_LOGGER, "Accept proposal. Logged in");
+
+			// Save the user
+			SQLiteInterface.saveLoggedUser(message.getContent(), context);
+
+			// TODO Decide if deleting or not
+			SQLiteInterface.deleteAllMessages(context);
+
+			// Correct parsing: logged user
+			context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
+
+		} else if (message.getPerformative() == ACLMessage.CONFIRM) {
+			Log.i(TAG_LOGGER, "Confirm. Message sent");
+			// TODO
+			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));
+
+		} else if (message.getPerformative() == ACLMessage.PROPOSE) {
+			Log.i(TAG_LOGGER, "Propose. Messages downloaded");
+			try {
 				// Save the messages to db
 				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
 				List<Message> messages = new ArrayList<Message>();
 				List<Tag> tags = new ArrayList<Tag>();
-				JSONAdapter.JSONToMessageListAndTagList(message.getContent(), 
+				JSONAdapter.JSONToMessageListAndTagList(message.getContent(),
 						messages, tags);
-				SQLiteInterface.saveMessages(context, messages); 
-				SQLiteInterface.saveTags(context, tags); 
-				
+				SQLiteInterface.saveMessages(context, messages);
+				SQLiteInterface.saveTags(context, tags);
+
 				// Save new lastUpdate
 				if (!messages.isEmpty()) {
-					int newLastUpdate = messages.get(messages.size() - 1).getId();
+					int newLastUpdate = messages.get(messages.size() - 1)
+							.getId();
 					User loggedUser = SQLiteInterface.getLoggedUser(context);
 					loggedUser.setLastUpdate(newLastUpdate);
-					SQLiteInterface.saveLoggedUser(loggedUser, context);
+					String userStr = JSONAdapter.userToJSON(loggedUser)
+							.toString();
+					SQLiteInterface.saveLoggedUser(userStr, context);
 				}
-				
+
 				// Broadcast reception
-				context.sendBroadcast(new Intent(JadeAdapter.MESSAGES_DOWNLOADED));
+				context.sendBroadcast(new Intent(
+						JadeAdapter.MESSAGES_DOWNLOADED));
 				Log.i(TAG_LOGGER, "Messages downloaded broadcast sent");
 			} catch (JSONException e) {
-				Log.e(TAG_LOGGER, "Error parsing JSON");			
-			}	
-		}else if (message.getPerformative() == ACLMessage.AGREE){			
-			Log.i(TAG_LOGGER, "User created");	
-			context.sendBroadcast(new Intent(JadeAdapter.USER_CREATED));	
-		}else if (message.getPerformative() == ACLMessage.DISCONFIRM){			
-			Log.i(TAG_LOGGER, "wrong new user");	
-			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));	
-		} 	else if (message.getPerformative() == ACLMessage.INFORM_REF){			
-			Log.i(TAG_LOGGER, "User modified");	
-			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));	
-		} 	
+				Log.e(TAG_LOGGER, "Error parsing JSON");
+			}
+		} else if (message.getPerformative() == ACLMessage.AGREE) {
+			Log.i(TAG_LOGGER, "User created");
+			context.sendBroadcast(new Intent(JadeAdapter.USER_CREATED));
+		} else if (message.getPerformative() == ACLMessage.DISCONFIRM) {
+			Log.i(TAG_LOGGER, "wrong new user");
+			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));
+		} else if (message.getPerformative() == ACLMessage.INFORM_REF) {
+			Log.i(TAG_LOGGER, "User modified");
+			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));
+		}
 	}
 }

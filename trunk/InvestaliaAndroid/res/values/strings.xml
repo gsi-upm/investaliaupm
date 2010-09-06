@@ -10,7 +10,7 @@
 <string name="new_user_button">Nuevo usuario</string>
 
 <string name="empty_field">Por favor, rellene todos los campos</string>
-<string name="user_created">Usuario creado correctamente, por favor, inicie sesión</string>
+<string name="user_created">Usuario creado correctamente</string>
 <string name="user_error">Error: el nombre de usuario ya está registrado</string>
 
 

@@ -108,9 +108,9 @@ public class LoginWorkflow extends WorkflowBehaviour {
 
 	protected void executeLoginFailure() throws Exception {
 		System.out.println("Login failure");
-		ACLMessage loginFailure = aclMessage.createReply();
-		loginFailure.setPerformative(ACLMessage.REJECT_PROPOSAL);
-		myAgent.send(loginFailure);
+		ACLMessage reply = aclMessage.createReply();
+		reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+		myAgent.send(reply);
 	}
 	
 	protected void executeLoginSuccessful() throws Exception {
@@ -120,10 +120,10 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		System.out.println("us: " + loggedUser.getUserName());
 		System.out.println("pass: " + loggedUser.getPassword());
 		
-		ACLMessage loginSuccessful = aclMessage.createReply();
-		loginSuccessful.setPerformative(ACLMessage.INFORM);
-		loginSuccessful.setContent(JSONAdapter.userToJSON(loggedUser).toString());
-		myAgent.send(loginSuccessful);
+		ACLMessage reply = aclMessage.createReply();
+		reply.setPerformative(ACLMessage.INFORM);
+		reply.setContent(JSONAdapter.userToJSON(loggedUser).toString());
+		myAgent.send(reply);
 	}
 
 	protected boolean checkMessageReceived() throws Exception{
