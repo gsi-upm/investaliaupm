@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MessagesDBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "messages.db";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 
 	// Messages table
 	public static final String MESSAGES_TABLE = "messages";
@@ -44,9 +44,9 @@ public class MessagesDBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + MESSAGES_TABLE + " (" + IDMESSAGE
 				+ " INTEGER PRIMARY KEY, " + USERNAME + " TEXT," + TITLE
-				+ " TEXT," + TEXT + " TEXT," + DATE + " DATE," + LIKED
-				+ " BOOLEAN," + READ + " BOOLEAN," + RATING + " INTEGER,"
-				+ TIMES_READ + " INTEGER);");
+				+ " TEXT," + TEXT + " TEXT," + DATE + " DATE," 
+				+ READ + " BOOLEAN," + LIKED + " BOOLEAN," + RATING + 
+				" INTEGER," + TIMES_READ + " INTEGER);");
 		db.execSQL("CREATE TABLE " + TAGS_TABLE + " (" + IDTAG
 				+ " INTEGER PRIMARY KEY, " + TAG + " TEXT);");
 		db.execSQL("CREATE TABLE " + MESSAGES_TAGS_TABLE + " (" + IDMESSAGE_TAG

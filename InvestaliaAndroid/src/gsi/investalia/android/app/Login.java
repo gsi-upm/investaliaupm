@@ -184,7 +184,7 @@ public class Login extends Activity implements OnClickListener {
 							newUser = new User(-1, userName.getText().toString(),
 									password.getText().toString(), name.getText().toString(),
 									location.getText().toString(), email.getText().toString(),
-									new ArrayList<Tag>(), 0);
+									new ArrayList<Tag>());
 							jadeAdapter.newUser(newUser);
 						}
 					}

@@ -84,6 +84,8 @@ public class SQLiteInterface {
 				ContentValues messageValues = new ContentValues();
 				messageValues.put(MessagesDBHelper.LIKED, message.isLiked());
 				messageValues.put(MessagesDBHelper.READ, message.isRead());
+				messageValues.put(MessagesDBHelper.TIMES_READ, message.getTimesRead());
+				messageValues.put(MessagesDBHelper.RATING, message.getRating());
 
 				// Update the message
 				db.update(MessagesDBHelper.MESSAGES_TABLE, messageValues, 
@@ -128,6 +130,7 @@ public class SQLiteInterface {
 			Log.d("DATABASE", "Query for messages executed");
 
 			// Extract the results
+			int idLoggedUser = getLoggedUser(activity).getId();
 			while (cursor.moveToNext()) {
 				// Format the date
 				Date date;
@@ -143,7 +146,7 @@ public class SQLiteInterface {
 				messages.add(new Message(cursor.getInt(0), cursor.getString(1),
 						cursor.getString(2), cursor.getString(3), tags, date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8)));
+								.getInt(7), cursor.getInt(8), idLoggedUser));
 			}
 			Log.d("DATABASE", "Messages added to list");
 
@@ -182,11 +185,12 @@ public class SQLiteInterface {
 					date = new Date();
 				}
 				// Add the message
-				//TODO
 				return new Message(cursor.getInt(0), cursor.getString(1),
-						cursor.getString(2), cursor.getString(3), null, date,
+						cursor.getString(2), cursor.getString(3), getMessageTags(
+								activity, cursor.getInt(0)), date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8));
+								.getInt(7), cursor.getInt(8), 
+								getLoggedUser(activity).getId());
 			}
 			Log.d("DATABASE", "Messages returned");
 
@@ -322,6 +326,20 @@ public class SQLiteInterface {
 		}
 		Log.i("DATABASE", tags.size() + " tags from db");
 		return tags;
+	}
+	
+	
+	/**
+	 * Gets the the id of the last message saved in database
+	 */
+	public static int getLastIdMessage(Activity activity) {
+		// Messages are ordered by its id
+		List<Message> messages = new ArrayList<Message>();
+		addMessages(activity, messages, MessagesDBHelper.IDMESSAGE);
+		if(messages.isEmpty()) {
+			return 0;
+		}
+		return messages.get(messages.size() - 1).getId();
 	}
 	
 	/**

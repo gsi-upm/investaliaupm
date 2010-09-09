@@ -20,6 +20,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,16 +32,17 @@ public class Compose extends Activity implements OnClickListener {
 
 	private static final String TAG_LOGGER = "Compose";
 
-	private TextView selected_topics_text;
-	private boolean tag_empty = true;
-	private Button send_button;
+	private TextView selectedTopicsText;
+	private boolean tagEmpty = true;
+	private Button sendButton;
 	private EditText title;
 	private EditText text;
 	private List<Tag> tags;
 	private CharSequence[] tagsCharSequence;
 	private boolean[] selectedTags;
-	private int selected_tags;
+	private int selectedTagsNum;
 	private User loggedUser;
+	private int dialogCount;
 	
 	// Jade
 	private JadeAdapter jadeAdapter;
@@ -60,20 +62,17 @@ public class Compose extends Activity implements OnClickListener {
 		this.intentFilter = new IntentFilter();
 		this.intentFilter.addAction(JadeAdapter.MESSAGE_OK);
 		this.intentFilter.addAction(JadeAdapter.MESSAGE_FAIL);
-		registerReceiver(this.broadcastReceiver, this.intentFilter);
+		registerReceiver(this.broadcastReceiver, this.intentFilter);		
 
-
-		
-
-		Button topic_button = (Button) findViewById(R.id.compose_topic_button);
-		selected_topics_text = (TextView) findViewById(R.id.compose_selected_topics_text);
+		Button topicButton = (Button) findViewById(R.id.compose_topic_button);
+		selectedTopicsText = (TextView) findViewById(R.id.compose_selected_topics_text);
 		title = (EditText) findViewById(R.id.compose_title);
 		text = (EditText) findViewById(R.id.compose_text);
-		send_button = (Button) findViewById(R.id.compose_send_button);
-		send_button.setEnabled(false);
+		sendButton = (Button) findViewById(R.id.compose_send_button);
+		sendButton.setEnabled(false);
 
-		topic_button.setOnClickListener(this);
-		send_button.setOnClickListener(this);
+		topicButton.setOnClickListener(this);
+		sendButton.setOnClickListener(this);
 
 		// List with all the tags
 		tags = SQLiteInterface.getTags(this); 
@@ -89,7 +88,6 @@ public class Compose extends Activity implements OnClickListener {
 			selectedTags[i] = false;
 		}
 		
-		
 		// Watcher para controlar cuando se introduce texto para activar el botón de enviar
 		TextWatcher watcher = new TextWatcher() { 
 			public void afterTextChanged(Editable s) {
@@ -104,13 +102,16 @@ public class Compose extends Activity implements OnClickListener {
 		};
 		title.addTextChangedListener(watcher);
 		text.addTextChangedListener(watcher);
+		
+		// A number to pass in showDialog. This allows simply
+		// erase the selected tags
+		this.dialogCount = 1;
 	}
 
 	public void onResume() {
 		super.onResume();
 		
 		loggedUser = SQLiteInterface.getLoggedUser(this);
-		
 		enableSendButton();
 		
 		// Start listening
@@ -124,18 +125,29 @@ public class Compose extends Activity implements OnClickListener {
 		// Stop listening
 		unregisterReceiver(this.broadcastReceiver);
 	}
-
+		
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.compose_topic_button:
-			showDialog(0);
+			showDialog(dialogCount);
 			break;
 
 		case R.id.compose_send_button:
 			sendData();
 			break;
 		}
+	}
+	
+	public void clearFields() {
+		title.setText("");
+		text.setText("");
+		for (int i = 0; i < selectedTags.length; i++) {
+			selectedTags[i] = false;
+		}
+		refreshSelectedTags();
+		this.dialogCount++;
+		enableSendButton();
 	}
 
 	/**
@@ -156,7 +168,7 @@ public class Compose extends Activity implements OnClickListener {
 		// Only fill the necessary attributes
 		// new Date() gets the current date
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
-		tags_selected, new Date(), false, false, 0, 0);
+		tags_selected, new Date(), false, false, 0, 0, -1);
 		
 		jadeAdapter.saveNewMessage(message);	
 	}
@@ -164,8 +176,9 @@ public class Compose extends Activity implements OnClickListener {
 	/**
 	 * Creates the dialog to select tags
 	 */
+	@Override
 	protected Dialog onCreateDialog(int id) {
-
+		Log.i(TAG_LOGGER, "onCreateDialog");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.topic_title);
 		builder.setMultiChoiceItems(tagsCharSequence, selectedTags,
@@ -175,60 +188,47 @@ public class Compose extends Activity implements OnClickListener {
 							boolean isChecked) {
 						selectedTags[which] = isChecked;
 						refreshSelectedTags();
+						enableSendButton();
 					}
 				});
 
 		AlertDialog alert = builder.create();
 		return alert;
 	}
-
+	
 	/**
 	 * Actualiza la lista de tags seleccionadas en la vista Actualiza el boton
 	 * de enviar
 	 */
 	private void refreshSelectedTags() {
 
-		tag_empty = true;
-		selected_tags = 0;
+		tagEmpty = true;
+		selectedTagsNum = 0;
 		String tags = "Tags: ";
 
 		for (int i = 0; i < selectedTags.length; i++) {
 			if (selectedTags[i] == true) {
-				tag_empty = false;
+				tagEmpty = false;
 				tags = tags + "\n" + tagsCharSequence[i];
-				selected_tags++;
+				selectedTagsNum++;
 			}
 		}
-		selected_topics_text.setText(tags);
+		selectedTopicsText.setText(tags);
 
-		if (tag_empty) {
-			selected_topics_text.setText(R.string.topic_none);
+		if (tagEmpty) {
+			selectedTopicsText.setText(R.string.topic_none);
 		}
-		enableSendButton();
 	}
 
 	/*
 	 * Actualiza el estado del botón enviar
 	 */
 	private void enableSendButton() {
-		if (tag_empty || title.length() == 0 || text.length() == 0) {
-			send_button.setEnabled(false);
+		if (tagEmpty || title.length() == 0 || text.length() == 0) {
+			sendButton.setEnabled(false);
 		} else {
-			send_button.setEnabled(true);
+			sendButton.setEnabled(true);
 		}
-	}
-	
-	private void sendOK() {
-		Toast.makeText(getBaseContext(), R.string.compose_sent,
-				Toast.LENGTH_SHORT).show();
-		//jadeAdapter.jadeDisconnect(this.getParent());
-	}
-	private void sendFail(){
-		Toast.makeText(getBaseContext(), R.string.compose_error,
-				Toast.LENGTH_SHORT).show();
-	//	jadeAdapter.jadeDisconnect(this);
-
-		
 	}
 	
 
@@ -239,14 +239,14 @@ public class Compose extends Activity implements OnClickListener {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(JadeAdapter.MESSAGE_OK)) {
-				sendOK();
-				
+				Toast.makeText(getBaseContext(), R.string.compose_sent,
+						Toast.LENGTH_SHORT).show();
+				clearFields();
 			}
 			else if (intent.getAction().equals(JadeAdapter.MESSAGE_FAIL)) {
-				sendFail();
+				Toast.makeText(getBaseContext(), R.string.compose_error,
+						Toast.LENGTH_SHORT).show();
 			}
-
 		}
-		
 	}
 }

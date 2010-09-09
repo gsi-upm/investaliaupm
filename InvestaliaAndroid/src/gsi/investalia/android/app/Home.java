@@ -42,37 +42,30 @@ public class Home extends Activity {
 
 		// Create the JadeAdapter
 		jadeAdapter = new JadeAdapter(this.getParent());
-		jadeAdapter.jadeConnect();
 		Main parent = (Main) getParent();
 		parent.setJadeAdapter(jadeAdapter);
 		
 		// Set the broadcast receiver
 		this.broadcastReceiver = new HomeBroadcastReceiver();
 		this.intentFilter = new IntentFilter();
-		this.intentFilter.addAction(JadeAdapter.JADE_DISCONNECTED);
 		this.intentFilter.addAction(JadeAdapter.JADE_CONNECTED);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		//jadeAdapter.jadeDisconnect();
-	}
-	
-	public void onResume() {
-		super.onResume();
-		
-		// Start listening
+		/* If the user has logged out, the activity could still be
+		   connected to Main. If so, it will connect to jade when the
+		   disconnection is successful */
+		if(JadeAdapter.isConnected()) {
+			this.intentFilter.addAction(JadeAdapter.JADE_DISCONNECTED);
+		// Otherwise, connect directly
+		} else {
+			jadeAdapter.jadeConnect();
+		}
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
 	}
-
-	public void onPause() {
-		super.onPause();
-
-		// Stop listening
-		unregisterReceiver(this.broadcastReceiver);
+	
+	@Override 
+	public void onDestroy() {
+		super.onDestroy();
+		jadeAdapter.jadeDisconnect();
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,6 +107,7 @@ public class Home extends Activity {
 			// Connected to main: can download the messages
 			if (intent.getAction().equals(JadeAdapter.JADE_CONNECTED)) {
 				Log.i(TAG_LOGGER, "Download messages");
+				unregisterReceiver(broadcastReceiver);
 				jadeAdapter.donwloadNewMessages();
 			}
 		}

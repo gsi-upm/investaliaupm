@@ -57,17 +57,15 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 
 	protected void executeRefresh() throws Exception {
 	
-		System.out.println("Executing refresh");
+		// Get data
 		String jsonStr = aclMessage.getContent();
-		// TODO 
-		System.out.println("jsonStr" + jsonStr);
 		int lastUpdate = JSONAdapter.JSONToLastUpdate(jsonStr); 
 		int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
-		// TODO 
-		System.out.println("last tag" + lastTag);
-		
-		// Get the username
 		String userName = aclMessage.getSender().getLocalName();
+		
+		// Log
+		System.out.println("Executing refresh");
+		System.out.println("content received: " + jsonStr);
 		System.out.println("username: " + userName);
 		
 		// TODO change to mysql
@@ -76,11 +74,13 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 		System.out.println("message count: " + messages.size());
 		List<Tag> tags = HsqldbInterface.getTagsSinceLast(lastTag);
 		
+		// Generate the content
+		String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
+		System.out.println("content sent: " + content);
+		
 		// Send it as reply
 		ACLMessage reply = aclMessage.createReply();
 		reply.setPerformative(ACLMessage.PROPOSE);
-		String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
-		System.out.println("content: " + content);
 		reply.setContent(content);
 		myAgent.send(reply);
 	}

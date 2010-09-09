@@ -32,6 +32,7 @@ public class JSONAdapter {
 	public static final String PASSWORD = "password";
 	public static final String LAST_TAG = "last_tag";
 	public static final String LAST_UPDATE = "last_update";
+	public static final String IDUSER_UPDATING = "iduser_upd";
 
 	public static JSONObject messageToJSON(Message message)
 			throws JSONException {
@@ -49,6 +50,7 @@ public class JSONAdapter {
 		jsonObj.put(LIKED, message.isLiked());
 		jsonObj.put(RATING, message.getRating());
 		jsonObj.put(TIMES_READ, message.getTimesRead());
+		jsonObj.put(IDUSER_UPDATING, message.getIdUserUpdating());
 		return jsonObj;
 	}
 
@@ -59,8 +61,8 @@ public class JSONAdapter {
 				jsonObj.getString(TITLE), jsonObj.getString(TEXT),
 				JSONToTagList(jsonObj.getString(TAGS)), new Date(jsonObj
 						.getLong(DATE_MILIS)), jsonObj.getBoolean(READ),
-				jsonObj.getBoolean(LIKED), jsonObj.getInt(RATING), jsonObj
-						.getInt(TIMES_READ));
+				jsonObj.getBoolean(LIKED), jsonObj.getInt(RATING), 
+				jsonObj.getInt(TIMES_READ), jsonObj.getInt(IDUSER_UPDATING));
 	}
 
 	public static void JSONToMessageList(String jsonStr, List<Message> messages)
@@ -141,7 +143,6 @@ public class JSONAdapter {
 		jsonObj.put(LOCATION, user.getLocation());
 		jsonObj.put(EMAIL, user.getEmail());
 		jsonObj.put(TAGS, tagListToJSON(user.getTagsFollowing()));
-		jsonObj.put(LAST_UPDATE, user.getLastUpdate());
 		return jsonObj;
 	}
 
@@ -150,8 +151,7 @@ public class JSONAdapter {
 		return new User(jsonObj.getInt(ID), jsonObj.getString(USER_NAME),
 				jsonObj.getString(PASSWORD), jsonObj.getString(NAME), jsonObj
 						.getString(LOCATION), jsonObj.getString(EMAIL),
-				JSONToTagList(jsonObj.getString(TAGS)), jsonObj
-						.getInt(LAST_UPDATE));
+				JSONToTagList(jsonObj.getString(TAGS)));
 	}
 
 	public static List<User> JSONToUserList(String jsonStr)

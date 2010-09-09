@@ -1,5 +1,6 @@
 package gsi.investalia.android.app;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 import gsi.investalia.android.db.SQLiteInterface;
@@ -27,7 +28,10 @@ public class ReadMessage extends Activity {
 		// Get the message
 		Bundle bun = getIntent().getExtras();
 		message = SQLiteInterface.getMessage(this, bun.getInt("message_id"));
-		message.setRead(true);
+		if(!message.isRead()) {
+			message.setTimesRead(message.getTimesRead() + 1);
+			message.setRead(true);
+		}
 		
 		// Save that is read
 		SQLiteInterface.updateMessage(ReadMessage.this, message);
@@ -37,9 +41,9 @@ public class ReadMessage extends Activity {
 		TextView date = (TextView) findViewById(R.id.read_date);
 		TextView title = (TextView) findViewById(R.id.read_title);
 		TextView text = (TextView) findViewById(R.id.read_text);
-		TextView text_score = (TextView) findViewById(R.id.read_score);
-		RatingBar stars = (RatingBar) findViewById(R.id.read_RatingBar);
+		
 		liked = (CheckBox) findViewById(R.id.read_liked);
+		liked.setChecked(message.isLiked());
 		liked.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -47,24 +51,45 @@ public class ReadMessage extends Activity {
 				/* Saves into db 'read' and 'liked'. 
 				 * MessageList will send it to server
 				 * Done here instead of in the onDestroy to simply
-				 * avoid problems of synchronizing
+				 * avoid problems of synchronizing (if its done in the
+				 * onDestroy the jade connection may start before the query
+				 * is ready
 				 */
 				message.setLiked(liked.isChecked());
+				if(message.isLiked()) {
+					message.setRating(message.getRating() + 1);
+				} else {
+					message.setRating(message.getRating() - 1);
+				}
+				setScore();
 				SQLiteInterface.updateMessage(ReadMessage.this, message);
 				Log.v(TAG_LOGGER, "Liked message: " + liked.isChecked());		
 			}
 		});
 
-		user.setText(message.getUserName());
+		user.setText("@" + message.getUserName());
 		String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW).format(message
 				.getDate());
 		date.setText(dateStr);
 		title.setText(message.getTitle());
 		text.setText(message.getText());
 
-		// TODO ¿how to handle score?
-		float score = (float) 4.20;
-		text_score.setText(getString(R.string.score) + ": " + score + "/5.0");
+		// Set the score
+		setScore();
+	}
+	
+	public void setScore() {
+		// Get the views 
+		TextView textScore = (TextView) findViewById(R.id.read_score);
+		RatingBar stars = (RatingBar) findViewById(R.id.read_RatingBar);
+		
+		// Calculate the score
+		float score = (float) 5.0 * message.getRating() / message.getTimesRead();
+		
+		// Set the values
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		textScore.setText(getString(R.string.score) + ": " + nf.format(score) + "/5.0 (leído " + message.getTimesRead() + " veces)");
 		stars.setRating(score);
 	}
 }
