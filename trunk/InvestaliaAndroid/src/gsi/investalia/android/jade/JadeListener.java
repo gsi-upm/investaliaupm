@@ -20,10 +20,8 @@ import android.content.Intent;
 
 /**
  * This class implements the ACLMessageListener interface and it is called by
- * the agent to update the GUI when a message is received
- * 
- * @author Stefano Semeria Reply Cluster
- * @author Tiziana Trucco Telecomitalia
+ * the agent to process the jade messages and send the broadcast messages
+ * to the activities to refresh
  */
 
 public class JadeListener implements ACLMessageListener {
@@ -76,17 +74,6 @@ public class JadeListener implements ACLMessageListener {
 						messages, tags);
 				SQLiteInterface.saveMessages(context, messages);
 				SQLiteInterface.saveTags(context, tags);
-
-				// Save new lastUpdate
-				if (!messages.isEmpty()) {
-					int newLastUpdate = messages.get(messages.size() - 1)
-							.getId();
-					User loggedUser = SQLiteInterface.getLoggedUser(context);
-					loggedUser.setLastUpdate(newLastUpdate);
-					String userStr = JSONAdapter.userToJSON(loggedUser)
-							.toString();
-					SQLiteInterface.saveLoggedUser(userStr, context);
-				}
 
 				// Broadcast reception
 				context.sendBroadcast(new Intent(

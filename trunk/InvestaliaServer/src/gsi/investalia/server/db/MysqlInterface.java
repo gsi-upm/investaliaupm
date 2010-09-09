@@ -231,7 +231,7 @@ public class MysqlInterface {
 			if (rs.next()) {
 				return new User(rs.getInt(1), rs.getString(2), rs.getString(3),rs.getString(4),
 						rs.getString(5), rs.getString(6), getTagsFollowing(rs
-								.getInt(1)), rs.getInt(7));
+								.getInt(1)));
 				// TODO Check if "LAST UPDATE" is OK
 				
 				// Constructor: id,userName,PASSWORD,name,location,email,tagsFollowing, LASTUPDATE
@@ -297,7 +297,7 @@ public class MysqlInterface {
 			m = new Message(rs.getInt(1), getUser(rs.getInt(2)).getUserName(),
 					rs.getString(3), rs.getString(4), getMessageTags(rs
 							.getInt(1)), rs.getDate(5), false, false, rs
-							.getInt(6), rs.getInt(7));
+							.getInt(6), rs.getInt(7), -1 /* TODO */);
 		} catch (SQLException e) {
 			return null;
 		}

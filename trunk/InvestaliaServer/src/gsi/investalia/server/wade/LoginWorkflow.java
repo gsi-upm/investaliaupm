@@ -114,15 +114,17 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 	
 	protected void executeLoginSuccessful() throws Exception {
-		System.out.println("Login successful");
+		// Content
+		String content = JSONAdapter.userToJSON(loggedUser).toString();
 		
 		// Log
-		System.out.println("us: " + loggedUser.getUserName());
-		System.out.println("pass: " + loggedUser.getPassword());
+		System.out.println("Login successful");
+		System.out.println("user: " + content);
 		
+		// Reply
 		ACLMessage reply = aclMessage.createReply();
 		reply.setPerformative(ACLMessage.INFORM);
-		reply.setContent(JSONAdapter.userToJSON(loggedUser).toString());
+		reply.setContent(content);
 		myAgent.send(reply);
 	}
 

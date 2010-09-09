@@ -117,6 +117,7 @@ public class Profile extends PreferenceActivity implements
 	 */
 	protected Dialog onCreateDialog(int id) {
 
+		Log.v(TAG_LOGGER, "onCreateDialog");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.topic_title);
 		builder.setMultiChoiceItems(tagsCharsequence, selected,
@@ -136,7 +137,7 @@ public class Profile extends PreferenceActivity implements
 	 * Gets the data saved
 	 */
 	private void loadData() {	
-		Log.i(TAG_LOGGER, "Loading data"); 
+		Log.v(TAG_LOGGER, "Loading data"); 
 		
 		// Get the logged user
 		loggedUser = SQLiteInterface.getLoggedUser(this);
@@ -178,13 +179,13 @@ public class Profile extends PreferenceActivity implements
 		// Create a new user object with the modified attributes
 		List<Tag> selectedTags = new ArrayList<Tag>();
 		for (int i = 0; i < selected.length; i++) {
-			if (selected[i]) { // TODO is it okay?
+			if (selected[i]) { 
 				selectedTags.add(new Tag(i + 1, ""));
 			}
 		}
 		User modifiedUser = new User(loggedUser.getId(), user_nick_name
 				.getText(), user_password.getText(), user_name.getText(),
-				user_location.getText(), user_email.getText(), selectedTags, 0);
+				user_location.getText(), user_email.getText(), selectedTags);
 
 		// Saves the user profile
 		jadeAdapter.updateUser(modifiedUser);

@@ -57,10 +57,4 @@ public class Main extends TabActivity {
 	public void setJadeAdapter(JadeAdapter jadeAdapter) {
 		this.jadeAdapter = jadeAdapter;
 	}
-	
-	@Override 
-	public void onDestroy() {
-		super.onDestroy();
-		jadeAdapter.jadeDisconnect();
-	}
 }

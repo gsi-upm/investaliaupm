@@ -38,7 +38,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 	private static final String DATE_FORMAT_SHOW = "dd/MM/yyyy";
 	private int orderingBy;
 	private ArrayAdapter<Message> arrayAdapter;
-	private Message selectedMessage;
+	private int selectedIndex;
 	
 	// Jade
 	private JadeAdapter jadeAdapter;
@@ -60,7 +60,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 
 		// List of messages
 		messages = new ArrayList<Message>();
-		selectedMessage = null;
+		selectedIndex = -1;
 		
 		// ListView
 		ListView listView = (ListView) findViewById(R.id.message_list);
@@ -90,11 +90,21 @@ public class MessageList extends Activity implements OnItemClickListener {
 						.findViewById(R.id.date);
 				ImageView imageView = (ImageView) itemView
 						.findViewById(R.id.user_image);
-
+				
 				// Inflate the views
 				Message m = getItem(position);
-				userView.setText(m.getUserName());
-				titleView.setText(m.getTitle());
+				
+				// TODO
+				String readAndLiked = " ";
+				if(m.isRead()) {
+					readAndLiked += "r";
+				}
+				if(m.isLiked()) {
+					readAndLiked += "l";
+				}
+				
+				userView.setText("@" + m.getUserName());
+				titleView.setText(m.getTitle() + readAndLiked);
 				String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW).format(m.getDate());
 				dateView.setText(dateStr);
 
@@ -104,9 +114,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 		};	
 		listView.setAdapter(arrayAdapter);
 		
-		// Add messages from database
-		SQLiteInterface.addMessages(this, messages, null);
-		arrayAdapter.notifyDataSetChanged();
+		
 		
 		// Create the JadeAdapter
 		jadeAdapter = ((Main) getParent()).getJadeAdapter();
@@ -121,10 +129,14 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		
+		// Add messages from database
+		SQLiteInterface.addMessages(this, messages, null);
+		arrayAdapter.notifyDataSetChanged();
+		
 		// Update the last message read (if any)
-		if (selectedMessage != null) {
-			jadeAdapter.updateMessage(selectedMessage);
-			selectedMessage = null;
+		if (selectedIndex != -1) {
+			jadeAdapter.updateMessage(messages.get(selectedIndex));
+			selectedIndex = -1;
 		}
 		
 		// Start listening
@@ -146,8 +158,8 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public void onItemClick(AdapterView av, View v, int index, long arg3) {		
 		// Send the message id
 		Bundle bundle = new Bundle();
-		selectedMessage = messages.get(index);
-		bundle.putInt("message_id", selectedMessage.getId());
+		selectedIndex = index;
+		bundle.putInt("message_id", messages.get(index).getId());
 		Intent intent = new Intent(this, ReadMessage.class);
 		intent.putExtras(bundle);
 		startActivity(intent);

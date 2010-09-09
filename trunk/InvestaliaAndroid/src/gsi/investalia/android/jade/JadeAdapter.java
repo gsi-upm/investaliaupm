@@ -111,13 +111,11 @@ public class JadeAdapter implements ConnectionListener {
 
 	public void donwloadNewMessages() {
 		Log.i("ANDROID", "Ask for new messages");
-		// Get the loggedUser
-		User loggedUser = SQLiteInterface.getLoggedUser(activity);
 
-		// Pass the last update and last tag in the content
+		// Pass the last idMessage and last idTag in the content
 		String content;
 		try {
-			content = JSONAdapter.updatesToJSON(loggedUser.getLastUpdate(),
+			content = JSONAdapter.updatesToJSON(SQLiteInterface.getLastIdMessage(activity),
 					SQLiteInterface.getLastIdTag(activity)).toString();
 		} catch (JSONException e1) {
 			Log.e(TAG_LOGGER, "Error parsing JSON (download messages)");

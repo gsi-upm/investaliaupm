@@ -11,11 +11,9 @@ public class User {
 	private String location;
 	private String email;
 	private List<Tag> tagsFollowing;
-	private int lastUpdate;
 
 	public User(int id, String userName, String password, String name, 
-			String location, String email, List<Tag> tagsFollowing, 
-			int lastUpdate) {
+			String location, String email, List<Tag> tagsFollowing) {
 		super();
 		this.id = id;
 		this.userName = userName;
@@ -24,7 +22,6 @@ public class User {
 		this.location = location;
 		this.email = email;
 		this.tagsFollowing = tagsFollowing;
-		this.lastUpdate = lastUpdate;
 	}
 	
 	
@@ -38,7 +35,6 @@ public class User {
 		this.location = "";
 		this.email = "";
 		this.tagsFollowing = new ArrayList<Tag>();
-		this.lastUpdate = 0;
 	}
 
 
@@ -97,14 +93,6 @@ public class User {
 
 	public void setTagsFollowing(List<Tag> tagsFollowing) {
 		this.tagsFollowing = tagsFollowing;
-	}
-
-	public int getLastUpdate() {
-		return lastUpdate;
-	}
-
-	public void setLastUpdate(int lastUpdate) {
-		this.lastUpdate = lastUpdate;
 	}
 
 	@Override

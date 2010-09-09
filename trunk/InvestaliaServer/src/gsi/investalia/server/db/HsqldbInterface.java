@@ -93,7 +93,7 @@ public class HsqldbInterface {
 	public static boolean updateReadAndLiked(Message m) {
 		connectToDatabase();
 
-		int idUser = getUser(m.getUserName()).getId();
+		int idUser = m.getIdUserUpdating();
 		Message oldMessage = getMessage(m, idUser);
 		// If the "new message" is not read, the method does nothing
 		if (!m.isRead()) {
@@ -258,8 +258,8 @@ public class HsqldbInterface {
 	 */
 	public static List<Message> getAllUserMessages(String userName) {
 		int idUser = getUser(userName).getId();
-		return getMessagesFromQuery("SELECT * FROM messages WHERE idUser = "
-				+ idUser + idUser, idUser);
+		return getMessagesFromQuery("SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt WHERE m.idmessage = mt.idmessage AND idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
+				+ idUser + ")", idUser);
 	}
 
 	/**
@@ -268,8 +268,8 @@ public class HsqldbInterface {
 	public static List<Message> getUserMessagesSinceLast(String userName,
 			int idMessageLast) {
 		int idUser = getUser(userName).getId();
-		String query = "SELECT * FROM messages WHERE idUser = " + idUser
-				+ " AND idMessage > " + idMessageLast;
+		String query = "SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt WHERE m.idmessage = mt.idmessage AND idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
+			+ idUser + ") AND idmessage > " + idMessageLast;
 		return getMessagesFromQuery(query, idUser);
 	}
 
@@ -328,7 +328,7 @@ public class HsqldbInterface {
 			if (rs.next()) {
 				return new User(rs.getInt(1), rs.getString(2), rs.getString(3),
 						rs.getString(4), rs.getString(5), rs.getString(6),
-						getTagsFollowing(rs.getInt(1)), 0 /* irrelevant */);
+						getTagsFollowing(rs.getInt(1)));
 				// Constructor:
 				// id,userName,password,name,location,email,tagsFollowing,lastUpdate
 				// Db: IDUSER,USERNAME,PASSWORD,NAME,LOCATION,EMAIL
@@ -340,12 +340,12 @@ public class HsqldbInterface {
 	}
 
 	private static List<Tag> getTagsFollowing(int idUser) {
-		return getTagListFromQuery("SELECT t.* FROM users_tags AS ut, tags AS t WHERE idUser = "
+		return getTagListFromQuery("SELECT t.* FROM users_tags AS ut, tags AS t WHERE t.idTag = ut.idTag AND idUser = "
 				+ idUser);
 	}
 
 	private static List<Tag> getMessageTags(int idMessage) {
-		return getTagListFromQuery("SELECT t.* FROM messages_tags AS mt, tags AS t WHERE idMessage = "
+		return getTagListFromQuery("SELECT t.* FROM messages_tags AS mt, tags AS t WHERE t.idTag = mt.idTag AND idMessage = "
 				+ idMessage);
 	}
 
@@ -395,7 +395,7 @@ public class HsqldbInterface {
 			m = new Message(rs.getInt(1), getUser(rs.getInt(2)).getUserName(),
 					rs.getString(3), rs.getString(4), getMessageTags(rs
 							.getInt(1)), new Date(rs.getLong(5)), false, false, rs
-							.getInt(6), rs.getInt(7));
+							.getInt(6), rs.getInt(7), idUser);
 		} catch (SQLException e) {
 			System.out.println("SQL Exception");
 			return null;
