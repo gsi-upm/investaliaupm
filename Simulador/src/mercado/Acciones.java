@@ -11,6 +11,8 @@ public class Acciones {
 	private double ultimoPorcentaje;
 	private double max;
 	private double min;
+	private int maxReached;
+	private int minReached;
 	private double maximumVariation;
 	private Random random;	
 	private ArrayList<Double> historicoAccion = new ArrayList<Double>(Properties.STOCK_MEMORY);
@@ -20,14 +22,17 @@ public class Acciones {
 		this.nombre = nombre;
 		this.valor = valor;
 		this.ultimoPorcentaje = ultimoPorcentaje;
-		this.setMax(max);
+		this.max = max;
 		this.min = min;
 		this.maximumVariation = maximumVariation;
+		System.out.println("Random:"+(long)(valor * (new Date()).getTime()));
 		random = new Random((long)(valor * (new Date()).getTime()));
 	}
 
 	public double getVariation() {
 		double variation = random.nextGaussian()/3;
+		if(variation > 0) //Bear Market -> variation *= 0.X, Bull Market -> variation *= 1.X
+			variation *= 0.92;
 		if(variation > 1)
 			variation = 1;
 		else if(variation < -1)
@@ -59,6 +64,20 @@ public class Acciones {
 	}
 	public void setValor(double valor) {
 		this.valor = valor;
+	}
+	public double setValor(double valor, double variation) {
+		if(valor * (1+variation) > max) {
+			valor = valor * (1 - 2 * variation);
+			maxReached++;
+			return -2*variation;
+		}
+		else if(valor * (1+variation) < min) {
+			valor = valor * (1 - 2 * variation);
+			minReached++;
+			return -2*variation;
+		}
+		this.valor = valor * (1+variation);
+		return variation;
 	}
 	public double getValor() {
 		return valor;
@@ -97,6 +116,12 @@ public class Acciones {
 		return historicoAccion;
 	}
 	
+	public int getMaxReached () {
+		return maxReached;
+	}
+	public int getMinReached () {
+		return minReached;
+	}
 	/**
 	 * add a movement to the memory of the exchange
 	 * 

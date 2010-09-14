@@ -18,6 +18,11 @@ public abstract class InvestorType {
 	double sellTable[][];
 	double sellAll[];
 	
+	//For statistics
+	int buys = 0;
+	int sells = 0;
+	double capitalWithNegativeReturn = 0;
+	
 	public abstract void jugarEnBolsa(Ibex35 miBolsa);
 	
 	public abstract String getAgentTypeToString();
