@@ -32,9 +32,9 @@ public class Ibex35 extends CellOccupant {
 	
 	
 	public void rellenarAcciones(){
-		ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 55, 11, 0.11));
-		ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 140, 30, 0.13));
-		ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 35, 6, 0.15));
+		ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.11));
+		ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.13));
+		ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.15));
 		System.out.println("Acciones rellenadas");
 	}
 
@@ -43,7 +43,8 @@ public class Ibex35 extends CellOccupant {
 			double variation = accion.getVariation();
 			//TODO: variation in stocks can overpass maximum and minimun value 
 			//      of the stocks configured in the constructor
-			accion.setValor(accion.getValor() * (1 + variation));			 
+			//accion.setValor(accion.getValor() * (1 + variation));
+			variation = accion.setValor(accion.getValor(), variation);
 			//System.out.println("Variation "+accion.getNombre()+": "+accion.getVariation()+" value:"+accion.getValor());
 			
 			//accion.setValor(randomInRange(accion.getMax(), accion.getMin()));			

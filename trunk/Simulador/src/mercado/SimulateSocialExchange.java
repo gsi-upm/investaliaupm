@@ -20,7 +20,7 @@ public class SimulateSocialExchange extends Scape {
 	public Scape personas;
 	public Scape bolsa;
 	//public static Bolsa miBolsa;
-	public Ibex35 miBolsa;
+	private Ibex35 miBolsa;
 	private List<Mensaje> popularMessages[] = new ArrayList[1];	
 	private int nInversores = 400;
 	private int nBolsas = 1;
@@ -123,8 +123,8 @@ public class SimulateSocialExchange extends Scape {
 		return nInversores;
 	}
 	
-	public Scape getBolsa(){
-		return bolsa;
+	public Ibex35 getStock(){
+		return miBolsa;
 	}
 	
 }

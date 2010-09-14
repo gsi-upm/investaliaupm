@@ -14,9 +14,13 @@ public class IntelligentInvestor extends InvestorType {
 	boolean isTruster;
 	boolean habits;
 	boolean isEspeculator;
-	boolean isOptimism;	
+	boolean isOptimism;
 	
-	Map<String, Double> memoryPonderation; 
+	static int debugParam;
+	
+	Map<String, Double> memoryPonderation;
+	
+	double sharePercentInSell = 0;
 	
 	public IntelligentInvestor(Inversores investor) {
 		iteraccionesCompra = 4;
@@ -26,11 +30,54 @@ public class IntelligentInvestor extends InvestorType {
         actividadComprar = Properties.BUY_PROBABILITY;
         actividadVender = Properties.SELL_PROBABILITY;
         //if one share along the movements decrease his value in 15% you might buy
-        rentabilidadCompra = Properties.BUY_PROFITABILITY;
+        rentabilidadCompra = investor.randomInRange(Properties.BUY_PROFITABILITY[0],Properties.BUY_PROFITABILITY[1]);
         this.investor = investor;
-        configureIntelligent (investor.randomIs(), investor.randomIs(), investor.randomIs(), 
-				investor.randomIs(), investor.randomIs());
+        if(investor.randomInRange(0.0, 1.0) < Properties.PERCEPTION_PROBABILITY)
+        	this.perception = true;
+        else
+        	this.perception = false;
+        if(investor.randomInRange(0.0, 1.0) < Properties.IMPULSIVE_PROBABILITY)
+        	this.impulsive = true;
+        else
+        	this.impulsive = false;
+        if(investor.randomInRange(0.0, 1.0) < Properties.ANXIETY_PROBABILITY)
+        	this.anxiety = true;
+        else
+        	this.anxiety = false;
+        if(investor.randomInRange(0.0, 1.0) < Properties.MEMORY_PROBABILITY)
+        	this.memory = true;
+        else
+        	this.memory = false;
+        if(investor.randomInRange(0.0, 1.0) < Properties.DIVERSIFICATION_PROBABILITY)
+        	this.isDiversifier = true;
+        else
+        	this.isDiversifier = false;
+        configureIntelligent();
+        //configureIntelligent (investor.randomIs(), investor.randomIs(), 
+        //		investor.randomIs(),investor.randomIs(), investor.randomIs());
+        
 		System.out.println("id:"+investor.getId()+" - Intelligent Agent configured");
+		
+		debugParam = investor.getId();
+			
+	}
+	
+	private void configureIntelligent () {
+		if(!perception) {
+			this.actividadComprar /= Properties.PERCEPTION_DEGRADATION;
+			this.actividadVender /= Properties.PERCEPTION_DEGRADATION;
+		}
+		if(anxiety) {
+			sellTable = Properties.anxietySellTable;
+			sellAll = Properties.anxietySellAll;
+		} else {
+			sellTable = Properties.sellTable;
+			sellAll = Properties.sellAll;
+		}
+		if(memory)
+			memoryPonderation = new HashMap<String, Double>();
+		if(impulsive)
+			maxValorCompra *= Properties.IMPULSIVE_INCREMENTATION;
 	}
 	
 	private void configureIntelligent (boolean perception, boolean anxiety, boolean memory,
@@ -77,10 +124,8 @@ public class IntelligentInvestor extends InvestorType {
 				}*/				
 				int sharesToSell = (int) (myInversion.getInitialQuantity() * 
 					getPercentToSell(share.getValor(),myInversion.getValorCompra(),inversionClusterTime)/100);
-				if(investor.getId() == 8)
-					System.out.println("id:"+investor.getId()+" Perc:"+perception+" anx:"	+anxiety+" inverTime:"+inversionClusterTime+
-						" imp:"+impulsive+" sharesToSell:"+sharesToSell+" liquidity:"+liquidez);
 				if (sharesToSell > 0){
+					sells++;
 					if(sharesToSell > myInversion.getCantidad())
 						sharesToSell = myInversion.getCantidad();
 					myInversion.setCantidad(myInversion.getCantidad() - sharesToSell);
@@ -88,6 +133,8 @@ public class IntelligentInvestor extends InvestorType {
 					liquidez +=  stockLiquidity;
 					double inversionReturn = (share.getValor() - myInversion.getValorCompra()) 
 						/ myInversion.getValorCompra();
+					if(inversionReturn < 0)
+						capitalWithNegativeReturn += stockLiquidity;
 					investor.updateFinancialReputation(stockLiquidity, inversionReturn);
 					//System.out.println("("+ time +") id :" + getId() + ", vendo ("+  number2sell + " de " + 
 					//	accionesAntesVenta + "): " + accionesBolsa.getNombre() + ", total ingreso: " + stockLiquidity);						
@@ -96,10 +143,15 @@ public class IntelligentInvestor extends InvestorType {
 						id--;							
 					}							
 				}
+				
+				//if(investor.getId() == debugParam)
+				//	System.out.println("id:"+investor.getId()+" Perc:"+perception+" anx:"+anxiety+" invClus:"+
+				//		inversionClusterTime+" imp:"+impulsive+" s2s:"+sharesToSell+" val:"+share.getValor()+
+				//		" liq:"+liquidez+" num:"+investor.misAcciones.size()+" rent:"+rentabilidadCompra);				
 			}			
-		}		
+		}
 		
-		//comprar
+		//Buy
 		if (liquidez > 0 && investor.randomInRange(0.0,1.0) < actividadComprar){
 			//para cada accion de la bolsa, tendre que ver si me interesa comprar
 			// si compro le tengo que construir un objeto accion y meterlo en todas las acciones
@@ -110,7 +162,9 @@ public class IntelligentInvestor extends InvestorType {
 				for ( int i = iteraccionesCompra-1; i<historico.size(); i++) {
 					suma += historico.get(i);
 				}
-				//if(investor.getId() == 8)
+				//if(investor.getId() == debugParam)
+				//	System.out.println("SUMA del historico:"+suma);
+				//if(investor.getId() == debugParam)
 				//	System.out.println("id:"+investor.getId()+" nombre:"+accionesBolsa.getNombre()+
 				//		" rentabilidad a comprar:"+suma);
 				if (suma <= rentabilidadCompra) {
@@ -131,6 +185,7 @@ public class IntelligentInvestor extends InvestorType {
 						//} else {
 						//	number2buy =  ((int)randomInRange(1, limite1));
 						//}
+						buys++;
 						number2buy =  ((int)investor.randomInRange(1, limite1));
 						if(impulsive)
 							number2buy = (int) (number2buy * suma/rentabilidadCompra);
@@ -148,6 +203,7 @@ public class IntelligentInvestor extends InvestorType {
 			}
 			//Estimates the capital I have.
 			investor.setCapital(miBolsa, liquidez);
+			this.maxValorCompra = Math.max(Properties.MAX_BUY_VALUE, liquidez*0.05);
 		}		
 	}
 	
@@ -192,8 +248,8 @@ public class IntelligentInvestor extends InvestorType {
 		if(memory)
 			agentType += "MEM,";
 		if(isDiversifier)
-			agentType += "DIV";
-		return agentType + "]";
+			agentType += "DIV,";
+		return agentType + rentabilidadCompra + "]";
 	}
 	
 }

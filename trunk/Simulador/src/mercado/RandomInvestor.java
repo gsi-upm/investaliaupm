@@ -8,8 +8,8 @@ public class RandomInvestor extends InvestorType {
 	public RandomInvestor(Inversores investor) {
 		liquidez = Properties.INITIAL_LIQUIDITY/2;
 		maxValorCompra = Properties.MAX_BUY_VALUE;
-		actividadVender = 0.2;
-		actividadComprar = 0.2;		
+		actividadVender = 0.15;
+		actividadComprar = 0.15;		
 		this.investor = investor;
 	}
 	
@@ -24,6 +24,7 @@ public class RandomInvestor extends InvestorType {
 		for(int id = 0; id < investor.misAcciones.size(); id++) {
 			if(investor.randomInRange(0.0,1.0) > actividadVender)
 				continue;
+			sells++;
 			Accion myInversion = investor.misAcciones.get(id);
 			Acciones share = accionesDeBolsa.get(myInversion.getIdCompany());
 			int sharesToSell = investor.randomInRange(1,myInversion.getInitialQuantity());
@@ -34,6 +35,8 @@ public class RandomInvestor extends InvestorType {
 			liquidez +=  stockLiquidity;
 			double inversionReturn = (share.getValor() - myInversion.getValorCompra()) 
 				/ myInversion.getValorCompra();
+			if(inversionReturn < 0)
+				capitalWithNegativeReturn += stockLiquidity;
 			investor.updateFinancialReputation(stockLiquidity, inversionReturn);
 			if (myInversion.getCantidad() <= 0) {
 				investor.misAcciones.remove(myInversion);
@@ -41,7 +44,7 @@ public class RandomInvestor extends InvestorType {
 			}
 		}		
 		
-		//comprar
+		//Buy
 		if (liquidez > 0){
 			for (Acciones accionesBolsa : accionesDeBolsa.values()) {
 				if(investor.randomInRange(0.0,1.0) > actividadComprar)
@@ -50,6 +53,7 @@ public class RandomInvestor extends InvestorType {
 				int limite2 = (int)(liquidez / accionesBolsa.getValor());
 				int number2buy = 0;
 				if (limite1 > 0 && limite2 > 0){
+					buys++;
 					number2buy =  ((int)investor.randomInRange(1, limite1));
 					if(number2buy > limite2)
 						number2buy = limite2;
@@ -60,6 +64,9 @@ public class RandomInvestor extends InvestorType {
 				}
 			}			
 		}
+		//Estimates the capital I have.
+		investor.setCapital(miBolsa, liquidez);
+		this.maxValorCompra = Math.max(Properties.MAX_BUY_VALUE, liquidez*0.1);
 	}
 
 }

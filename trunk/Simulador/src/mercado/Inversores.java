@@ -70,7 +70,7 @@ public class Inversores extends CellOccupant {
 	//reputations:
 	private double popularity = 0;
 	private double financialReputation = 0;
-	private int globalLiquidity = 0;
+	private double globalLiquidity = 0;
 	private double globalReturn = 0;
 	private double activityReputation[];
 	
@@ -103,15 +103,18 @@ public class Inversores extends CellOccupant {
     	followerHistory = new int[]{0,0};
     	uniqueFollowerHistory = new int[]{0,0};
     	//Investor:
-    	int investorType = randomInRange(0, 3);
-        if (investorType < 2) {
+    	double totalProbability = Properties.INTELLIGENT_INVESTOR_PROBABILITY +
+    		Properties.AMATEUR_INVESTOR_PROBABILITY + Properties.RANDOM_INVESTOR_PROBABILITY;	
+    	double investorType = randomInRange(0.0, totalProbability);
+        if (investorType < Properties.INTELLIGENT_INVESTOR_PROBABILITY) {
             tipoAgente[0] = EXPERIMENTED_INVESTOR;            
             investor = new IntelligentInvestor(this);
             //aggressive investor
             //iteraccionesCompra = 3;
             //iteracionesVenta = 2;
             //calm investor            
-        } else if(investorType == 2) {
+        } else if(investorType < (Properties.INTELLIGENT_INVESTOR_PROBABILITY +
+        		Properties.AMATEUR_INVESTOR_PROBABILITY)) {
         	tipoAgente[0] = AMATEUR_INVESTOR;
         	investor = new AmateurInvestor(this);
         	/*//calm investor
@@ -209,17 +212,75 @@ public class Inversores extends CellOccupant {
 						 j*Properties.POPULARITY_INCREMENTATION_EXPONENCIAL_FACTOR/sizePopularMessages-1));
 				}
 			}
-			if(time % Properties.STATISTICS_INTERVAL == 1) { //Generate reputation statistics
+			if(time % Properties.STATISTICS_INTERVAL == 1) { //Generate statistics
 				System.out.println("Estadistica en intervalo "+time+":");
+				Ibex35 ibex35 = null;
 				for(Object cell : scape) {
 					if(cell instanceof Inversores)
 						((Inversores)cell).generateActivityReputation();
+					if(cell instanceof Ibex35) {
+						ibex35 = (Ibex35) cell;
+					}
 				}
+				double intelligentStatistics[][][] = new double[5][2][7]; 
+					//0=IMP,1=PER,2=ANX,3=MEM,4=DIV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=LIQ,6=CapNegReturn
+				double investorStatistics[][] = new double[3][8]; 
+					//0=EXP_INV,1=AMA_INV,2=RA_INV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=liquidity,
+					//  6=capitalWithNegativeReturn,7=buyProfibility,sellRange,X	
 				List<Inversores> sortInvestorByFinance = sortByFinancialReputation(scape);
 				for(int i = 0; i < sortInvestorByFinance.size(); i++) {
 					Inversores cell = sortInvestorByFinance.get(i);
 					System.out.println("  id:" + cell.getId() + cell.getAgentTypeToString() + " with financial reputation:" +
-							cell.getGlobal_return() );					
+							cell.getGlobalReturn() );
+					investorStatistics[cell.getTipoAgente()[0]][0] += cell.investor.buys;
+					investorStatistics[cell.getTipoAgente()[0]][1] += cell.investor.sells;
+					investorStatistics[cell.getTipoAgente()[0]][2]++;
+					investorStatistics[cell.getTipoAgente()[0]][3] += cell.getGlobalReturn();
+					investorStatistics[cell.getTipoAgente()[0]][4] += cell.capital;
+					investorStatistics[cell.getTipoAgente()[0]][5] += cell.investor.liquidez;
+					investorStatistics[cell.getTipoAgente()[0]][6] += cell.investor.capitalWithNegativeReturn;
+					if(cell.getTipoAgente()[0] == EXPERIMENTED_INVESTOR)
+						investorStatistics[cell.getTipoAgente()[0]][7] += cell.investor.rentabilidadCompra;
+					else if(cell.getTipoAgente()[0] == AMATEUR_INVESTOR)
+						investorStatistics[cell.getTipoAgente()[0]][7] += cell.investor.sellTable[0][0];
+					if(cell.investor instanceof IntelligentInvestor) {
+						IntelligentInvestor intelligentCell = (IntelligentInvestor)cell.investor;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][0] += intelligentCell.buys;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][1] += intelligentCell.sells;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][2]++;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][3] += cell.getGlobalReturn();
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][4] += cell.capital;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][5] += intelligentCell.liquidez;
+						intelligentStatistics[0][intelligentCell.impulsive?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+						intelligentStatistics[1][intelligentCell.perception?1:0][0] += intelligentCell.buys;
+						intelligentStatistics[1][intelligentCell.perception?1:0][1] += intelligentCell.sells;
+						intelligentStatistics[1][intelligentCell.perception?1:0][2]++;
+						intelligentStatistics[1][intelligentCell.perception?1:0][3] += cell.getGlobalReturn();
+						intelligentStatistics[1][intelligentCell.perception?1:0][4] += cell.capital;
+						intelligentStatistics[1][intelligentCell.perception?1:0][5] += intelligentCell.liquidez;
+						intelligentStatistics[1][intelligentCell.perception?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][0] += intelligentCell.buys;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][1] += intelligentCell.sells;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][2]++;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][3] += cell.getGlobalReturn();
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][4] += cell.capital;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][5] += intelligentCell.liquidez;
+						intelligentStatistics[2][intelligentCell.anxiety?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+						intelligentStatistics[3][intelligentCell.memory?1:0][0] += intelligentCell.buys;
+						intelligentStatistics[3][intelligentCell.memory?1:0][1] += intelligentCell.sells;
+						intelligentStatistics[3][intelligentCell.memory?1:0][2]++;
+						intelligentStatistics[3][intelligentCell.memory?1:0][3] += cell.getGlobalReturn();
+						intelligentStatistics[3][intelligentCell.memory?1:0][4] += cell.capital;
+						intelligentStatistics[3][intelligentCell.memory?1:0][5] += intelligentCell.liquidez;
+						intelligentStatistics[3][intelligentCell.memory?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][0] += intelligentCell.buys;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][1] += intelligentCell.sells;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][2]++;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][3] += cell.getGlobalReturn();
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][4] += cell.capital;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][5] += intelligentCell.liquidez;
+						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+					}		
 				}
 				
 				double reputationByAgentType[][][] = new double[2][2][2 + 5];
@@ -250,12 +311,14 @@ public class Inversores extends CellOccupant {
 						reputationByAgentType[cell.getTipoAgente()[1]][cell.getTipoAgente()[2]][j+5] += cell.getActivityReputation()[j];
 					}
 				}
+				printInvestorsStatistics(investorStatistics, intelligentStatistics);
 				for(int i = 0; i < reputationByAgentType.length; i++) {
 					for(int j = 0; j < reputationByAgentType[i].length; j++) {
 						printReputationByAgentType(i,j,reputationByAgentType[i][j]);
 					}
-				}
+				}				
 				printMessageStatistics(messageStatistics);
+				printIbex35Statistics(((SimulateSocialExchange)getRoot()).getStock());				
 				//Clean messages users'history of many time ago
 				if(time % Properties.CLEAN_INTERVAL == 1) {
 					for(Object cell : scape) {
@@ -271,6 +334,102 @@ public class Inversores extends CellOccupant {
 			cuenta = 0;
 			esPrimero = true;
 		}
+	}
+	
+	public void printInvestorsStatistics(double investorStatistics[][], double intelligentStatistics[][][]) {
+		System.out.println(" EXP_INV("+investorStatistics[EXPERIMENTED_INVESTOR][2]+"):"
+				+investorStatistics[EXPERIMENTED_INVESTOR][0]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][1]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][3]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][4]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][5]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][6]/investorStatistics[EXPERIMENTED_INVESTOR][2]+
+				","+investorStatistics[EXPERIMENTED_INVESTOR][7]/investorStatistics[EXPERIMENTED_INVESTOR][2]);
+		System.out.println(" AMA_INV("+investorStatistics[AMATEUR_INVESTOR][2]+"):"+
+				investorStatistics[AMATEUR_INVESTOR][0]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][1]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][3]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][4]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][5]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][6]/investorStatistics[AMATEUR_INVESTOR][2]+
+				","+investorStatistics[AMATEUR_INVESTOR][7]/investorStatistics[AMATEUR_INVESTOR][2]                                                                              );
+		System.out.println(" RAM_INV("+investorStatistics[RANDOM_INVESTOR][2]+"):"+
+				investorStatistics[RANDOM_INVESTOR][0]/investorStatistics[RANDOM_INVESTOR][2]+
+				","+investorStatistics[RANDOM_INVESTOR][1]/investorStatistics[RANDOM_INVESTOR][2]+
+				","+investorStatistics[RANDOM_INVESTOR][3]/investorStatistics[RANDOM_INVESTOR][2]+
+				","+investorStatistics[RANDOM_INVESTOR][4]/investorStatistics[RANDOM_INVESTOR][2]+
+				","+investorStatistics[RANDOM_INVESTOR][5]/investorStatistics[RANDOM_INVESTOR][2]+
+				","+investorStatistics[RANDOM_INVESTOR][6]/investorStatistics[RANDOM_INVESTOR][2]);
+		System.out.println(" IMPULSIVE -> ("+intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][0]/intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][1]/intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][3]/intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][4]/intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][5]/intelligentStatistics[0][0][2]+","+
+				intelligentStatistics[0][0][6]/intelligentStatistics[0][0][2]+") vs ("+
+				intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][0]/intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][1]/intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][3]/intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][4]/intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][5]/intelligentStatistics[0][1][2]+","+
+				intelligentStatistics[0][1][6]/intelligentStatistics[0][1][2]+")");
+		System.out.println(" PERCEPTION -> ("+intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][0]/intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][1]/intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][3]/intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][4]/intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][5]/intelligentStatistics[1][0][2]+","+
+				intelligentStatistics[1][0][6]/intelligentStatistics[1][0][2]+") vs ("+
+				intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][0]/intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][1]/intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][3]/intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][4]/intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][5]/intelligentStatistics[1][1][2]+","+
+				intelligentStatistics[1][1][6]/intelligentStatistics[1][1][2]+")");
+		System.out.println(" ANXIETY -> ("+intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][0]/intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][1]/intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][3]/intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][4]/intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][5]/intelligentStatistics[2][0][2]+","+
+			intelligentStatistics[2][0][6]/intelligentStatistics[2][0][2]+") vs ("+
+			intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][0]/intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][1]/intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][3]/intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][4]/intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][5]/intelligentStatistics[2][1][2]+","+
+			intelligentStatistics[2][1][6]/intelligentStatistics[2][1][2]+")");
+		System.out.println(" MEMORY -> ("+intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][0]/intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][1]/intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][3]/intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][4]/intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][5]/intelligentStatistics[3][0][2]+","+
+			intelligentStatistics[3][0][6]/intelligentStatistics[3][0][2]+") vs ("+
+			intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][0]/intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][1]/intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][3]/intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][4]/intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][5]/intelligentStatistics[3][1][2]+","+
+			intelligentStatistics[3][1][6]/intelligentStatistics[3][1][2]+")");
+		System.out.println(" DIVERSIFIER -> ("+intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][0]/intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][1]/intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][3]/intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][4]/intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][5]/intelligentStatistics[4][0][2]+","+
+			intelligentStatistics[4][0][6]/intelligentStatistics[4][0][2]+") vs ("+
+			intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][0]/intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][1]/intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][3]/intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][4]/intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][5]/intelligentStatistics[4][1][2]+","+
+			intelligentStatistics[4][1][6]/intelligentStatistics[4][1][2]+")");		
 	}
 	
 	public void printReputationByAgentType (int activityType, int writerType, double reputation[]) {
@@ -301,6 +460,13 @@ public class Inversores extends CellOccupant {
 			messageStatistics[1][2];
 		System.out.println(messageString);
 	}
+	
+	public void printIbex35Statistics(Ibex35 ibex35) {
+		for(Acciones share : ibex35.getAcciones().values()) {
+			System.out.println(share.getNombre()+": "+share.getValor()+","+share.getMaxReached()+","
+					+share.getMinReached()+","+share.getHistoricoAccion());
+		}
+	}	
 	
 	public int[][] messageStatistics() {
 		int statistics[][] = new int[2][5];
@@ -386,7 +552,7 @@ public class Inversores extends CellOccupant {
 			if(cell instanceof Inversores) {
 				sorted = false;
 				for(int i = 0; i < sortList.size(); i++) {
-					if(((Inversores)cell).getGlobal_return() >= sortList.get(i).getGlobal_return()) {
+					if(((Inversores)cell).getGlobalReturn() >= sortList.get(i).getGlobalReturn()) {
 						sortList.add(i, (Inversores)cell);
 						sorted=true;
 						break;
@@ -825,7 +991,7 @@ public class Inversores extends CellOccupant {
 		return time;
 	}
 		
-	public double getGlobal_return () {
+	public double getGlobalReturn () {
 		return globalReturn;
 	}
 	
@@ -840,12 +1006,9 @@ public class Inversores extends CellOccupant {
 	public void setCapital(Ibex35 miBolsa, double liquidez){
 		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
 		double suma = 0;
-		for(Acciones accionBolsa : accionesDeBolsa.values()){
-			for(Accion miAccion : misAcciones){
-				if (accionBolsa.getNombre().equals(miAccion.getIdCompany())) {
-					suma += miAccion.getCantidad()*accionBolsa.getValor(); 
-				}
-			}
+		for(Accion myInversion : misAcciones){
+			Acciones share = accionesDeBolsa.get(myInversion.getIdCompany());
+			suma += myInversion.getCantidad() * share.getValor();			
 		}
 		this.capital = suma + liquidez;
 	}
