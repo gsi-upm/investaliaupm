@@ -3,7 +3,7 @@ package gsi.investalia.server.wade;
 
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
 import com.tilab.wade.performer.layout.MarkerLayout;
@@ -79,7 +79,7 @@ public class NewUserWorkflow extends WorkflowBehaviour {
 		User newUser = JSONAdapter.JSONToUser(content);
 
 		// Insert into database
-		successfulNewUser = HsqldbInterface.saveNewUser(newUser);
+		successfulNewUser = MysqlInterface.saveNewUser(newUser);
 	}
 
 	protected void executeNewUserFailure() throws Exception {
