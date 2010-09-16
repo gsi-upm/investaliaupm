@@ -3,7 +3,8 @@ package gsi.investalia.server.wade;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
 import com.tilab.wade.performer.layout.TransitionLayout;
@@ -14,7 +15,13 @@ import com.tilab.wade.performer.CodeExecutionBehaviour;
 import com.tilab.wade.performer.Transition;
 import com.tilab.wade.performer.WorkflowBehaviour;
 
-@WorkflowLayout(entryPoint = @MarkerLayout(position = "(58,56)", activityName = "WaitForLogin"), activities = { @ActivityLayout(position = "(283,143)", name = "CheckUpdate"), @ActivityLayout(position = "(395,254)", name = "UpdateFailure"), @ActivityLayout(position = "(165,144)", name = "WaitForUpdate"), @ActivityLayout(position = "(406,11)", name = "UpdateSuccessful"), @ActivityLayout(position = "(336,71)", name = "Refresh"), @ActivityLayout(position = "(137,69)", name = "WaitForProposal"), @ActivityLayout(position = "(195,34)", name = "LoginSuccesful"), @ActivityLayout(position = "(207,121)", name = "CheckLogin"), @ActivityLayout(position = "(85,151)", name = "WaitForLogin"), @ActivityLayout(position = "(333,199)", name = "LoginFailure") })
+@WorkflowLayout(transitions = { @TransitionLayout(routingpoints = "(215,41)", to = "WaitForUpdate", from = "UpdateFailure") }, entryPoint = @MarkerLayout(position = "(87,148)", activityName = "WaitForLogin"),activities = {
+	@ActivityLayout(position = "(345,143)", name = "CheckUpdate"), 
+	@ActivityLayout(position = "(344,16)", name = "UpdateFailure"), 
+	@ActivityLayout(position = "(165,144)", name = "WaitForUpdate"), 
+	@ActivityLayout(position = "(344,313)", name = "UpdateSuccessful"), 
+	@ActivityLayout(position = "(165,313)", name = "OrderRecommendation")})
+	
 public class UpdateMessageWorkflow extends WorkflowBehaviour {
 
 	private ACLMessage aclMessage;
@@ -22,30 +29,40 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 
 	/* Activities for this workflow */
 	public static final String WAITFORUPDATE_ACTIVITY = "WaitForUpdate";
-	public static final String UPDATEFAILURE_ACTIVITY = "UpdateFailure";
 	public static final String CHECKUPDATE_ACTIVITY = "CheckUpdate";
+	public static final String UPDATEFAILURE_ACTIVITY = "UpdateFailure";
 	public static final String UPDATESUCCESSFUL_ACTIVITY = "UpdateSuccessful";
+	public static final String ORDERRECOMMENDATION_ACTIVITY = "OrderRecommendation";
+
 
 	/* Conditions for the transitions */
 	public static final String CORRECTUPDATE_CONDITION = "CorrectUpdate";
 	public static final String WRONGUPDATE_CONDITION = "WrongUpdate";
 	public static final String MESSAGERECEIVED_CONDITION = "MessageReceived";
+	public static final String ORDERRECOMMEND_CONDITION = "OrderRecommend";
+	public static final String NORECOMMEND_CONDITION = "NoRecommend";
 
-	private boolean messageReceived, successfulUpdate;
+	private boolean messageReceived, successfulUpdate, orderRecommend;
+	
+	public static final int NUMMESSAGESTHRESHOLD = 5;
+	int numMessagesUpdated = 0;
 
 	private void defineActivities() {
-		CodeExecutionBehaviour waitForLoginActivity = new CodeExecutionBehaviour(
+		CodeExecutionBehaviour waitForUpdateActivity = new CodeExecutionBehaviour(
 				WAITFORUPDATE_ACTIVITY, this);
-		registerActivity(waitForLoginActivity, INITIAL);
-		CodeExecutionBehaviour loginFailureActivity = new CodeExecutionBehaviour(
+		registerActivity(waitForUpdateActivity, INITIAL);
+		CodeExecutionBehaviour updateFailureActivity = new CodeExecutionBehaviour(
 				UPDATEFAILURE_ACTIVITY, this);
-		registerActivity(loginFailureActivity);
-		CodeExecutionBehaviour checkLoginActivity = new CodeExecutionBehaviour(
+		registerActivity(updateFailureActivity);
+		CodeExecutionBehaviour checkUpdateActivity = new CodeExecutionBehaviour(
 				CHECKUPDATE_ACTIVITY, this);
-		registerActivity(checkLoginActivity);
-		CodeExecutionBehaviour loginSuccessfulActivity = new CodeExecutionBehaviour(
+		registerActivity(checkUpdateActivity);
+		CodeExecutionBehaviour updateSuccessfulActivity = new CodeExecutionBehaviour(
 				UPDATESUCCESSFUL_ACTIVITY, this);
-		registerActivity(loginSuccessfulActivity);
+		registerActivity(updateSuccessfulActivity);
+		CodeExecutionBehaviour orderRecommendationActivity = new CodeExecutionBehaviour(
+				ORDERRECOMMENDATION_ACTIVITY, this);
+		registerActivity(orderRecommendationActivity);
 	}
 
 	private void defineTransitions() {
@@ -53,11 +70,15 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 				WAITFORUPDATE_ACTIVITY, CHECKUPDATE_ACTIVITY);
 		registerTransition(new Transition(CORRECTUPDATE_CONDITION, this),
 				CHECKUPDATE_ACTIVITY, UPDATESUCCESSFUL_ACTIVITY);
+		registerTransition(new Transition(ORDERRECOMMEND_CONDITION, this),
+				UPDATESUCCESSFUL_ACTIVITY, ORDERRECOMMENDATION_ACTIVITY);
+		registerTransition(new Transition(NORECOMMEND_CONDITION, this),
+				UPDATESUCCESSFUL_ACTIVITY, WAITFORUPDATE_ACTIVITY);
+		registerTransition(new Transition(), ORDERRECOMMENDATION_ACTIVITY,
+				WAITFORUPDATE_ACTIVITY);
 		registerTransition(new Transition(WRONGUPDATE_CONDITION, this), 
 				CHECKUPDATE_ACTIVITY, UPDATEFAILURE_ACTIVITY);
 		registerTransition(new Transition(), UPDATEFAILURE_ACTIVITY,
-				WAITFORUPDATE_ACTIVITY);
-		registerTransition(new Transition(), UPDATESUCCESSFUL_ACTIVITY,
 				WAITFORUPDATE_ACTIVITY);
 	}
 
@@ -77,7 +98,7 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 		Message message = JSONAdapter.JSONToMessage(content);
 			
 		// Update the message
-		successfulUpdate = HsqldbInterface.updateReadAndLiked(message);
+		successfulUpdate = MysqlInterface.updateReadAndLiked(message);
 	}
 
 	protected void executeUpdateFailure() throws Exception {
@@ -92,8 +113,33 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 	protected void executeUpdateSuccessful() throws Exception {
 		// Log
 		System.out.println("Message update successful");
+	
+		numMessagesUpdated++;
 		
-		// It doesn't need a reply
+		// It doesn't need a reply	
+		if(numMessagesUpdated == NUMMESSAGESTHRESHOLD) {
+			orderRecommend = true;
+			numMessagesUpdated = 0;
+		}
+	}
+	
+	protected void executeOrderRecommendation() throws Exception {
+	
+		// Send it as a message
+		ACLMessage msg = new ACLMessage(ACLMessage.CFP);
+
+		// Set the content
+		String content = "newRecommendation";
+		msg.setContent(content);
+
+		// Set the agent receiver
+		msg.addReceiver(new AID("recommendation", AID.ISLOCALNAME));
+
+		myAgent.send(msg);
+		
+		orderRecommend = false;
+		
+		System.out.println("Message sent to recommendation agent");
 	}
 
 	protected boolean checkMessageReceived() throws Exception{
@@ -106,5 +152,13 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 	
 	protected boolean checkWrongLogin() throws Exception{
 		return !successfulUpdate;
+	}
+	
+	protected boolean checkOrderRecommend() throws Exception {
+		return orderRecommend;
+	}
+	
+	protected boolean checkNoRecommend() throws Exception {
+		return !orderRecommend;
 	}
 }
