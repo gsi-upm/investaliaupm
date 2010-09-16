@@ -1,11 +1,12 @@
 package gsi.investalia.server.wade;
 
+import java.util.HashMap;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
 import com.tilab.wade.performer.layout.MarkerLayout;
@@ -68,14 +69,16 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 		System.out.println("content received: " + jsonStr);
 		System.out.println("username: " + userName);
 		
-		// TODO change to mysql
-		// Get the message list and tags from db
-		List<Message> messages = HsqldbInterface.getUserMessagesSinceLast(userName, lastUpdate);
+		// Get the message list, tags and recommendations from db
+		List<Message> messages = MysqlInterface.getUserMessagesSinceLast(userName, lastUpdate);
 		System.out.println("message count: " + messages.size());
-		List<Tag> tags = HsqldbInterface.getTagsSinceLast(lastTag);
-		
+		List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
+		System.out.println("tags count: " + tags.size());
+		HashMap<Long,Float> recommendations = MysqlInterface.getUserRecommendationData(userName);
+		System.out.println("recommendations count: " + recommendations.size());
+
 		// Generate the content
-		String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
+		String content = JSONAdapter.messageListAndTagListAndRecommendationsToJSON(messages, tags, recommendations).toString();
 		System.out.println("content sent: " + content);
 		
 		// Send it as reply
