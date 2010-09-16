@@ -206,7 +206,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 			item.setChecked(true);
 			Toast.makeText(getBaseContext(), R.string.show_opt2_rating,
 					Toast.LENGTH_SHORT).show();
-			SQLiteInterface.addMessages(this, messages, MessagesDBHelper.RATING);
+			SQLiteInterface.addMessages(this, messages, MessagesDBHelper.AFFINITY);
 			arrayAdapter.notifyDataSetChanged();
 			break;
 		}
