@@ -2,7 +2,11 @@ package gsi.investalia.json;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
@@ -33,6 +37,7 @@ public class JSONAdapter {
 	public static final String LAST_TAG = "last_tag";
 	public static final String LAST_UPDATE = "last_update";
 	public static final String IDUSER_UPDATING = "iduser_upd";
+	public static final String RECOMMENDATIONS = "recommendations";
 
 	public static JSONObject messageToJSON(Message message)
 			throws JSONException {
@@ -78,6 +83,23 @@ public class JSONAdapter {
 		JSONObject jsonObj = new JSONObject(jsonStr);
 		JSONToMessageList(jsonObj.getJSONArray(MESSAGES).toString(), messages);
 		JSONToTagList(jsonObj.getJSONArray(TAGS).toString(), tags);
+	}
+
+	public static JSONObject messageListAndTagListAndRecommendationsToJSON(
+			List<Message> messages, List<Tag> tags, HashMap<Long, Float> recommendations) throws JSONException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put(MESSAGES, messageListToJSON(messages));
+		jsonObj.put(TAGS, tagListToJSON(tags));
+		jsonObj.put(RECOMMENDATIONS, recommendationsToJSON(recommendations));
+		return jsonObj;
+	}
+	
+	public static void JSONToMessageListAndTagListAndRecommendations(String jsonStr,
+			List<Message> messages, List<Tag> tags, HashMap<Long, Float> recommendations) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		JSONToMessageList(jsonObj.getJSONArray(MESSAGES).toString(), messages);
+		JSONToTagList(jsonObj.getJSONArray(TAGS).toString(), tags);
+		JSONToRecommendations(jsonObj.getJSONArray(RECOMMENDATIONS).toString(), recommendations);
 	}
 
 	public static JSONObject messageListAndTagListToJSON(
@@ -189,5 +211,28 @@ public class JSONAdapter {
 	public static int JSONToLastTag(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
 		return jsonObj.getInt(LAST_TAG);
+	}
+	
+	public static void JSONToRecommendations(String jsonStr, HashMap<Long,Float> recommendations) throws JSONException {
+		JSONArray jsonArray = new JSONArray(jsonStr);
+		for (int i = 0; i < jsonArray.length(); i++) {
+			recommendations.put(
+					jsonArray.getJSONObject(i).getLong(ID),
+					new Float(jsonArray.getJSONObject(i).getDouble(RATING)));
+		}
+	}
+
+	public static JSONArray recommendationsToJSON(HashMap<Long,Float> recommendations) throws JSONException {
+		JSONArray jsonArr = new JSONArray();
+		Iterator<Long> recomendationsIterator = recommendations.keySet().iterator();
+	    while (recomendationsIterator.hasNext()) {
+	    	Long idMessage = recomendationsIterator.next();
+			Float ratingForIdMessage = recommendations.get(idMessage);
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put(ID, idMessage);
+			jsonObj.put(RATING, ratingForIdMessage);
+			jsonArr.put(jsonObj);		
+		}
+		return jsonArr;
 	}
 }
