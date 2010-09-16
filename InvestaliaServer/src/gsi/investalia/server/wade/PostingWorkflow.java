@@ -3,6 +3,7 @@ package gsi.investalia.server.wade;
 import gsi.investalia.domain.Message;
 import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
 import jade.lang.acl.MessageTemplate;
@@ -81,7 +82,7 @@ public class PostingWorkflow extends WorkflowBehaviour {
 		System.out.println("Posting: " + content);
 
 		// Save the message
-		HsqldbInterface.saveMessage(message);
+		MysqlInterface.saveMessage(message);
 
 		// Reply
 		ACLMessage reply = aclMessage.createReply();
