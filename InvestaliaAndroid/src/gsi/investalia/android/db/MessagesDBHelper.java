@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MessagesDBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "messages.db";
-	private static final int DATABASE_VERSION = 10;
+	private static final int DATABASE_VERSION = 12;
 
 	// Messages table
 	public static final String MESSAGES_TABLE = "messages";
@@ -34,6 +34,12 @@ public class MessagesDBHelper extends SQLiteOpenHelper {
 	public static final String MESSAGES_TAGS_TABLE = "messages_tags";
 	public static final String IDMESSAGE_TAG = "idmessage_tag";
 	
+	// Recommendations table
+	public static final String RECOMMENDATIONS_TABLE = "users_recommendations";
+	public static final String IDRECOMMEND = "idrecommend";
+	public static final String IDUSER = "iduser";
+	public static final String AFFINITY = "user_affinity";
+		
 
 	/** Create a helper object for the Messages database */
 	public MessagesDBHelper(Context context) {
@@ -52,6 +58,9 @@ public class MessagesDBHelper extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE " + MESSAGES_TAGS_TABLE + " (" + IDMESSAGE_TAG
 				+ " INTEGER PRIMARY KEY, " + IDMESSAGE + " INT," + IDTAG
 				+ " INT);");
+		db.execSQL("CREATE TABLE " + RECOMMENDATIONS_TABLE + " (" + IDRECOMMEND
+				+ " INTEGER PRIMARY KEY, " + IDMESSAGE + " INT," + IDUSER
+				+ " INT," + AFFINITY + " FLOAT);");
 	}
 
 	@Override
@@ -59,6 +68,7 @@ public class MessagesDBHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + MESSAGES_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + TAGS_TABLE);
 		db.execSQL("DROP TABLE IF EXISTS " + MESSAGES_TAGS_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + RECOMMENDATIONS_TABLE);
 		onCreate(db);
 	}
 }
