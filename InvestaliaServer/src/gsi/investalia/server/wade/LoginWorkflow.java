@@ -6,7 +6,7 @@ import java.util.List;
 import gsi.investalia.domain.User;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
 import jade.lang.acl.MessageTemplate;
@@ -93,8 +93,8 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		String content = aclMessage.getContent();
 		User loginAttemptUser = JSONAdapter.JSONToUser(content);
 
-		// TODO change to mysql
-		loggedUser = HsqldbInterface.getUser(loginAttemptUser.getUserName(), 
+		// User information
+		loggedUser = MysqlInterface.getUser(loginAttemptUser.getUserName(), 
 			loginAttemptUser.getPassword());
 		
 		// Condition
