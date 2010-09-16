@@ -1,6 +1,7 @@
 package gsi.investalia.android.jade;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONException;
@@ -70,10 +71,12 @@ public class JadeListener implements ACLMessageListener {
 				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
 				List<Message> messages = new ArrayList<Message>();
 				List<Tag> tags = new ArrayList<Tag>();
-				JSONAdapter.JSONToMessageListAndTagList(message.getContent(),
-						messages, tags);
+				HashMap<Long,Float> recommendations = new HashMap<Long,Float>();
+				JSONAdapter.JSONToMessageListAndTagListAndRecommendations(message.getContent(),
+						messages, tags, recommendations);
 				SQLiteInterface.saveMessages(context, messages);
 				SQLiteInterface.saveTags(context, tags);
+				SQLiteInterface.saveUserRecommendations(context, recommendations);
 
 				// Broadcast reception
 				context.sendBroadcast(new Intent(
