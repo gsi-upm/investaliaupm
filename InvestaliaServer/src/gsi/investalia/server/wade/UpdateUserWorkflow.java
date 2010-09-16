@@ -2,7 +2,7 @@ package gsi.investalia.server.wade;
 
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
+import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
 import com.tilab.wade.performer.layout.TransitionLayout;
@@ -76,9 +76,9 @@ public class UpdateUserWorkflow extends WorkflowBehaviour {
 		updateUser = JSONAdapter.JSONToUser(content);
 			
 		// User with the new username from database
-		User newUsernameUser = HsqldbInterface.getUser(updateUser.getUserName());
+		User newUsernameUser = MysqlInterface.getUser(updateUser.getUserName());
 		// Check if the new username (if changed) is not used
-		successfulUpdate = HsqldbInterface.updateUser(updateUser);
+		successfulUpdate = MysqlInterface.updateUser(updateUser);
 	}
 
 	protected void executeUpdateFailure() throws Exception {
