@@ -32,7 +32,7 @@ public class Acciones {
 	public double getVariation() {
 		double variation = random.nextGaussian()/3;
 		if(variation > 0) //Bear Market -> variation *= 0.X, Bull Market -> variation *= 1.X
-			variation *= 0.92;
+			variation *= Properties.STOCK_VARIATION;
 		if(variation > 1)
 			variation = 1;
 		else if(variation < -1)
@@ -69,12 +69,12 @@ public class Acciones {
 		if(valor * (1+variation) > max) {
 			valor = valor * (1 - 2 * variation);
 			maxReached++;
-			return -2*variation;
+			return -Properties.LINEAL_REVERSE_SHARE_LIMIT*variation;
 		}
 		else if(valor * (1+variation) < min) {
 			valor = valor * (1 - 2 * variation);
 			minReached++;
-			return -2*variation;
+			return -Properties.LINEAL_REVERSE_SHARE_LIMIT*variation;
 		}
 		this.valor = valor * (1+variation);
 		return variation;

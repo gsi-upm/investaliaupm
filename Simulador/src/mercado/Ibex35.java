@@ -53,12 +53,7 @@ public class Ibex35 extends CellOccupant {
 			accion.addMovment(variation);	
 		}
 	}
-	
-	public double getValor(){
-		//obsolete
-		return 150.5;
-	}
-	
+		
 	public HashMap<String,Acciones> getAcciones() {
 		return ibex35;
 	}

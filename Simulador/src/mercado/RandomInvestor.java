@@ -8,8 +8,8 @@ public class RandomInvestor extends InvestorType {
 	public RandomInvestor(Inversores investor) {
 		liquidez = Properties.INITIAL_LIQUIDITY/2;
 		maxValorCompra = Properties.MAX_BUY_VALUE;
-		actividadVender = 0.15;
-		actividadComprar = 0.15;		
+		actividadVender = Properties.RAND_INV_BUY_PROBABILITY;
+		actividadComprar = Properties.RAND_INV_SELL_PROBABILITY;		
 		this.investor = investor;
 	}
 	
@@ -49,14 +49,14 @@ public class RandomInvestor extends InvestorType {
 			for (Acciones accionesBolsa : accionesDeBolsa.values()) {
 				if(investor.randomInRange(0.0,1.0) > actividadComprar)
 					continue;
-				int limite1 = (int)Math.floor(maxValorCompra / accionesBolsa.getValor());
-				int limite2 = (int)(liquidez / accionesBolsa.getValor());
+				int limit1 = (int)Math.floor(maxValorCompra / accionesBolsa.getValor());
+				int limit2 = (int)(liquidez / accionesBolsa.getValor());
 				int number2buy = 0;
-				if (limite1 > 0 && limite2 > 0){
+				if (limit1 > 0 && limit2 > 0){
 					buys++;
-					number2buy =  ((int)investor.randomInRange(1, limite1));
-					if(number2buy > limite2)
-						number2buy = limite2;
+					number2buy =  ((int)investor.randomInRange(1, limit1));
+					if(number2buy > limit2)
+						number2buy = limit2;
 					Accion accionComprada = new Accion(number2buy, accionesBolsa.getValor(),
 							accionesBolsa.getNombre(), investor.getTime());
 					liquidez -=  number2buy*accionesBolsa.getValor();
