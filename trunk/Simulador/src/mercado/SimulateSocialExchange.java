@@ -22,7 +22,7 @@ public class SimulateSocialExchange extends Scape {
 	//public static Bolsa miBolsa;
 	private Ibex35 miBolsa;
 	private List<Mensaje> popularMessages[] = new ArrayList[1];	
-	private int nInversores = 400;
+	public int nInversores = Properties.NUM_INVERSORES;
 	private int nBolsas = 1;
 	
 	

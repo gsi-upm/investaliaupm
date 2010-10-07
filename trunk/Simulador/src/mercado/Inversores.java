@@ -7,11 +7,11 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.ascape.model.CellOccupant;
-import org.ascape.model.HostCell;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 
-public class Inversores extends CellOccupant {
+public class Inversores extends CellOccupant {	
+	private static final long serialVersionUID = -3651394341932621403L;
 	/*
 	 * Common of all investor. I think already I don't need it.
 	 */
@@ -31,6 +31,9 @@ public class Inversores extends CellOccupant {
 	private static int GOOD_WRITER = 0;
 	private static int BAD_WRITER = 1;
 	
+	private static int FRIENDLY_USER = 0;
+	private static int NO_FRIENDLY_USER = 1;
+	
 	private int tipoAgente[];
 	private int id;
 	protected int miIteracion = 0;
@@ -45,6 +48,12 @@ public class Inversores extends CellOccupant {
 	private int uniqueReaderHistory[];
 	private int followerHistory[];
 	private int uniqueFollowerHistory[];
+	private int scorerHistory[];
+	private int scoreHistory[];
+	
+	private int sizeMessageByLimit = 0;
+	
+	private HashSet<Inversores> friends; 
 	
 	//protected double liquidez;
 	// The limit of money that one investor can invest
@@ -64,11 +73,12 @@ public class Inversores extends CellOccupant {
 	private double probabilidadLeer;
 	private double probabilidadComentar;
 	private double probabilidadPostear;
-	//good message probability
-	private double probabilidadBuenMensaje;
+	private double scoreProbability;	
+	private double probabilidadBuenMensaje; //good message probability
+	private double friendlyProbability;
 	
 	//reputations:
-	private double popularity = 0;
+	//private double popularity = 0;
 	private double financialReputation = 0;
 	private double globalLiquidity = 0;
 	private double globalReturn = 0;
@@ -95,13 +105,16 @@ public class Inversores extends CellOccupant {
     	setId(setId++);
     	misMensajes = new ArrayList<Mensaje>();
     	misAcciones = new ArrayList<Accion>();
-    	tipoAgente = new int[3];
+    	friends = new HashSet<Inversores>();
+    	tipoAgente = new int[4];
     	activityReputation = new double[2];
     	messageHistory = new int[]{0,0};
     	readerHistory = new int[]{0,0};
     	uniqueReaderHistory = new int[]{0,0};
     	followerHistory = new int[]{0,0};
     	uniqueFollowerHistory = new int[]{0,0};
+    	scorerHistory = new int[]{0,0};
+    	scoreHistory = new int[]{0,0};
     	//Investor:
     	double totalProbability = Properties.INTELLIGENT_INVESTOR_PROBABILITY +
     		Properties.AMATEUR_INVESTOR_PROBABILITY + Properties.RANDOM_INVESTOR_PROBABILITY;	
@@ -133,26 +146,54 @@ public class Inversores extends CellOccupant {
         	investor = new RandomInvestor(this);
         }
         //Activity of the user:
-        if(randomInRange(0, 1) > 0) {
+        if(randomInRange(0, 1) < Properties.FREQUENT_USER_PROBABILITY) {
         	tipoAgente[1] = FREQUENT_USER;
-        	probabilidadLeer = randomInRange(0.6,0.9);
-        	//probabilidadComentar = randomInRange(0.6,0.8);
-        	probabilidadComentar = randomInRange(0.2,0.36);
-        	probabilidadPostear = randomInRange(0.08,0.14);
+        	probabilidadLeer = randomInRange(Properties.FREQ_USER_READ_PROBABILITY_LIMITS[0],
+        			Properties.FREQ_USER_READ_PROBABILITY_LIMITS[1]);
+        	probabilidadComentar = randomInRange(Properties.FREQ_USER_COMMENT_PROBABILITY_LIMITS[0],
+        			Properties.FREQ_USER_COMMENT_PROBABILITY_LIMITS[1]);
+        	probabilidadPostear = randomInRange(Properties.FREQ_USER_POST_PROBABILITY_LIMITS[0],
+        			Properties.FREQ_USER_POST_PROBABILITY_LIMITS[1]);
+        	scoreProbability = randomInRange(Properties.FREQ_USER_SCORE_PROBABILITY_LIMITS[0],
+        			Properties.FREQ_USER_SCORE_PROBABILITY_LIMITS[1]);
+        	//probabilidadLeer = randomInRange(0.6,0.9);
+        	//probabilidadComentar = randomInRange(0.2,0.36);
+        	//probabilidadPostear = randomInRange(0.08,0.14);
+        	//scoreProbability = randomInRange(0.1,0.34);
         } else {
         	tipoAgente[1] = OCASIONAL_USER;
-        	probabilidadLeer = randomInRange(0.05,0.3);
-        	//probabilidadComentar = randomInRange(0.05,0.2);
-        	probabilidadComentar = randomInRange(0.03,0.08);
-        	probabilidadPostear = randomInRange(0.01,0.04);
+        	probabilidadLeer = randomInRange(Properties.OCA_USER_READ_PROBABILITY_LIMITS[0],
+        			Properties.OCA_USER_READ_PROBABILITY_LIMITS[1]);
+        	probabilidadComentar = randomInRange(Properties.OCA_USER_COMMENT_PROBABILITY_LIMITS[0],
+        			Properties.OCA_USER_COMMENT_PROBABILITY_LIMITS[1]);
+        	probabilidadPostear = randomInRange(Properties.OCA_USER_POST_PROBABILITY_LIMITS[0],
+        			Properties.OCA_USER_POST_PROBABILITY_LIMITS[1]);
+        	scoreProbability = randomInRange(Properties.OCA_USER_SCORE_PROBABILITY_LIMITS[0],
+        			Properties.OCA_USER_SCORE_PROBABILITY_LIMITS[1]);
+        	//probabilidadLeer = randomInRange(0.05,0.3);
+        	//probabilidadComentar = randomInRange(0.03,0.08);
+        	//probabilidadPostear = randomInRange(0.01,0.04);
+        	//scoreProbability = randomInRange(0.1,0.3);
         }
         //Good o bad writer?
-        if(randomInRange(0, 1) > 0) {
+        if(randomInRange(0.0, 1.0) < Properties.GOOD_WRITER_PROBABILITY) {
         	tipoAgente[2] = GOOD_WRITER;
-        	probabilidadBuenMensaje = randomInRange(0.7,0.9);
+        	probabilidadBuenMensaje = randomInRange(Properties.GOOD_MESSAGES_PROBABILITY_LIMITS[0],
+        			Properties.GOOD_MESSAGES_PROBABILITY_LIMITS[1]);
         } else {
         	tipoAgente[2] = BAD_WRITER;
-        	probabilidadBuenMensaje = randomInRange(0,0.2);
+        	probabilidadBuenMensaje = randomInRange(Properties.BAD_MESSAGES_PROBABILITY_LIMITS[0],
+        			Properties.BAD_MESSAGES_PROBABILITY_LIMITS[1]);
+        }
+        //Friendly or not_friendly
+        if(randomInRange(0.0, 1.0) < Properties.FRIENDLY_PROBABILITY) {
+        	tipoAgente[3] = FRIENDLY_USER;
+        	friendlyProbability = randomInRange(Properties.FRIENDLY_PROBABILITY_LIMITS[0],
+        			Properties.FRIENDLY_PROBABILITY_LIMITS[1]);
+        } else {
+        	tipoAgente[3] = NO_FRIENDLY_USER;
+        	friendlyProbability = randomInRange(Properties.NO_FRIENDLY_PROBABILITY_LIMITS[0],
+        			Properties.NO_FRIENDLY_PROBABILITY_LIMITS[1]);
         }
         setColorByAgentType();
     }
@@ -284,7 +325,7 @@ public class Inversores extends CellOccupant {
 				}
 				
 				double reputationByAgentType[][][] = new double[2][2][2 + 5];
-				long messageStatistics[][] = {{0,0,0,0,0}, {0,0,0,0,0}};
+				long messageStatistics[][] = {{0,0,0,0,0,0,0}, {0,0,0,0,0,0,0}};
 				List<Inversores> sortInvestorByMessage = sortByMessageReputation(scape);
 				for(int i = 0; i < sortInvestorByMessage.size(); i++) {
 					Inversores cell = sortInvestorByMessage.get(i);
@@ -301,7 +342,7 @@ public class Inversores extends CellOccupant {
 					System.out.print("],play:" + cell.getPlayed() + ", activ rep:");
 					for(int j = 0; j < cell.getActivityReputation().length; j++)
 						System.out.print(cell.getActivityReputation()[j]+",");
-					System.out.println();
+					System.out.println("("+cell.sizeMessageByLimit+")");
 					reputationByAgentType[cell.getTipoAgente()[1]][cell.getTipoAgente()[2]][0]++;
 					reputationByAgentType[cell.getTipoAgente()[1]][cell.getTipoAgente()[2]][1] += cell.getPlayed();
 					reputationByAgentType[cell.getTipoAgente()[1]][cell.getTipoAgente()[2]][2] += cell.getNumMensajes() + cell.getMessagesHistory();
@@ -453,11 +494,11 @@ public class Inversores extends CellOccupant {
 	}
 	
 	public void printMessageStatistics(long messageStatistics[][]) {
-		String messageString = "  Good Messages:" + messageStatistics[0][0] + ", R:" + messageStatistics[0][1] + ", uniqR:" + 
-			messageStatistics[0][2];
+		String messageString = "  Good Messages:" + messageStatistics[0][0] + ", R:" + 
+				messageStatistics[0][1] + ", uniqR:" +	messageStatistics[0][2];
 		System.out.println(messageString);
-		messageString = "  Bad Messages:" + messageStatistics[1][0] + ", R:" + messageStatistics[1][1] + ", uniqR:" + 
-			messageStatistics[1][2];
+		messageString = "  Bad Messages:" + messageStatistics[1][0] + ", R:" + 
+				messageStatistics[1][1] + ", uniqR:" + 	messageStatistics[1][2];
 		System.out.println(messageString);
 	}
 	
@@ -469,9 +510,11 @@ public class Inversores extends CellOccupant {
 	}	
 	
 	public int[][] messageStatistics() {
-		int statistics[][] = new int[2][5];
-		statistics[0][0] = 0; statistics[0][1] = 0; statistics[0][2] = 0; statistics[0][3] = 0; statistics[0][4] = 0;
-		statistics[1][0] = 0; statistics[1][1] = 0; statistics[1][2] = 0; statistics[1][3] = 0; statistics[1][4] = 0;
+		int statistics[][] = new int[2][7];
+		statistics[0][0] = 0; statistics[0][1] = 0; statistics[0][2] = 0; statistics[0][3] = 0; 
+		statistics[0][4] = 0; statistics[0][5] = 0; statistics[0][6] = 0;
+		statistics[1][0] = 0; statistics[1][1] = 0; statistics[1][2] = 0; statistics[1][3] = 0; 
+		statistics[1][4] = 0; statistics[1][5] = 0; statistics[1][6] = 0;
 		int max_time = Properties.TIME_CLUSTER * Properties.MAX_DIFFERENCE_CLUSTERS;
 		for(Mensaje mensaje : getMensajes()) {
 			if((time-mensaje.getDate()) < max_time) {
@@ -481,12 +524,16 @@ public class Inversores extends CellOccupant {
 					statistics[0][2] += mensaje.getUniqueNumReaders();
 					statistics[0][3] += mensaje.getNumFollowers();
 					statistics[0][4] += mensaje.getUniqueNumFollowers();
+					statistics[0][5] += mensaje.getScores().size();
+					statistics[0][6] += mensaje.getScore();
 				} else {
 					statistics[1][0]++;
 					statistics[1][1] += mensaje.getNumReaders();
 					statistics[1][2] += mensaje.getUniqueNumReaders();
 					statistics[1][3] += mensaje.getNumFollowers();
 					statistics[1][4] += mensaje.getUniqueNumFollowers();
+					statistics[1][5] += mensaje.getScores().size();
+					statistics[1][6] += mensaje.getScore();
 				}
 			}
 		}
@@ -495,8 +542,9 @@ public class Inversores extends CellOccupant {
 	
 	public int[][] historyMessageStatistics() {
 		int statistics[][] = {{messageHistory[0],readerHistory[0],uniqueReaderHistory[0],
-			followerHistory[0],uniqueFollowerHistory[0]}, {messageHistory[1],readerHistory[1], 
-			uniqueReaderHistory[1],followerHistory[1],uniqueFollowerHistory[1]}};
+			followerHistory[0],uniqueFollowerHistory[0],scorerHistory[0],scoreHistory[0]}, 
+			{messageHistory[1],readerHistory[1],uniqueReaderHistory[1],followerHistory[1],
+			uniqueFollowerHistory[1],scorerHistory[1],scoreHistory[1]}};
 		return statistics;
 	}
 	
@@ -510,12 +558,16 @@ public class Inversores extends CellOccupant {
 					uniqueReaderHistory[0] += message.getUniqueNumReaders();
 					followerHistory[0] += message.getNumReaders();
 					uniqueFollowerHistory[0] += message.getUniqueNumFollowers();
+					scorerHistory[0] += message.getScores().size();
+					scoreHistory[0] += message.getScore();
 				} else {
 					messageHistory[1]++;
 					readerHistory[1] += message.getNumReaders();
 					uniqueReaderHistory[1] += message.getUniqueNumReaders();
 					followerHistory[1] += message.getNumReaders();
 					uniqueFollowerHistory[1] += message.getUniqueNumFollowers();
+					scorerHistory[1] += message.getScores().size();
+					scoreHistory[1] += message.getScore();
 				}
 				misMensajes.remove(i);				
 				i--;
@@ -532,7 +584,8 @@ public class Inversores extends CellOccupant {
 			if(cell instanceof Inversores) {
 				sorted = false;
 				for(int i = 0; i < sortList.size(); i++) {
-					if(((Inversores)cell).getActivityReputation()[0] >= sortList.get(i).getActivityReputation()[0]) {
+					if(((Inversores)cell).getActivityReputation()[0] 
+					        >= sortList.get(i).getActivityReputation()[0]) {
 						sortList.add(i, (Inversores)cell);
 						sorted=true;
 						break;
@@ -578,6 +631,7 @@ public class Inversores extends CellOccupant {
 		//update thresholds
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void chooseNeighborToPlay() {
 		List<Inversores> neighbors = findWithin(Properties.NEIGHBOR_DISTANCE_TO_PLAY);
 		for(Inversores neighbor : neighbors) {
@@ -594,10 +648,10 @@ public class Inversores extends CellOccupant {
 	 *  Interactuamos con la bolsa
 	 * @param miBolsa
 	 */
-	public void jugarEnBolsa(Ibex35 miBolsa){
+	public void jugarEnBolsa(Ibex35 myStock){
 		//posiblidad de si entra en vender, la probabilidad de entrar en comprar sea menor 
 		//y al reves		
-		investor.jugarEnBolsa(miBolsa);
+		investor.jugarEnBolsa(myStock);
 		
 	
 		/*HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
@@ -692,20 +746,29 @@ public class Inversores extends CellOccupant {
 		for(int i = 0; i < activityReputation.length/2; i++)
 			activityReputation[i] = 0;
 		int timeLimit = Properties.MAX_DIFFERENCE_CLUSTERS * Properties.TIME_CLUSTER;
-		int sizeMessageByLimit = 0;
-		for (Mensaje mensaje : misMensajes ) {			
-			if((time - mensaje.getDate()) < timeLimit)
-				sizeMessageByLimit++;
-			for(int i = 0; i < mensaje.getReputation().length; i++)
-				activityReputation[i] += mensaje.getReputation()[i];						
+		sizeMessageByLimit = 0;
+		for (int j = misMensajes.size()-1; j >= 0; j--) { //Mensaje message : misMensajes ) {
+			Mensaje message = misMensajes.get(j);	
+			int timeDifference = time - message.getDate();
+			if(timeDifference >= timeLimit) {
+				break;
+			}
+			sizeMessageByLimit++;
+			for(int i = 0; i < message.getReputation().length; i++) {
+				int clusterDifference = timeDifference / Properties.TIME_CLUSTER;
+				activityReputation[i] += message.getReputation()[i] 
+				        * Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR, -clusterDifference);
+				//LINEAL: activityReputation[i] += mensaje.getReputation()[i] / clusterDifference;
+			}
 		}
 		for(int i = 0; i < activityReputation.length/2; i++)
-			activityReputation[i+activityReputation.length/2] = activityReputation[i];		
+			activityReputation[i+activityReputation.length/2] = activityReputation[i];
 		if(sizeMessageByLimit > Properties.MINIMUM_MESSAGES_TO_DEGRADATE) {
 			if(Properties.MESSAGE_DEGRADATION_LOGARITHMIC_FACTOR == Math.E) {
 				for(int i = 0; i < activityReputation.length/2; i++) {
-					activityReputation[i] /= Math.log(sizeMessageByLimit/Properties.MINIMUM_MESSAGES_TO_DEGRADATE*Math.E);
-				}
+					activityReputation[i] /= 
+							Math.log(((double)sizeMessageByLimit)/Properties.MINIMUM_MESSAGES_TO_DEGRADATE*Math.E);					
+				}				
 			} else { //and MINIMUM_MESSAGES_TO_DEGRADATE = 10
 				for(int i = 0; i < activityReputation.length/2; i++) {
 					activityReputation[i] /= Math.log10(sizeMessageByLimit);
@@ -759,28 +822,49 @@ public class Inversores extends CellOccupant {
 					//System.out.println("("+ time +") id: " + this.getId() + " comenta mensaje("+probabilidadComentar +","+
 					//		probabilities[1]+") "+id + " del inversor "+((Inversores) partner).getId());
 				}
-			}			
+			}						
 		}*/
+		
+		ArrayList<Mensaje> messagesFromPartner = ((Inversores) partner).getMensajes();		
+		//Friend Relationship		
+		if(randomInRange(0.0,1.0) < friendlyProbability) {
+			if(randomInRange(0.0,1.0) < getFriendlyProbability((Inversores) partner))
+				friends.add((Inversores)partner);
+		}		
+
 		//TODO: probabilidad de leer por cronologia y el resto de leer por reputacion total (mensajes recomendados / mensajes cronologicos)
 		//Leer mensaje con mas reputacion (por cronologia y/o reputacion total)
 		// las demás lecturas ir bajando probabilidad de leer -> Probabilidad_leer_recomendados/cronologicos
 		//TODO: afinidad de agentes, si un agente lee mucho de otro se le aumenta su afinidad de forma que juegue con de forma
-		//  más probable
+		//  más probable		
 		//By cronology		
-		ArrayList<Mensaje> messagesFromPartner = ((Inversores) partner).getMensajes();
+		
 		double consecutiveMessageDegradation = 1.0;
 		int notReadMessages = 0;
 		for (int id = messagesFromPartner.size()-1; id >= 0; id--){
 			Mensaje message = messagesFromPartner.get(id);
-			double probabilities[] = getReadAndCommentProbability(message, isFirst);
+			double probabilities[] = getReadCommentAndScoreProbability(message, isFirst);
 			if(probabilities == null) //
 				return;
 			if(randomInRange(0, 1.0) < (probabilities[0] * consecutiveMessageDegradation) ) {
 				played++;
 				isFirst = false;
 				message.addReader(this);
+				//Score
+				if(randomInRange(0.0,1.0) < probabilities[2]) {
+					if(message.isGood()) {
+						message.addScore(this, randomInRange(
+								Properties.GOOD_MESSAGES_SCORE_PROBABILITY[0],
+								Properties.GOOD_MESSAGES_SCORE_PROBABILITY[1]));
+					} else {
+						message.addScore(this, randomInRange(
+								Properties.BAD_MESSAGES_SCORE_PROBABILITY[0],
+								Properties.BAD_MESSAGES_SCORE_PROBABILITY[1]));
+					}					
+				}
 				//System.out.println("("+ time +") id: " + this.getId() + " lee mensaje("+probabilidadLeer +","+
-				//		probabilities[0]+") "+id + "("+ mensaje.getPopularity() + ") del inversor "+((Inversores) partner).getId());						
+				//		probabilities[0]+") "+id + "("+ mensaje.getPopularity() + ") del inversor "+((Inversores) partner).getId());
+				//Comment:
 				if(randomInRange(0, 1.0) < probabilities[1]) {
 					message.addComment(this);
 					//System.out.println("("+ time +") id: " + this.getId() + " comenta mensaje("+probabilidadComentar +","+
@@ -818,6 +902,46 @@ public class Inversores extends CellOccupant {
 		*/
 	}
 	
+	public double getFriendlyProbability(Inversores partner) {
+		double probability = 1;
+		int afinity = 0;
+		ArrayList<Mensaje> messagesFromPartner = partner.getMensajes();
+		for(int i = messagesFromPartner.size()-1; i >= 0; i--) {
+			Mensaje message = messagesFromPartner.get(i);
+			if((time - message.getDate()) > Properties.TIME_LIMIT)
+				break;
+			afinity += message.getUniqueReaders().contains(this)?1:0  +
+					(message.getUniqueFollowers().contains(this)?1:0) * 3 + 
+					(message.getScores().containsKey(this)?message.getScores().get(this):0);
+		}
+		int afinityAverage = 1;
+		for(Inversores friend : friends) {
+			ArrayList<Mensaje> messagesFromFriend = friend.getMensajes();
+			for(int i = messagesFromFriend.size()-1; i >= 0; i--) {
+				Mensaje message = messagesFromFriend.get(i);
+				if((time - message.getDate()) > Properties.TIME_LIMIT)
+					break;
+				afinityAverage += message.getUniqueReaders().contains(this)?1:0  +
+						(message.getUniqueFollowers().contains(this)?1:0) * 3 + 
+						(message.getScores().containsKey(this)?message.getScores().get(this):0);
+			}
+		}
+		if(friends.size() > 0)
+			afinityAverage /= friends.size();
+		probability *= afinity / afinityAverage;
+		int commonFriends = 1;
+		for(Inversores friend : friends) {
+			if(partner.getFriends().contains(friend)) 
+				commonFriends++;			
+		}
+		probability *= Properties.FRIENDLY_COMMON * commonFriends;
+		if(friends.size() > Properties.FRIEND_DEGRADATION) {
+			probability *= Math.pow(((double)friends.size())/Properties.FRIEND_DEGRADATION, 
+					Properties.EXPONENCIAL_FRIEND_STRENGH_DECREMENT);
+		}
+		return probability;
+	}
+	
 	public int getNextMessageByOwner (List<Mensaje> messages, Inversores owner, int previousPosition) {
 		for(int i = previousPosition + 1; i < messages.size(); i++) {
 			Mensaje message = messages.get(i);
@@ -849,35 +973,39 @@ public class Inversores extends CellOccupant {
 	 *  - if user has already commented the message: degradation of ALREADY_COMMENTED_MESSAGE
 	 *  
 	 */
-	private double[] getReadAndCommentProbability (Mensaje mensaje, boolean isFirst) {
-		double probabilities[] = new double[] {0,0};
-		int time_difference = (time - mensaje.getDate()) / Properties.TIME_CLUSTER;
+	private double[] getReadCommentAndScoreProbability (Mensaje message, boolean isFirst) {
+		double probabilities[] = new double[] {0,0,0};
+		int time_difference = (time - message.getDate()) / Properties.TIME_CLUSTER;
 		if(time_difference > Properties.MAX_DIFFERENCE_CLUSTERS)
 			return null;
 		double cronology_degradation = 
 			Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);
-		double bad_message_degradation = mensaje.isGood() ? 1 : Properties.BAD_MESSAGE_DEGRADATION;
-		int followersPosition = mensaje.getFollowers().lastIndexOf(this);
+		double bad_message_degradation = message.isGood() ? 1 : Properties.BAD_MESSAGE_DEGRADATION;
+		int followersPosition = message.getFollowers().lastIndexOf(this);
 		if(followersPosition == -1) {
-			if(mensaje.getReaders().contains(this)) {
-				if(mensaje.isGood())
+			if(message.getReaders().contains(this)) {
+				if(message.isGood())
 					probabilities[0] = (isFirst ? 1.0 : cronology_degradation * probabilidadLeer)
-						* Properties.ALREADY_READ_MESSAGE * mensaje.getPopularity()[0];
+						* Properties.ALREADY_READ_MESSAGE * message.getPopularity()[0];
 			}
 			else
 				probabilities[0] = (isFirst ? 1.0 : cronology_degradation * probabilidadLeer)
-					* bad_message_degradation * mensaje.getPopularity()[0];			
+					* bad_message_degradation * message.getPopularity()[0];			
 		}
-		else if (followersPosition != mensaje.getFollowers().size()-1)
+		else if (followersPosition != message.getFollowers().size()-1)
 			probabilities[0] = (isFirst ? 1.0 : cronology_degradation * probabilidadLeer)
-				* bad_message_degradation * mensaje.getPopularity()[0];
+				* bad_message_degradation * message.getPopularity()[0];
 		else
 			probabilities[0] = (isFirst ? 1.0 : cronology_degradation * probabilidadLeer)
-				* bad_message_degradation * Properties.ALREADY_COMMENTED_MESSAGE * mensaje.getPopularity()[0];
+				* bad_message_degradation * Properties.ALREADY_COMMENTED_MESSAGE * message.getPopularity()[0];
 		if(followersPosition == -1)
 			probabilities[1] = cronology_degradation * probabilidadComentar;
 		else
 			probabilities[1] = cronology_degradation * probabilidadComentar * Properties.ALREADY_COMMENTED_MESSAGE;
+		if(message.getScores().containsKey(this))
+			probabilities[2] = cronology_degradation * scoreProbability * Properties.ALREADY_SCORED_MESSAGE;
+		else
+			probabilities[2] = cronology_degradation * scoreProbability;
 		return probabilities;
 	}
 	
@@ -1031,6 +1159,9 @@ public class Inversores extends CellOccupant {
 	public int getPlayed () {
 		return played;
 	}
+	public HashSet<Inversores> getFriends () {
+		return friends;
+	}
 	
 	public void setTipoAgente(int[] tipoAgente) {
 		this.tipoAgente = tipoAgente;
@@ -1062,12 +1193,18 @@ public class Inversores extends CellOccupant {
 		if(tipoAgente[1] == FREQUENT_USER)
 			agentType += "FRE_US";
 		else
-			agentType += "OCA_US";
+			agentType += "OCA_US,";
 		agentType += ":"+String.format("%.2f", probabilidadPostear)+",";
 		if(tipoAgente[2] == GOOD_WRITER)
-			agentType += "GOOD_WR";
+			agentType += "GOOD_W,";
 		else
-			agentType += "BAD_WRI";
-		return agentType +":"+String.format("%.2f", probabilidadBuenMensaje)+"]"+investor.getAgentTypeToString();
+			agentType += "BAD_WR";
+		agentType += ":"+String.format("%.2f", probabilidadBuenMensaje);
+		if(tipoAgente[3] == FRIENDLY_USER)
+			agentType += "FRI";
+		else
+			agentType += "NOF";
+		return agentType + ":"+String.format("%.2f-"+friends.size(), friendlyProbability) 
+				+ "]" + investor.getAgentTypeToString();
 	}
 }

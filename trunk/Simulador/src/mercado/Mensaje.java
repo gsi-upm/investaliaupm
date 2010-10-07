@@ -1,6 +1,7 @@
 package mercado;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Mensaje {
@@ -17,11 +18,13 @@ public class Mensaje {
 	private HashSet<Inversores> uniqueFollowers;	
 	private ArrayList<Inversores> readers;
 	private HashSet<Inversores> uniqueReaders;
+	private HashMap<Inversores, Integer> scores;
 	private boolean good;
 	private double popularity[];
 	private double reputation[];
 	public static int ONLY_FOLLOWER_REPUTATION = 1;
-	public static int READER_FOLLOWER_REPUTATION = 0;
+	public static int READER_FOLLOWER_SCORER_REPUTATION = 0;
+	public static int READER_FOLLOWER_REPUTATION = 3;
 	public static int READER_FOLLOWER_FINANCIAL_REPUTATION = 2; 
 	
 	
@@ -35,22 +38,35 @@ public class Mensaje {
 		readers = new ArrayList<Inversores>();
 		uniqueFollowers = new HashSet<Inversores>();
 		uniqueReaders = new HashSet<Inversores>();
+		scores = new HashMap<Inversores, Integer>();
 		popularity = new double[1];
 		reputation = new double[1];
 	}
 	
 	public int generateReputation(int time) {
 		int time_difference = (time - getDate()) / Properties.TIME_CLUSTER;
+		
+		reputation[READER_FOLLOWER_SCORER_REPUTATION] = (getUniqueNumReaders() * 
+			Properties.READER_WEIGHT + getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT 
+			+ getScore() * Properties.SCORER_WEIGHT);
+			//*	Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference); 
+			// |-> Se hace en generateReputation de la agregación de todos los mensajes
+		
 		//reputation[ONLY_FOLLOWER_REPUTATION] = getUniqueNumFollowers()* Math.pow(Mensaje.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);		
 		
-		reputation[READER_FOLLOWER_REPUTATION] = (getUniqueNumReaders() * Properties.READER_WEIGHT 
-				+ getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT ) *
-			Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);
+		//reputation[READER_FOLLOWER_REPUTATION] = (getUniqueNumReaders() * Properties.READER_WEIGHT 
+		//		+ getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT ) *
+		//	Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);
 		
 		/*
-		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] = getUniqueNumReaders();
+		reputation[READER_FOLLOWER_SCORER_FINANCIAL_REPUTATION] = 
+				getUniqueNumReaders() * Properties.READER_WEIGHT;
+		double followerReputation = 0;
 		for (Inversores inversor: uniqueFollowers)
-			reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] +=  inversor.getFinancialReputation();
+			followerReputation +=  inversor.getFinancialReputation();
+		double scorerReputation = getScore,descomentado () * Properties.SCORER_WEIGHT;
+		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] += 
+				followerReputation * Properties.FOLLOWER_WEIGHT + scorerReputation;
 		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] *= Math.pow(Mensaje.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);
 		*/
 		for(int i = 0; i < popularity.length; i++)
@@ -74,6 +90,9 @@ public class Mensaje {
 		readers.add(inversorReader);
 		uniqueReaders.add(inversorReader);
 	}
+	public void addScore(Inversores inversorScorer, Integer score){
+		scores.put(inversorScorer, score);
+	}	
 	
 	public ArrayList<Inversores> getReaders() {
 		return readers;
@@ -92,6 +111,7 @@ public class Mensaje {
 	public int getNumFollowers(){
 		return followers.size();
 	}
+	
 	
 	public int getUniqueNumFollowers () {
 		/*HashSet<Inversores> uniqueFollowers = new HashSet<Inversores>();
@@ -115,6 +135,22 @@ public class Mensaje {
 	
 	public HashSet<Inversores> getUniqueReaders () {
 		return uniqueReaders;
+	}
+	
+	public double getScore () {
+		double totalScore = 0;
+		for(Integer score: scores.values())
+			totalScore += score;		
+		//for(Inversores inversor : scores.keySet()) {
+		//	Integer score = scores.get(inversor);
+		//	totalScore += score * inversor.getFinancialReputation();
+		//}
+		return totalScore;
+		//return totalScore/scores.size();
+	}	
+	
+	public HashMap<Inversores,Integer> getScores() {
+		return scores;
 	}
 	
 	public void setPopularity (int index, double popularity) {

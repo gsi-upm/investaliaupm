@@ -249,7 +249,7 @@ public class IntelligentInvestor extends InvestorType {
 			agentType += "MEM,";
 		if(isDiversifier)
 			agentType += "DIV,";
-		return agentType + rentabilidadCompra + "]";
+		return agentType + String.format("%.2f",rentabilidadCompra) + "]";
 	}
 	
 }
