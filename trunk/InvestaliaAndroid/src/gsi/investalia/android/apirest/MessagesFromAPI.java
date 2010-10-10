@@ -33,6 +33,14 @@ public class MessagesFromAPI {
 	private final static String blogs_TOKEN1 = "http://investalia.grupogesfor.com/pg/api/rest/json/?method=rest.blogs";
 	private final static String blogs_TOKEN2 = "&time_update=";
 
+	/*Tokens of the comments in the wall URL*/
+	private final static String wall_TOKEN1 = "http://investalia.grupogesfor.com/pg/api/rest/json/?method=rest.annotations";
+	private final static String wall_TOKEN2 = "&time_update=";
+
+	/*Tokens of the comments in the blog URL*/
+	private final static String comments_TOKEN1 = "http://investalia.grupogesfor.com/pg/api/rest/json/?method=rest.comments";
+	private final static String comments_TOKEN2 = "&time_update=";
+
 	/**
 	 * @param source URL to connect
 	 * @return String with the response from the URL
@@ -120,13 +128,13 @@ public class MessagesFromAPI {
 				boolean read =false;
 				boolean liked = false;
 				int rating;
-				
+
 				if(blogs.getJSONObject(i).getString("rate")!="null"){
 					rating= Integer.parseInt(blogs.getJSONObject(i).getString("rate"));
 				}else{
 					rating = 0;
 				}		
-				
+
 				int timesRead = 0; //Por defecto, 0
 				int idUserUpdating = 0; 
 				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
@@ -138,6 +146,80 @@ public class MessagesFromAPI {
 		return msgs;
 	}
 
+	public static List<Message> getNotesInTheWallFromAPI (String lastUpdate){
+		/* Last Update es un número correspondiende con la última fecha que se actualizó */
+		/*Ej: 0000000000 devuelve todos los mensajes */
 
+		ArrayList<Message> msgs = new ArrayList<Message>();
+
+		try{
+
+			JSONObject result;
+			String resultFromAPI = connect(wall_TOKEN1+wall_TOKEN2+lastUpdate);
+			result = new JSONObject(resultFromAPI);
+			result=result.getJSONObject("result");/*Get rid of the extra field */
+			JSONArray blogs = result.getJSONArray("mensajes"); /*Array of all the annotations since last update*/
+			for(int i = 0;i<blogs.length();i++){
+				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
+				String userName = blogs.getJSONObject(i).getString("owner_name");
+				String title= "Anotación en el tablón del usuario en el tablón del usuario "+
+				blogs.getJSONObject(i).getString("entity_guid");
+				String text = blogs.getJSONObject(i).getString("value");
+				List<Tag> tags = new ArrayList<Tag>();
+				tags.add(new Tag(0,"Muro"));
+
+				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
+				boolean read =false;
+				boolean liked = false;
+				int rating=0;	
+
+				int timesRead = 0; //Por defecto, 0
+				int idUserUpdating = 0; 
+				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
+				msgs.add(toBeAdded);
+			}
+		}catch(Exception e){
+			System.err.println(e.getMessage());
+		}
+		return msgs;
+	}
+
+	public static List<Message> getCommentsFromAPI (String lastUpdate){
+		/* Last Update es un número correspondiende con la última fecha que se actualizó */
+		/*Ej: 0000000000 devuelve todos los mensajes */
+
+		ArrayList<Message> msgs = new ArrayList<Message>();
+
+		try{
+
+			JSONObject result;
+			String resultFromAPI = connect(comments_TOKEN1+comments_TOKEN2+lastUpdate);
+			result = new JSONObject(resultFromAPI);
+			result=result.getJSONObject("result");/*Get rid of the extra field */
+			JSONArray blogs = result.getJSONArray("comentarios"); /*Array of all the annotations since last update*/
+			for(int i = 0;i<blogs.length();i++){
+				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
+				String userName = blogs.getJSONObject(i).getString("owner_name");
+				String title= "Comentario en la entrada "+
+				blogs.getJSONObject(i).getString("entity_guid");
+				String text = blogs.getJSONObject(i).getString("value");
+				List<Tag> tags = new ArrayList<Tag>();
+				tags.add(new Tag(0,"Comentarios"));
+
+				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
+				boolean read =false;
+				boolean liked = false;
+				int rating=0;	
+
+				int timesRead = 0; //Por defecto, 0
+				int idUserUpdating = 0; 
+				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
+				msgs.add(toBeAdded);
+			}
+		}catch(Exception e){
+			System.err.println(e.getMessage());
+		}
+		return msgs;
+	}
 
 }
