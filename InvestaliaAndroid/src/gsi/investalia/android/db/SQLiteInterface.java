@@ -131,6 +131,10 @@ public class SQLiteInterface {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Log.d("DATABASE", "Database obtained");
 
+			// If ordering by date, show the newer ones before
+			if(orderBy.equalsIgnoreCase(MessagesDBHelper.DATE)) {
+				orderBy += " DESC";
+			}
 			String query = "SELECT * FROM messages ORDER BY " + orderBy;
 			if(orderBy != null && orderBy.equalsIgnoreCase(MessagesDBHelper.AFFINITY))
 				query = "SELECT m.* FROM messages AS m, users_recommendations AS ur WHERE m.idMessage = ur.idMessage AND ur.idUser = " + idLoggedUser + " ORDER BY ur.user_affinity DESC";

@@ -4,6 +4,7 @@ import gsi.investalia.android.db.MessagesDBHelper;
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.android.jade.JadeAdapter;
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
 
 import java.text.SimpleDateFormat;
@@ -84,29 +85,46 @@ public class MessageList extends Activity implements OnItemClickListener {
 				
 				TextView userView = (TextView) itemView
 						.findViewById(R.id.user);
+				TextView colorView = (TextView) itemView
+				.findViewById(R.id.colorView);
 				TextView titleView = (TextView) itemView
 						.findViewById(R.id.title);
 				TextView dateView = (TextView) itemView
 						.findViewById(R.id.date);
+				TextView tagsView = (TextView) itemView
+				.findViewById(R.id.tags);
 				ImageView imageView = (ImageView) itemView
 						.findViewById(R.id.user_image);
 				
 				// Inflate the views
 				Message m = getItem(position);
 				
-				// TODO
-				String readAndLiked = " ";
-				if(m.isRead()) {
-					readAndLiked += "r";
+				if(!m.isRead()) {
+					colorView.setBackgroundResource(R.color.green);
 				}
-				if(m.isLiked()) {
-					readAndLiked += "l";
+				else if(m.isLiked()) {
+					colorView.setBackgroundResource(R.color.yellow);
+				}
+				else {
+					// If read and not liked, remove the background
+					colorView.setBackgroundResource(0);
 				}
 				
 				userView.setText("@" + m.getUserName());
-				titleView.setText(m.getTitle() + readAndLiked);
+				titleView.setText(m.getTitle());
 				String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW).format(m.getDate());
 				dateView.setText(dateStr);
+				
+				// Tags
+				String tagsStr = "";		
+				for(int i = 0; i < m.getTags().size(); i++) {
+					tagsStr += m.getTags().get(i).getTagName();
+					if(i < m.getTags().size() - 1) {
+						tagsStr += ", ";
+					}
+				}
+				tagsStr.toUpperCase();
+				tagsView.setText(tagsStr);
 
 				// Return the view
 				return itemView;
@@ -130,7 +148,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 		super.onResume();
 		
 		// Add messages from database
-		SQLiteInterface.addMessages(this, messages, null);
+		SQLiteInterface.addMessages(this, messages, MessagesDBHelper.DATE);
 		arrayAdapter.notifyDataSetChanged();
 		
 		// Update the last message read (if any)
