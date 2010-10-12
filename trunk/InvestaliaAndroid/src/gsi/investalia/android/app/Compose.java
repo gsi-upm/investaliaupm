@@ -23,6 +23,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -105,7 +106,7 @@ public class Compose extends Activity implements OnClickListener {
 		
 		// A number to pass in showDialog. This allows simply
 		// erase the selected tags
-		this.dialogCount = 1;
+		this.dialogCount = 1;	
 	}
 
 	public void onResume() {
@@ -170,6 +171,11 @@ public class Compose extends Activity implements OnClickListener {
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
 		tags_selected, new Date(), false, false, 0, 0, -1);
 		
+		// Hide the keyboard
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(title.getWindowToken(), 0);
+		
+		// Send the message
 		jadeAdapter.saveNewMessage(message);	
 	}
 

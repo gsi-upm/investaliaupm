@@ -35,7 +35,7 @@
 <string name="empty_user_pass">Por favor, introduzca el nombre de usuario y la contraseña</string>
 <string name="wrong_pass">Contraseña incorrecta</string>
 <string name="welcome">Bienvenido/a</string>
-<string name="welcome_text">Desde esta aplicación podrás acceder al blah, blah..</string>
+<string name="welcome_text">Ya puedes empezar a leer y enviar mensajes de la Red Investalia! ¿A qué esperas?</string>
 <string name="refresh">Actualizar</string>
 <string name="show">Mostrar mensajes</string>
 <string name="show_opt1_date">Ordenar por fecha</string>

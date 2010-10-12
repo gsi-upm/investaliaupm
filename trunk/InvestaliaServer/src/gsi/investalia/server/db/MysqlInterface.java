@@ -38,8 +38,8 @@ public class MysqlInterface {
 		try {
 			String url = "jdbc:mysql://localhost/";
 			String dbName = "investalia";
-			String userName = "user";
-			String pass = "pass";
+			String userName = "root";
+			String pass = "root";
 
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(
