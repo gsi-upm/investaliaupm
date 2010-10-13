@@ -206,19 +206,19 @@ public class MysqlInterface {
 		connectToDatabase();
 		boolean saved = false;
 		// Save the user
-		String query = "INSERT INTO users values (Null, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO users (iduser, username, password, name, location, email) values (Null, ?, ?, ?, ?, ?)";
 		PreparedStatement prep;
 		try {
 			prep = con.prepareStatement(query);
 			prep.setString(1, user.getUserName());
 			prep.setString(2, user.getPassword());
 			prep.setString(3, user.getName());
-			prep.setString(7, user.getLocation());
-			prep.setString(8, user.getEmail());
+			prep.setString(4, user.getLocation());
+			prep.setString(5, user.getEmail());
 			prep.executeUpdate();
 			saved=true;
 		} catch (SQLException e) {
-			System.out.println("SQL exception inserting new user");
+			System.out.println("SQL exception inserting new user" + e);
 		}
 		closeConnectionDatabase();
 		return saved;
@@ -354,12 +354,12 @@ public class MysqlInterface {
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				user = new User(rs.getInt(1), rs.getString(2), rs.getString(3),
-						rs.getString(4), rs.getString(5), rs.getString(6),
-						getTagsFollowing(rs.getInt(1)));
+				user = new User(rs.getInt("idUser"), rs.getString("userName"), rs.getString("password"),
+						rs.getString("name"), rs.getString("location"), rs.getString("email"),
+						getTagsFollowing(rs.getInt("idUser")));
 				// Constructor:
-				// id,userName,password,name,location,email,tagsFollowing,lastUpdate
-				// Db: IDUSER,USERNAME,PASSWORD,NAME,LOCATION,EMAIL
+				// id,userName,password,name,location,email,tagsFollowing
+				// Db: IDUSER,USERNAME,PASSWORD,NAME,SURNAME,SEX,URL,LOCATION,EMAIL,INITIALDATE
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
