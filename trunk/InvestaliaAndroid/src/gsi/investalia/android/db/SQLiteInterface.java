@@ -132,7 +132,7 @@ public class SQLiteInterface {
 			Log.d("DATABASE", "Database obtained");
 
 			// If ordering by date, show the newer ones before
-			if(orderBy.equalsIgnoreCase(MessagesDBHelper.DATE)) {
+			if(orderBy != null && orderBy.equalsIgnoreCase(MessagesDBHelper.DATE)) {
 				orderBy += " DESC";
 			}
 			String query = "SELECT * FROM messages ORDER BY " + orderBy;
