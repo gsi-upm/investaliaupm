@@ -366,8 +366,9 @@ public class MysqlInterface {
 		}
 		return user;
 	}
-
-	private static List<Tag> getTagsFollowing(int idUser) {
+	
+	//TODO: Perdonadme, en serio, pero con las prisas necesito este método público...
+	public static List<Tag> getTagsFollowing(int idUser) {
 		return getTagListFromQuery("SELECT t.* FROM users_tags AS ut, tags AS t WHERE t.idTag = ut.idTag AND idUser = "
 				+ idUser);
 	}

@@ -1,10 +1,12 @@
 package gsi.investalia.server.wade;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
+import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.apirest.MessagesFromAPI;
 import gsi.investalia.server.db.MysqlInterface;
@@ -22,7 +24,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 
 	ACLMessage aclMessage;
- 
+
 	/* Activities for this workflow */
 	public static final String WAITFORPROPOSAL_ACTIVITY = "WaitForProposal";
 	public static final String REFRESH_ACTIVITY = "Refresh";
@@ -58,54 +60,53 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeRefresh() throws Exception {
-	
-		// Get data
-		String jsonStr = aclMessage.getContent();
-		int lastUpdate = JSONAdapter.JSONToLastUpdate(jsonStr); 
-		int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
-		String userName = aclMessage.getSender().getLocalName();
-		
-		// Log
-		System.out.println("Executing refresh");
-		System.out.println("content received: " + jsonStr);
-		System.out.println("username: " + userName);
-		
-		// Get the message list, tags and recommendations from db
-		List<Message> messages = MysqlInterface.getUserMessagesSinceLast(userName, lastUpdate);
-		
-		/*Add messages from the API*/
-		//TODO: Mirar cuándo fue la fecha de la última actualización.
-		List<Message> blogsFromAPI = MessagesFromAPI.getBlogsFromAPI("0000000000");
-		List<Message> commentsFromAPI = MessagesFromAPI.getCommentsFromAPI("0000000000");
-		List<Message> notesFromAPI = MessagesFromAPI.getNotesInTheWallFromAPI("0000000000");
 
-		for(Message mes:blogsFromAPI){
-			messages.add(mes);
-		}
-		for(Message mes:commentsFromAPI){
-			messages.add(mes);
-		}
-		for(Message mes:notesFromAPI){
-			messages.add(mes);
-		}
+        // Get data
+        String jsonStr = aclMessage.getContent();
+        int lastUpdate = JSONAdapter.JSONToLastUpdate(jsonStr); 
+        int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
+        String userName = aclMessage.getSender().getLocalName();
+        
+        // Log
+        System.out.println("Executing refresh");
+        System.out.println("content received: " + jsonStr);
+        System.out.println("username: " + userName);
+        
+        // Get the message list, tags and recommendations from db
+        List<Message> messages = MysqlInterface.getUserMessagesSinceLast(userName, lastUpdate);
+        
+        /*Add messages from the API*/
+        //TODO: Mirar cuándo fue la fecha de la última actualización.
+        List<Message> blogsFromAPI = MessagesFromAPI.getBlogsFromAPI("0000000000");
+        List<Message> commentsFromAPI = MessagesFromAPI.getCommentsFromAPI("0000000000");
+        List<Message> notesFromAPI = MessagesFromAPI.getNotesInTheWallFromAPI("0000000000");
 
-		System.out.println("message count: " + messages.size());
-		List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
-		System.out.println("tags count: " + tags.size());
-		HashMap<Long,Float> recommendations = MysqlInterface.getUserRecommendationData(userName);
-		System.out.println("recommendations count: " + recommendations.size());
+        for(Message mes:blogsFromAPI){
+                messages.add(mes);
+        }
+        for(Message mes:commentsFromAPI){
+                messages.add(mes);
+        }
+        for(Message mes:notesFromAPI){
+                messages.add(mes);
+        }
 
-		// Generate the content
-		String content = JSONAdapter.messageListAndTagListAndRecommendationsToJSON(messages, tags, recommendations).toString();
-		System.out.println("content sent: " + content);
-		
-		// Send it as reply
-		ACLMessage reply = aclMessage.createReply();
-		reply.setPerformative(ACLMessage.PROPOSE);
-		reply.setContent(content);
-		myAgent.send(reply);
-	}
+        System.out.println("message count: " + messages.size());
+        List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
+        System.out.println("tags count: " + tags.size());
+        HashMap<Long,Float> recommendations = MysqlInterface.getUserRecommendationData(userName);
+        System.out.println("recommendations count: " + recommendations.size());
 
+        // Generate the content
+        String content = JSONAdapter.messageListAndTagListAndRecommendationsToJSON(messages, tags, recommendations).toString();
+        System.out.println("content sent: " + content);
+        
+        // Send it as reply
+        ACLMessage reply = aclMessage.createReply();
+        reply.setPerformative(ACLMessage.PROPOSE);
+        reply.setContent(content);
+        myAgent.send(reply);
+}
 	protected boolean checkMessageReceived() throws Exception{
 		return refreshMessage;
 	}
