@@ -6,6 +6,7 @@ import java.util.List;
 import gsi.investalia.domain.User;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
+import gsi.investalia.server.apirest.MessagesFromAPI;
 import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
@@ -96,8 +97,12 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		// User information
 		loggedUser = MysqlInterface.getUser(loginAttemptUser.getUserName(), 
 			loginAttemptUser.getPassword());
-		
 		// Condition
+		if(loggedUser == null){
+			if( MessagesFromAPI.authenticateFromAPI(loginAttemptUser.getUserName(), loginAttemptUser.getPassword())){
+				loggedUser = new User(loginAttemptUser.getUserName(),loginAttemptUser.getPassword());
+			}
+		}
 		successfulLogin = loggedUser != null;
 	}
 	
