@@ -6,6 +6,7 @@ import java.util.List;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
+import gsi.investalia.server.apirest.MessagesFromAPI;
 import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
@@ -71,6 +72,23 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 		
 		// Get the message list, tags and recommendations from db
 		List<Message> messages = MysqlInterface.getUserMessagesSinceLast(userName, lastUpdate);
+		
+		/*Add messages from the API*/
+		//TODO: Mirar cuándo fue la fecha de la última actualización.
+		List<Message> blogsFromAPI = MessagesFromAPI.getBlogsFromAPI("0000000000");
+		List<Message> commentsFromAPI = MessagesFromAPI.getCommentsFromAPI("0000000000");
+		List<Message> notesFromAPI = MessagesFromAPI.getNotesInTheWallFromAPI("0000000000");
+
+		for(Message mes:blogsFromAPI){
+			messages.add(mes);
+		}
+		for(Message mes:commentsFromAPI){
+			messages.add(mes);
+		}
+		for(Message mes:notesFromAPI){
+			messages.add(mes);
+		}
+
 		System.out.println("message count: " + messages.size());
 		List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
 		System.out.println("tags count: " + tags.size());
