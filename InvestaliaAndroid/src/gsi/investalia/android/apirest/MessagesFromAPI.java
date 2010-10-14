@@ -117,7 +117,9 @@ public class MessagesFromAPI {
 				try{
 					JSONArray tags_j = blogs.getJSONObject(i).getJSONArray("tags");
 					for(int j=0;j<tags_j.length();j++){
-						tags.add(new Tag(0,tags_j.getString(j)));
+						tags.add(new Tag(35,"Blog"));
+						//						tags.add(new Tag(0,tags_j.getString(j)));
+
 					}
 				}
 				catch(JSONException je){
@@ -166,7 +168,7 @@ public class MessagesFromAPI {
 				blogs.getJSONObject(i).getString("entity_guid");
 				String text = blogs.getJSONObject(i).getString("value");
 				List<Tag> tags = new ArrayList<Tag>();
-				tags.add(new Tag(0,"Muro"));
+				tags.add(new Tag(37,"Muro"));
 
 				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
 				boolean read =false;
@@ -204,7 +206,7 @@ public class MessagesFromAPI {
 				blogs.getJSONObject(i).getString("entity_guid");
 				String text = blogs.getJSONObject(i).getString("value");
 				List<Tag> tags = new ArrayList<Tag>();
-				tags.add(new Tag(0,"Comentarios"));
+				tags.add(new Tag(36,"Comentarios"));
 
 				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
 				boolean read =false;
