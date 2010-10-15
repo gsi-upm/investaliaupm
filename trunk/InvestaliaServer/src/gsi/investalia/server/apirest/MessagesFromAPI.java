@@ -114,12 +114,13 @@ public class MessagesFromAPI {
 				String title= blogs.getJSONObject(i).getString("title");
 				String text = blogs.getJSONObject(i).getString("description");
 				List<Tag> tags = new ArrayList<Tag>();
+				tags.add(new Tag(35, "Blog"));
 				try{
 					JSONArray tags_j = blogs.getJSONObject(i).getJSONArray("tags");
 					for(int j=0;j<tags_j.length();j++){
-						tags.add(new Tag(35,"Blog"));
-						//						tags.add(new Tag(0,tags_j.getString(j)));
-
+						Tag tag = new Tag(38,tags_j.getString(j));
+						if(!tags.contains(tag))
+							tags.add(tag);
 					}
 				}
 				catch(JSONException je){
