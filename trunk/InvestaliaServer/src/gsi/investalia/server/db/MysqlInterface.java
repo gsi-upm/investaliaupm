@@ -54,14 +54,27 @@ public class MysqlInterface {
 	 * Saves a new message
 	 */
 	public static void saveMessage(Message message) {
+		
+		// If the author is not registered, saved on the database 
+		String author = message.getUserName();
+		if (getUser(author) == null)
+			saveNewUser(new User(author, author));
+		
+		int maxLengthTitle = 30;
+		if (message.getTitle().length()>maxLengthTitle)
+			message.setTitle(message.getTitle().substring(0,maxLengthTitle-1));
+		
+		int maxLengthText = 440;
+		if (message.getText().length()>maxLengthText)
+			message.setText(message.getText().substring(0,maxLengthText-1));
+	
 		connectToDatabase();
-
 		// Save the message itself
 		String query = "INSERT INTO messages VALUES (Null, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement prep;
 		try {
 			prep = con.prepareStatement(query);
-			prep.setInt(1, getUser(message.getUserName()).getId());
+			prep.setInt(1, getUser(author).getId());
 			prep.setString(2, message.getTitle());
 			prep.setString(3, message.getText());
 			prep.setTimestamp(4, new Timestamp (message.getDate().getTime()));
@@ -199,8 +212,11 @@ public class MysqlInterface {
 		// Check the username is not already used
 		User alreadyRegisteredUser = getUser(user.getUserName());
 		if (alreadyRegisteredUser != null) {
-			System.out.println("Already registered user");
-			return false;
+			System.out.println("Already registered user");		
+			if(alreadyRegisteredUser.getPassword() == alreadyRegisteredUser.getName()) {
+				updateUser(user);
+				return false;
+			}
 		}
 
 		connectToDatabase();
@@ -220,18 +236,35 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			System.out.println("SQL exception inserting new user" + e);
 		}
+			
+		// Save the user tags
+		query = "INSERT INTO users_tags values (Null, ?, ?)";
+		try {
+			prep = con.prepareStatement(query);
+			for(Tag tag : user.getTagsFollowing()) {
+				prep.setInt(1, user.getId());
+				prep.setInt(2, tag.getId());
+				prep.executeUpdate();
+				saved=true;
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL exception inserting new user" + e);
+		}
+		
 		closeConnectionDatabase();
 		return saved;
 	}
-	
+
 	public static boolean updateUser(User user) {
 		
 		// User with the new username from database
 		User newUsernameUser = getUser(user.getUserName());
+		/*
 		// Check if the new username (if changed) is not used
 		if (newUsernameUser != null && newUsernameUser.getId() != user.getId()) {
 			return false;
 		}
+		*/
 		
 		connectToDatabase();
 		
@@ -252,6 +285,7 @@ public class MysqlInterface {
 			return false;
 		}
 
+		
 		// Delete old tags
 		query = "DELETE FROM users_tags WHERE iduser = ?";
 		try {
@@ -276,6 +310,7 @@ public class MysqlInterface {
 			System.out.println("SQL exception deleting the old tags");
 			return false;
 		}
+		
 		
 		closeConnectionDatabase();
 		return true;
@@ -335,7 +370,7 @@ public class MysqlInterface {
 	}
 
 	private static List<Tag> getTagListFromQuery(String query) {
-		connectToDatabase();
+		//connectToDatabase();
 		List<Tag> tags = new ArrayList<Tag>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -379,13 +414,13 @@ public class MysqlInterface {
 	}
 
 	public static List<Tag> getTagsSinceLast(int idLastTag) {
+		connectToDatabase();
 		return getTagListFromQuery("SELECT * FROM tags WHERE idtag > "
 				+ idLastTag);
 	}
 
 	private static void setMessageId(Message message) {
-		connectToDatabase();
-
+		
 		String query = "SELECT idMessage" +
 		" FROM messages " +
 		" WHERE iduser = " + getUser(message.getUserName()).getId() +
@@ -638,5 +673,26 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 
 		}
+	}
+
+	public static Timestamp getDateLastMessage(String tag) {
+		connectToDatabase();
+		
+		String query = "SELECT m.date" +
+		" FROM messages as m, messages_tags as mt, tags as t" +
+		" WHERE m.idMessage = mt.idMessage AND mt.idTag = t.idTag and t.tagabbreviation = '" + tag + "'" +
+		" ORDER BY m.date DESC";
+
+		try {
+			ResultSet rs = stmt.executeQuery(query);
+			if (rs.next()) {
+				return rs.getTimestamp("m.date");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return new Timestamp(0);
 	}
 }
