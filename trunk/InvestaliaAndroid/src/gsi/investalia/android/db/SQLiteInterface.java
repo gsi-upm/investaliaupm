@@ -73,6 +73,8 @@ public class SQLiteInterface {
 				}
 				Log.i("DATABASE", "Inserted into db");
 			}
+		} catch (Exception e) {
+			Log.e("DATABASE", "Error in db " + e);
 		} finally {
 			// Always close the dbHelper
 			dbHelper.close();
