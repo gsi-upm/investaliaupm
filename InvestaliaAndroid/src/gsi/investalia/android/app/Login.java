@@ -181,10 +181,12 @@ public class Login extends Activity implements OnClickListener {
 									R.string.empty_field, Toast.LENGTH_SHORT)
 									.show();
 						} else {
+							ArrayList<Tag> tags = new ArrayList<Tag>();
+							tags.add(new Tag (35, "Blog"));
 							newUser = new User(-1, userName.getText().toString(),
 									password.getText().toString(), name.getText().toString(),
 									location.getText().toString(), email.getText().toString(),
-									new ArrayList<Tag>());
+									tags);
 							jadeAdapter.newUser(newUser);
 						}
 					}
