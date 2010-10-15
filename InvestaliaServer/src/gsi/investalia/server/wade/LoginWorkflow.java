@@ -99,12 +99,13 @@ public class LoginWorkflow extends WorkflowBehaviour {
 			loginAttemptUser.getPassword());
 		// Condition
 		if(loggedUser == null){
-			if( MessagesFromAPI.authenticateFromAPI(loginAttemptUser.getUserName(), loginAttemptUser.getPassword())){
+			if(MessagesFromAPI.authenticateFromAPI(loginAttemptUser.getUserName(), loginAttemptUser.getPassword())){
 				User newUser = new User(loginAttemptUser.getUserName(),loginAttemptUser.getPassword());
 				ArrayList<Tag> lista = new ArrayList<Tag>();
-				lista.add(new Tag(37,"Muro"));
 				lista.add(new Tag(35,"Blog"));
 				lista.add(new Tag(36,"Comentarios"));
+				lista.add(new Tag(37,"Muro"));
+				newUser.setTagsFollowing(lista);
 				MysqlInterface.saveNewUser(newUser);
 				loggedUser = MysqlInterface.getUser(loginAttemptUser.getUserName(), 
 						loginAttemptUser.getPassword());
