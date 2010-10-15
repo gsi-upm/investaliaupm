@@ -209,8 +209,8 @@ public class MessageList extends Activity implements OnItemClickListener {
 			break;
 			
 		// Order by date
-		case R.id.show_opt1_date: 
-		case R.id.show_opt3_all_date: // TODO
+		case R.id.show_opt1_date:
+		//TODO case R.id.show_opt3_all_date:
 			item.setChecked(true);			
 			Toast.makeText(getBaseContext(), R.string.show_opt1_date,
 					Toast.LENGTH_SHORT).show();
@@ -218,9 +218,9 @@ public class MessageList extends Activity implements OnItemClickListener {
 			arrayAdapter.notifyDataSetChanged();
 			break;
 
-			// Order by rating
+		// Order by rating
 		case R.id.show_opt2_rating:
-		case R.id.show_opt4_all_rating: // TODO
+		//TODO case R.id.show_opt4_all_rating:
 			item.setChecked(true);
 			Toast.makeText(getBaseContext(), R.string.show_opt2_rating,
 					Toast.LENGTH_SHORT).show();
@@ -240,7 +240,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 			if (intent.getAction().equals(JadeAdapter.MESSAGES_DOWNLOADED)) {
 				Log.i(TAG_LOGGER, "Messages downloaded broadcast receipt: " + this.toString());
 				// Add messages from database
-				SQLiteInterface.addMessages(MessageList.this, messages, null);
+				SQLiteInterface.addMessages(MessageList.this, messages, MessagesDBHelper.DATE);
 				arrayAdapter.notifyDataSetChanged();
 				// Notify as a toast
 				Toast.makeText(getBaseContext(), R.string.refresh_complete,
