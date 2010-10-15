@@ -19,10 +19,8 @@
                         android:checked="true"/>
                 <item android:id="@+id/show_opt2_rating"
                         android:title="@string/show_opt2_rating" />
-                <item android:id="@+id/show_opt3_all_date"
-                        android:title="@string/show_opt3_all_date" />
-                <item android:id="@+id/show_opt4_all_rating"
-                        android:title="@string/show_opt4_all_rating" />
+                
+                
 
             </group>
         </menu>
