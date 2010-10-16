@@ -54,7 +54,9 @@ public class MysqlInterface {
 	 * Saves a new message
 	 */
 	public static void saveMessage(Message message) {
-		
+		if(con==null){
+			connectToDatabase();
+		}
 		// If the author is not registered, saved on the database 
 		String author = message.getUserName();
 		if (getUser(author) == null)
@@ -101,7 +103,7 @@ public class MysqlInterface {
 			e.printStackTrace();
 		}
 		
-		closeConnectionDatabase();
+		
 	}
 
 	/**
@@ -131,12 +133,14 @@ public class MysqlInterface {
 				if (m.isLiked() == oldMessage.isLiked()) {
 					return true;
 				}
-				connectToDatabase();
+				if(con==null){
+					connectToDatabase();
+				}
 				// Liked has changed, update the db
 				stmt.executeUpdate("UPDATE users_messages"
 						+ " SET liked = " + (m.isLiked()?1:0)
 						+ " WHERE idmessage = " + m.getId() + " AND idUser = " + idUser);
-				closeConnectionDatabase();
+				
 				/*
 				// Old disliked and new likes: rating++
 				if (m.isLiked()) {
@@ -158,7 +162,9 @@ public class MysqlInterface {
 			}
 		} else {
 			try {
-				connectToDatabase();
+				if(con==null){
+					connectToDatabase();
+				}
 				// Increase timesRead
 				stmt.executeUpdate("UPDATE messages"
 						+ " SET times_read = (times_read + 1)"
@@ -174,7 +180,7 @@ public class MysqlInterface {
 							+ m.getId());
 				}
 				 */
-				closeConnectionDatabase();
+				
 				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -219,7 +225,9 @@ public class MysqlInterface {
 			}
 		}
 
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		boolean saved = false;
 		// Save the user
 		String query = "INSERT INTO users (iduser, username, password, name, location, email) values (Null, ?, ?, ?, ?, ?)";
@@ -251,7 +259,7 @@ public class MysqlInterface {
 			System.out.println("SQL exception inserting new user" + e);
 		}
 		
-		closeConnectionDatabase();
+		
 		return saved;
 	}
 
@@ -266,7 +274,9 @@ public class MysqlInterface {
 		}
 		*/
 		
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		
 		// Update the user
 		String query = "UPDATE users SET username=?, password=?, name=?, location=?, email=? WHERE iduser=?";
@@ -312,7 +322,7 @@ public class MysqlInterface {
 		}
 		
 		
-		closeConnectionDatabase();
+		
 		return true;
 	}
 
@@ -340,7 +350,9 @@ public class MysqlInterface {
 	 * Gets a message with the read and liked attributes for a given user
 	 */
 	private static Message getMessage(Message m, int idUser) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		Message message = null;
 		try {
 			ResultSet rs = stmt.executeQuery("SELECT * FROM messages WHERE idMessage = " + m.getId());
@@ -355,7 +367,9 @@ public class MysqlInterface {
 	}
 
 	private static List<Message> getMessagesFromQuery(String query, int idUser) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		List<Message> messages = new ArrayList<Message>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -365,12 +379,14 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		closeConnectionDatabase();
+		
 		return messages;
 	}
 
 	private static List<Tag> getTagListFromQuery(String query) {
-		//connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		List<Tag> tags = new ArrayList<Tag>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -384,7 +400,9 @@ public class MysqlInterface {
 	}
 
 	private static User getUserFromQuery(String query) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		User user = null;
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -420,11 +438,13 @@ public class MysqlInterface {
 	}
 
 	private static void setMessageId(Message message) {
-		
+		if(con==null){
+			connectToDatabase();
+		}
 		String query = "SELECT idMessage" +
 		" FROM messages " +
 		" WHERE iduser = " + getUser(message.getUserName()).getId() +
-		" AND text = '" + message.getText() + "'" +
+		" AND text = '" + message.getText().replace("'", "") + "'" +
 		" ORDER BY idmessage DESC LIMIT 1;";
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -440,7 +460,9 @@ public class MysqlInterface {
 	 * Checks and sets the read and liked attribute for a given message and user
 	 */
 	private static void setReadAndLiked(Message m, int idUser) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 
 		try {
 			ResultSet rs = stmt
@@ -456,7 +478,7 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		closeConnectionDatabase();
+		
 	}
 
 	private static Message getMessageFromRS(ResultSet rs, int idUser) {
@@ -480,7 +502,9 @@ public class MysqlInterface {
 	}
 
 	private static HashMap<Long, HashMap<Long,Float>> getUsersMessagesReadAndLiked (int idUser){
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 
 		HashMap<Long, HashMap<Long,Float>> userHashMap = null;
 		HashMap<Long,Float> auxHashMapRead = new HashMap<Long,Float>();
@@ -503,14 +527,16 @@ public class MysqlInterface {
 			e.printStackTrace();
 		}
 		
-		closeConnectionDatabase();
+		
 		return userHashMap;
 	} 
 
 	public static void takeRecommendationData (HashMap<String,Object> recommendationData,
 			String dimensions[],String table, String userColumn,String messageColumn, String likedColumn) {		
 
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 
 		String query = "SELECT "+userColumn+","+messageColumn+","+likedColumn+
 		" from "+table+" order by "+userColumn+","+messageColumn;
@@ -545,12 +571,14 @@ public class MysqlInterface {
 			e.printStackTrace();
 		}
 		
-		closeConnectionDatabase();
+		
 	}
 
 	public static void updateRecommendationData (RecommendationGenerator recommender,String dimensions[], 
 			Date date, String table, String userColumn,String messageColumn, String likedColumn, String updateDate) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String query = "SELECT "+userColumn+","+messageColumn+","+likedColumn+
@@ -571,7 +599,7 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		closeConnectionDatabase();
+		
 	}
 
 	public static void saveUserRecommendationData (int userID, HashMap<Long,Float> userRecommendations){
@@ -609,19 +637,23 @@ public class MysqlInterface {
 	
 	public static void updateUserRecommendationData (int userID, HashMap<Long,Float> userRecommendations){
 		
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		
 		deleteUserRecommendationData(userID);
 		
 		saveUserRecommendationData(userID, userRecommendations);
 		
-		closeConnectionDatabase();
+		
 
 	}
 
 	public static HashMap<Long,Float> getUserRecommendationData (String userName){
 
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 
 		HashMap<Long, Float> userRecommendationData = new HashMap<Long, Float>();
 
@@ -641,12 +673,14 @@ public class MysqlInterface {
 			e.printStackTrace();
 		}
 		
-		closeConnectionDatabase();
+		
 		return userRecommendationData;
 	}
 		
 		public static Float getUserRecommendationForAMessage (int userID, long idMessage){
-
+			if(con==null){
+				connectToDatabase();
+			}
 			String query = "SELECT idMessage, user_affinity" +
 			" FROM users_recommendations" +
 			" WHERE idUser = " + userID + " AND idMessage = " + idMessage;
@@ -676,7 +710,9 @@ public class MysqlInterface {
 	}
 
 	public static Timestamp getDateLastMessage(String tag) {
-		connectToDatabase();
+		if(con==null){
+			connectToDatabase();
+		}
 		
 		String query = "SELECT m.date" +
 		" FROM messages as m, messages_tags as mt, tags as t" +
