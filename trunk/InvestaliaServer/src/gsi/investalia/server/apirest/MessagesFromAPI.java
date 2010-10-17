@@ -4,6 +4,7 @@ package gsi.investalia.server.apirest;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
+import gsi.investalia.server.db.MysqlInterface;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -116,11 +117,22 @@ public class MessagesFromAPI {
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(35, "Blog"));
 				try{
+					List <Tag> allTags = MysqlInterface.getAllTags();
+					List<String> names = new ArrayList<String>();
+					for( Tag thisTag:allTags){
+						names.add(thisTag.getTagName());
+					}
 					JSONArray tags_j = blogs.getJSONObject(i).getJSONArray("tags");
 					for(int j=0;j<tags_j.length();j++){
-						Tag tag = new Tag(38,tags_j.getString(j));
-						if(!tags.contains(tag))
-							tags.add(tag);
+						if(!names.contains(tags_j.getString(j))){
+							MysqlInterface.insertTag(tags_j.getString(j), "description");
+						}
+						allTags = MysqlInterface.getAllTags();
+						for( Tag thisTag:allTags){
+							names.add(thisTag.getTagName());
+						}
+						int index = names.indexOf(tags_j.getString(j));	
+						Tag tag = new Tag(index, tags_j.getString(j));
 					}
 				}
 				catch(JSONException je){
