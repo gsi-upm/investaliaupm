@@ -648,6 +648,26 @@ public class MysqlInterface {
 		
 
 	}
+	
+	public static List<Tag> getAllTags(){
+		return getTagListFromQuery("SELECT * FROM tags");
+	}
+	
+	public static void insertTag(String abb, String description){
+		
+		if(con==null){
+			connectToDatabase();
+		}
+		String query = "insert into tags(TAGABBREVIATION, DESCRIPTION) values ('"
+			+abb+"', '"+ description +"')";
+		try {
+			stmt.executeUpdate(query);
+			System.out.println("Tag insertada correctamente");
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
 
 	public static HashMap<Long,Float> getUserRecommendationData (String userName){
 
