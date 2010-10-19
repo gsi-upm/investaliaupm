@@ -37,16 +37,17 @@ public class MessageList extends Activity implements OnItemClickListener {
 	// App
 	private static final String TAG_LOGGER = "Messages activity";
 	private static final String DATE_FORMAT_SHOW = "dd/MM/yyyy";
-	private int orderingBy;
+	private String orderingBy;
+	private String whichMessages;
 	private ArrayAdapter<Message> arrayAdapter;
 	private int selectedIndex;
-	
+
 	// Jade
 	private JadeAdapter jadeAdapter;
-	
+
 	// Domain
 	private List<Message> messages;
-	
+
 	// Broadcasting
 	private MessageListBroadcastReceiver broadcastReceiver;
 	private IntentFilter intentFilter;
@@ -57,21 +58,23 @@ public class MessageList extends Activity implements OnItemClickListener {
 		setContentView(R.layout.message_list);
 
 		// Set orderingBy by default
-		orderingBy = R.id.show_opt1_date;
+		orderingBy = MessagesDBHelper.DATE;
+		whichMessages = SQLiteInterface.FOLLOWING;
 
 		// List of messages
 		messages = new ArrayList<Message>();
 		selectedIndex = -1;
-		
+
 		// ListView
 		ListView listView = (ListView) findViewById(R.id.message_list);
 		listView.setOnItemClickListener(this);
 
 		// Inflater
 		final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
+
 		// Adapter
-		arrayAdapter = new ArrayAdapter<Message>(this, R.layout.message_item, messages) {
+		arrayAdapter = new ArrayAdapter<Message>(this, R.layout.message_item,
+				messages) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View itemView;
@@ -82,44 +85,40 @@ public class MessageList extends Activity implements OnItemClickListener {
 				} else {
 					itemView = convertView;
 				}
-				
-				TextView userView = (TextView) itemView
-						.findViewById(R.id.user);
+
+				TextView userView = (TextView) itemView.findViewById(R.id.user);
 				TextView colorView = (TextView) itemView
-				.findViewById(R.id.colorView);
+						.findViewById(R.id.colorView);
 				TextView titleView = (TextView) itemView
 						.findViewById(R.id.title);
-				TextView dateView = (TextView) itemView
-						.findViewById(R.id.date);
-				TextView tagsView = (TextView) itemView
-				.findViewById(R.id.tags);
+				TextView dateView = (TextView) itemView.findViewById(R.id.date);
+				TextView tagsView = (TextView) itemView.findViewById(R.id.tags);
 				ImageView imageView = (ImageView) itemView
 						.findViewById(R.id.user_image);
-				
+
 				// Inflate the views
 				Message m = getItem(position);
-				
-				if(!m.isRead()) {
+
+				if (!m.isRead()) {
 					colorView.setBackgroundResource(R.color.green);
-				}
-				else if(m.isLiked()) {
+				} else if (m.isLiked()) {
 					colorView.setBackgroundResource(R.color.yellow);
-				}
-				else {
+				} else {
 					// If read and not liked, remove the background
 					colorView.setBackgroundResource(0);
 				}
-				
+
 				userView.setText("@" + m.getUserName());
 				titleView.setText(m.getTitle());
-				String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW).format(m.getDate());
+				String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW)
+						.format(m.getDate());
 				dateView.setText(dateStr);
-				
+
 				// Tags
-				String tagsStr = "";		
-				for(int i = 0; i < m.getTags().size(); i++) {
+				String tagsStr = "";
+				for (int i = 0; i < m.getTags().size(); i++) {
 					tagsStr += m.getTags().get(i).getTagName();
-					if(i < m.getTags().size() - 1) {
+					if (i < m.getTags().size() - 1) {
 						tagsStr += ", ";
 					}
 				}
@@ -129,38 +128,36 @@ public class MessageList extends Activity implements OnItemClickListener {
 				// Return the view
 				return itemView;
 			}
-		};	
+		};
 		listView.setAdapter(arrayAdapter);
-		
-		
-		
+
 		// Create the JadeAdapter
 		jadeAdapter = ((Main) getParent()).getJadeAdapter();
-		
+
 		// Set the broadcast receiver
 		this.broadcastReceiver = new MessageListBroadcastReceiver();
 		this.intentFilter = new IntentFilter();
 		this.intentFilter.addAction(JadeAdapter.MESSAGES_DOWNLOADED);
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		// Add messages from database
-		SQLiteInterface.addMessages(this, messages, MessagesDBHelper.DATE);
+		SQLiteInterface.addMessages(this, messages, whichMessages, orderingBy);
 		arrayAdapter.notifyDataSetChanged();
-		
+
 		// Update the last message read (if any)
 		if (selectedIndex != -1) {
 			jadeAdapter.updateMessage(messages.get(selectedIndex));
 			selectedIndex = -1;
 		}
-		
+
 		// Start listening
 		registerReceiver(this.broadcastReceiver, this.intentFilter);
 	}
-	
+
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -173,7 +170,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 	 * Called when an item is clicked
 	 */
 	@Override
-	public void onItemClick(AdapterView av, View v, int index, long arg3) {		
+	public void onItemClick(AdapterView av, View v, int index, long arg3) {
 		// Send the message id
 		Bundle bundle = new Bundle();
 		selectedIndex = index;
@@ -182,7 +179,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 		intent.putExtras(bundle);
 		startActivity(intent);
 	}
-	
+
 	/**
 	 * Creates the menu from the xml
 	 */
@@ -192,7 +189,6 @@ public class MessageList extends Activity implements OnItemClickListener {
 		inflater.inflate(R.menu.menu, menu);
 		return true;
 	}
-
 
 	/**
 	 * Called when a menu item is selected
@@ -207,30 +203,59 @@ public class MessageList extends Activity implements OnItemClickListener {
 			break;
 		case R.id.menu_show:
 			break;
-			
-		// Order by date
-		case R.id.show_opt1_date:
-		//TODO case R.id.show_opt3_all_date:
-			item.setChecked(true);			
-			Toast.makeText(getBaseContext(), R.string.show_opt1_date,
+
+		// Following, by date
+		case R.id.show_opt1_following:
+			item.setChecked(true);
+			Toast.makeText(getBaseContext(), R.string.show_opt1_following,
 					Toast.LENGTH_SHORT).show();
-			SQLiteInterface.addMessages(this, messages, MessagesDBHelper.DATE);
+			whichMessages = SQLiteInterface.FOLLOWING;
+			SQLiteInterface.addMessages(this, messages, whichMessages,
+					orderingBy);
 			arrayAdapter.notifyDataSetChanged();
 			break;
 
-		// Order by rating
-		case R.id.show_opt2_rating:
-		//TODO case R.id.show_opt4_all_rating:
+		// All, by date
+		case R.id.show_opt2_all:
 			item.setChecked(true);
-			Toast.makeText(getBaseContext(), R.string.show_opt2_rating,
+			Toast.makeText(getBaseContext(), R.string.show_opt2_all,
 					Toast.LENGTH_SHORT).show();
-			SQLiteInterface.addMessages(this, messages, MessagesDBHelper.AFFINITY);
+			whichMessages = SQLiteInterface.ALL;
+			SQLiteInterface.addMessages(this, messages, whichMessages,
+					orderingBy);
+			arrayAdapter.notifyDataSetChanged();
+			break;
+
+		// Recommendations, by affinity
+		case R.id.show_opt3_recommendations_affinity:
+			item.setChecked(true);
+			Toast.makeText(getBaseContext(),
+					R.string.show_opt3_recommendations_affinity,
+					Toast.LENGTH_SHORT).show();
+			whichMessages = SQLiteInterface.RECOMMENDATIONS;
+			orderingBy = MessagesDBHelper.AFFINITY;
+			SQLiteInterface.addMessages(this, messages, whichMessages,
+					orderingBy);
+			arrayAdapter.notifyDataSetChanged();
+			break;
+
+		// Recommendations, by date
+		case R.id.show_opt4_recommendations_date:
+			item.setChecked(true);
+			Toast
+					.makeText(getBaseContext(),
+							R.string.show_opt4_recommendations_date,
+							Toast.LENGTH_SHORT).show();
+			whichMessages = SQLiteInterface.RECOMMENDATIONS;
+			orderingBy = MessagesDBHelper.DATE;
+			SQLiteInterface.addMessages(this, messages, whichMessages,
+					orderingBy);
 			arrayAdapter.notifyDataSetChanged();
 			break;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Receiver to listen to updates
 	 */
@@ -238,14 +263,16 @@ public class MessageList extends Activity implements OnItemClickListener {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(JadeAdapter.MESSAGES_DOWNLOADED)) {
-				Log.i(TAG_LOGGER, "Messages downloaded broadcast receipt: " + this.toString());
+				Log.i(TAG_LOGGER, "Messages downloaded broadcast receipt: "
+						+ this.toString());
 				// Add messages from database
-				SQLiteInterface.addMessages(MessageList.this, messages, MessagesDBHelper.DATE);
+				SQLiteInterface.addMessages(MessageList.this, messages,
+						whichMessages, orderingBy);
 				arrayAdapter.notifyDataSetChanged();
 				// Notify as a toast
 				Toast.makeText(getBaseContext(), R.string.refresh_complete,
-						Toast.LENGTH_SHORT).show();				
-			} 
+						Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 }

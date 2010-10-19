@@ -38,10 +38,10 @@
 <string name="welcome_text">Ya puedes empezar a leer y enviar mensajes de la Red Investalia! ¿A qué esperas?</string>
 <string name="refresh">Actualizar</string>
 <string name="show">Mostrar mensajes</string>
-<string name="show_opt1_date">Ordenar por fecha</string>
-<string name="show_opt2_rating">Ordenar por popularidad</string>
-<string name="show_opt3_all_date">Todos los temas por fecha</string>
-<string name="show_opt4_all_rating">Todos los temas por popularidad</string>
+<string name="show_opt1_following">Suscritos, por fecha</string>
+<string name="show_opt2_all">Todos, por fecha</string>
+<string name="show_opt3_recommendations_affinity">Recomendaciones, por afinidad</string>
+<string name="show_opt4_recommendations_date">Recomedaciones, por fecha</string>
 <string name="refresh_complete">Mensajes actualizados</string>
 <string name="compose_sent">Mensaje enviado correctamente</string>
 <string name="compose_error">Error al enviar el mensaje</string>

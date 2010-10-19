@@ -2,29 +2,25 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/menu_refresh"
-        android:title="@string/refresh"
-        android:icon="@drawable/refresh" />
+	<item android:id="@+id/menu_refresh" android:title="@string/refresh"
+		android:icon="@drawable/refresh" />
 
-    <item android:id="@+id/menu_show"
-        android:title="@string/show"
-        android:icon="@android:drawable/ic_menu_more" >
-        
-        <menu>
-            <group android:id="@+id/exclusive_checkable_group"
-                    android:checkableBehavior="single">
-                    
-                <item android:id="@+id/show_opt1_date"
-                        android:title="@string/show_opt1_date" 
-                        android:checked="true"/>
-                <item android:id="@+id/show_opt2_rating"
-                        android:title="@string/show_opt2_rating" />
-                
-                
+	<item android:id="@+id/menu_show" android:title="@string/show"
+		android:icon="@android:drawable/ic_menu_more">
 
-            </group>
-        </menu>
-        
-     </item>
+		<menu>
+			<group android:id="@+id/exclusive_checkable_group"
+				android:checkableBehavior="single">
+				<item android:id="@+id/show_opt1_following" android:title="@string/show_opt1_following"
+					android:checked="true" />
+				<item android:id="@+id/show_opt2_all" android:title="@string/show_opt2_all" />
+				<item android:id="@+id/show_opt3_recommendations_affinity"
+					android:title="@string/show_opt3_recommendations_affinity" />
+				<item android:id="@+id/show_opt4_recommendations_date"
+					android:title="@string/show_opt4_recommendations_date" />
+			</group>
+		</menu>
+
+	</item>
 
 </menu>
