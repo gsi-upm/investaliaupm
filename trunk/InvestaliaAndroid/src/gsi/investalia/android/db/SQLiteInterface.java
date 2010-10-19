@@ -32,6 +32,10 @@ public class SQLiteInterface {
 	private static final String LOGGED_USER = "logged_user";
 	private static final String TAG_LOGGER = "Database";
 
+	public static final String FOLLOWING = "following";
+	public static final String ALL = "all";
+	public static final String RECOMMENDATIONS = "recomendations";
+
 	public static void saveMessages(Context context, List<Message> messages) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
@@ -55,8 +59,8 @@ public class SQLiteInterface {
 				messageValues.put(MessagesDBHelper.LIKED, m.isLiked());
 				messageValues.put(MessagesDBHelper.READ, m.isRead());
 				messageValues.put(MessagesDBHelper.RATING, m.getRating());
-				messageValues.put(MessagesDBHelper.TIMES_READ,
-						m.getTimesRead());
+				messageValues
+						.put(MessagesDBHelper.TIMES_READ, m.getTimesRead());
 
 				// Save the message
 				db.insertOrThrow(MessagesDBHelper.MESSAGES_TABLE, null,
@@ -91,11 +95,12 @@ public class SQLiteInterface {
 			ContentValues messageValues = new ContentValues();
 			messageValues.put(MessagesDBHelper.LIKED, message.isLiked());
 			messageValues.put(MessagesDBHelper.READ, message.isRead());
-			messageValues.put(MessagesDBHelper.TIMES_READ, message.getTimesRead());
+			messageValues.put(MessagesDBHelper.TIMES_READ, message
+					.getTimesRead());
 			messageValues.put(MessagesDBHelper.RATING, message.getRating());
 
 			// Update the message
-			db.update(MessagesDBHelper.MESSAGES_TABLE, messageValues, 
+			db.update(MessagesDBHelper.MESSAGES_TABLE, messageValues,
 					MessagesDBHelper.IDMESSAGE + "=" + message.getId(), null);
 
 			Log.i("DATABASE", "Message updated");
@@ -112,35 +117,64 @@ public class SQLiteInterface {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			db.delete(MessagesDBHelper.MESSAGES_TABLE, null, null);
 			db.delete(MessagesDBHelper.TAGS_TABLE, null, null);
-			db.delete(MessagesDBHelper.MESSAGES_TAGS_TABLE, null, null);			
+			db.delete(MessagesDBHelper.MESSAGES_TAGS_TABLE, null, null);
 		} finally {
 			// Always close the dbHelper
 			dbHelper.close();
 		}
 	}
 
+	private static String getUserTagsAsStringList(Activity activity) {
+		User user = getLoggedUser(activity);
+		String str = "";
+		for (int i = 0; i < user.getTagsFollowing().size(); i++) {
+			str += user.getTagsFollowing().get(i).getId();
+			if (i < user.getTagsFollowing().size() - 1) {
+				str += ", ";
+			}
+		}
+		return str;
+	}
+
 	public static void addMessages(Activity activity, List<Message> messages,
-			String orderBy) {
+			String which, String orderBy) {
 		// Get the helper
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
 		// Clear the list
 		messages.clear();
-		
+
 		int idLoggedUser = getLoggedUser(activity).getId();
-		
+
 		try {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Log.d("DATABASE", "Database obtained");
 
+			String query = "";
 			// If ordering by date, show the newer ones before
-			if(orderBy != null && orderBy.equalsIgnoreCase(MessagesDBHelper.DATE)) {
-				orderBy += " DESC";
+			if (which.equals(ALL)) {
+				if (orderBy.equals(MessagesDBHelper.IDMESSAGE)) {
+					// To determine the last idMessage
+					query = "SELECT * FROM messages ORDER BY IDMESSAGE DESC LIMIT 1";
+				} else if (orderBy.equals(MessagesDBHelper.DATE)) {
+					query = "SELECT * FROM messages ORDER BY DATE DESC";
+				}
+			} else if (which.equals(FOLLOWING)) {
+				query = "SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt "
+						+ "WHERE m.idmessage = mt.idmessage AND idtag IN ("
+						+ getUserTagsAsStringList(activity)
+						+ ") ORDER BY DATE DESC";
+			} else if (which.equals(RECOMMENDATIONS)) {
+				query = "SELECT m.* FROM messages AS m, users_recommendations AS ur "
+						+ " WHERE m.idMessage = ur.idMessage AND ur.idUser = "
+						+ idLoggedUser;
+				if (orderBy.equals(MessagesDBHelper.DATE)) {
+					query += " ORDER BY DATE DESC";
+				} else if (orderBy.equals(MessagesDBHelper.AFFINITY)) {
+					query += " ORDER BY ur.user_affinity DESC";
+				}
 			}
-			String query = "SELECT * FROM messages ORDER BY " + orderBy;
-			if(orderBy != null && orderBy.equalsIgnoreCase(MessagesDBHelper.AFFINITY))
-				query = "SELECT m.* FROM messages AS m, users_recommendations AS ur WHERE m.idMessage = ur.idMessage AND ur.idUser = " + idLoggedUser + " ORDER BY ur.user_affinity DESC";
-			
+
 			Cursor cursor = db.rawQuery(query, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
@@ -160,7 +194,7 @@ public class SQLiteInterface {
 				messages.add(new Message(cursor.getInt(0), cursor.getString(1),
 						cursor.getString(2), cursor.getString(3), tags, date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-						.getInt(7), cursor.getInt(8), idLoggedUser));
+								.getInt(7), cursor.getInt(8), idLoggedUser));
 			}
 			Log.d("DATABASE", "Messages added to list");
 
@@ -200,11 +234,11 @@ public class SQLiteInterface {
 				}
 				// Add the message
 				return new Message(cursor.getInt(0), cursor.getString(1),
-						cursor.getString(2), cursor.getString(3), getMessageTags(
-								activity, cursor.getInt(0)), date,
-								1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), 
-								getLoggedUser(activity).getId());
+						cursor.getString(2), cursor.getString(3),
+						getMessageTags(activity, cursor.getInt(0)), date,
+						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
+								.getInt(7), cursor.getInt(8), getLoggedUser(
+								activity).getId());
 			}
 			Log.d("DATABASE", "Messages returned");
 
@@ -219,9 +253,8 @@ public class SQLiteInterface {
 	 * Saves the logged user into the android shared preferences
 	 */
 	public static void saveLoggedUser(String loggedUserStr, Context context) {
-		context.getSharedPreferences(PREFERENCES_FILE,
-				Context.MODE_PRIVATE).edit().putString(LOGGED_USER,
-						loggedUserStr).commit();
+		context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+				.edit().putString(LOGGED_USER, loggedUserStr).commit();
 	}
 
 	/**
@@ -248,9 +281,8 @@ public class SQLiteInterface {
 	 */
 	public static void removeLoggedUser(Context context) {
 		context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-		.edit().remove(LOGGED_USER).commit();
+				.edit().remove(LOGGED_USER).commit();
 	}
-
 
 	public static void saveTags(Context context, List<Tag> tags) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
@@ -258,7 +290,7 @@ public class SQLiteInterface {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-			// TODO 
+			// TODO
 			Log.i(TAG_LOGGER, "tag count: " + tags.size());
 
 			for (Tag tag : tags) {
@@ -267,11 +299,10 @@ public class SQLiteInterface {
 
 				// Values into content: messages table
 				tagValues.put(MessagesDBHelper.IDTAG, tag.getId());
-				tagValues.put(MessagesDBHelper.TAG, tag.getTagName());				
+				tagValues.put(MessagesDBHelper.TAG, tag.getTagName());
 
 				// Save the message
-				db.insertOrThrow(MessagesDBHelper.TAGS_TABLE, null,
-						tagValues);
+				db.insertOrThrow(MessagesDBHelper.TAGS_TABLE, null, tagValues);
 
 				Log.i("DATABASE", "Inserted into db");
 			}
@@ -292,13 +323,13 @@ public class SQLiteInterface {
 			Log.d("DATABASE", "Database obtained");
 
 			// Execute the query
-			Cursor cursor = db.query(MessagesDBHelper.TAGS_TABLE, null,
-					null, null, null, null, MessagesDBHelper.IDTAG);
+			Cursor cursor = db.query(MessagesDBHelper.TAGS_TABLE, null, null,
+					null, null, null, MessagesDBHelper.IDTAG);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
 			// Extract the results
-			while (cursor.moveToNext()) {				
+			while (cursor.moveToNext()) {
 				// Add the message
 				tags.add(new Tag(cursor.getInt(0), cursor.getString(1)));
 			}
@@ -323,12 +354,15 @@ public class SQLiteInterface {
 			Log.d("DATABASE", "Database obtained");
 
 			// Execute the query
-			Cursor cursor = db.rawQuery("SELECT t.* FROM tags AS t, messages_tags AS mt WHERE t.idtag = mt.idtag AND mt.idmessage = " + idMessage, null);
+			Cursor cursor = db
+					.rawQuery(
+							"SELECT t.* FROM tags AS t, messages_tags AS mt WHERE t.idtag = mt.idtag AND mt.idmessage = "
+									+ idMessage, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for tags executed");
 
 			// Extract the results
-			while (cursor.moveToNext()) {				
+			while (cursor.moveToNext()) {
 				// Add the message
 				tags.add(new Tag(cursor.getInt(0), cursor.getString(1)));
 			}
@@ -342,18 +376,17 @@ public class SQLiteInterface {
 		return tags;
 	}
 
-
 	/**
 	 * Gets the the id of the last message saved in database
 	 */
 	public static int getLastIdMessage(Activity activity) {
 		// Messages are ordered by its id
 		List<Message> messages = new ArrayList<Message>();
-		addMessages(activity, messages, MessagesDBHelper.IDMESSAGE);
-		if(messages.isEmpty()) {
+		addMessages(activity, messages, ALL, MessagesDBHelper.IDMESSAGE);
+		if (messages.isEmpty()) {
 			return 0;
 		}
-		return messages.get(messages.size() - 1).getId();
+		return messages.get(0).getId();
 	}
 
 	/**
@@ -362,22 +395,25 @@ public class SQLiteInterface {
 	public static int getLastIdTag(Activity activity) {
 		// Tags are ordered by its id
 		List<Tag> tags = getTags(activity);
-		if(tags.isEmpty()) {
+		if (tags.isEmpty()) {
 			return 0;
 		}
 		return tags.get(tags.size() - 1).getId();
 	}
 
-	public static void saveUserRecommendations(Context context, HashMap<Long,Float> recommendations) {
+	public static void saveUserRecommendations(Context context,
+			HashMap<Long, Float> recommendations) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
 			int idUser = getLoggedUser(context).getId();
 			// Get the database
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
-			
-			db.delete(MessagesDBHelper.RECOMMENDATIONS_TABLE, MessagesDBHelper.IDUSER + "=" + idUser, null);
 
-			Iterator<Long> recomendationsIterator = recommendations.keySet().iterator();
+			db.delete(MessagesDBHelper.RECOMMENDATIONS_TABLE,
+					MessagesDBHelper.IDUSER + "=" + idUser, null);
+
+			Iterator<Long> recomendationsIterator = recommendations.keySet()
+					.iterator();
 			while (recomendationsIterator.hasNext()) {
 
 				ContentValues recommendationValues = new ContentValues();
@@ -387,7 +423,8 @@ public class SQLiteInterface {
 				// Values into content: recommendations table
 				recommendationValues.put(MessagesDBHelper.IDMESSAGE, idMessage);
 				recommendationValues.put(MessagesDBHelper.IDUSER, idUser);
-				recommendationValues.put(MessagesDBHelper.AFFINITY, recommendations.get(idMessage));
+				recommendationValues.put(MessagesDBHelper.AFFINITY,
+						recommendations.get(idMessage));
 
 				// Save the recommendation
 				db.insertOrThrow(MessagesDBHelper.RECOMMENDATIONS_TABLE, null,
@@ -401,7 +438,8 @@ public class SQLiteInterface {
 		}
 	}
 
-	public static HashMap<Long,Float> getUserRecommendations(Activity activity, int idUser) {
+	public static HashMap<Long, Float> getUserRecommendations(
+			Activity activity, int idUser) {
 		// Get the helper
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
 
@@ -413,18 +451,19 @@ public class SQLiteInterface {
 			Log.d("DATABASE", "Database obtained");
 
 			// Execute the query
-			Cursor cursor = db.query(MessagesDBHelper.RECOMMENDATIONS_TABLE, null,
-					MessagesDBHelper.IDUSER + " = " + getLoggedUser(activity.getApplicationContext()).getId(), null, null,
-					null, null);
+			Cursor cursor = db.query(MessagesDBHelper.RECOMMENDATIONS_TABLE,
+					null, MessagesDBHelper.IDUSER
+							+ " = "
+							+ getLoggedUser(activity.getApplicationContext())
+									.getId(), null, null, null, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
 			// Extract the results
-			while (cursor.moveToNext()) {				
+			while (cursor.moveToNext()) {
 				// Add the message
-				recommendations.put(
-						new Long(cursor.getInt(0)),
-						cursor.getFloat(1));
+				recommendations.put(new Long(cursor.getInt(0)), cursor
+						.getFloat(1));
 			}
 
 		} finally {

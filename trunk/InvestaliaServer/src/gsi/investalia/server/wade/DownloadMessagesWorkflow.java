@@ -72,7 +72,7 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         System.out.println("content received: " + jsonStr);
         System.out.println("username: " + userName);
         
-        /*Add messages from the API*/
+        //Add messages from the API
         //TODO: Mirar cuándo fue la fecha de la última actualización.
          
         for(Message mes: MessagesFromAPI.getBlogsFromAPI(
@@ -88,7 +88,7 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         	MysqlInterface.saveMessage(mes);
         
         // Get the message list, tags and recommendations from db
-        List<Message> messages = MysqlInterface.getUserMessagesSinceLast(userName, lastUpdate);          
+        List<Message> messages = MysqlInterface.getMessagesSinceLast(userName, lastUpdate);          
         System.out.println("message count: " + messages.size());
         List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
         System.out.println("tags count: " + tags.size());
