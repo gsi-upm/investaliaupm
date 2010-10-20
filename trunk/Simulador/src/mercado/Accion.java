@@ -18,6 +18,11 @@ public class Accion {
 		this.setIdCompany(idCompany);
 		this.setDate(date);
 	}
+	
+	public double getRentability (Ibex35 ibex35) {
+		Acciones share = ibex35.getAcciones().get(idCompany);
+		return (share.getValor() - valorCompra) / valorCompra;
+	}
 
 	public void setCantidad(int cantidad) {
 		this.cantidad = cantidad;

@@ -16,28 +16,44 @@ public class Acciones {
 	private double maximumVariation;
 	private Random random;	
 	private ArrayList<Double> historicoAccion = new ArrayList<Double>(Properties.STOCK_MEMORY);
+	
+	//Statistics
+	public double variationUp = 0;
+	public double variationDown = 0;
 
 	public Acciones(String nombre, double valor, double ultimoPorcentaje
 			, double max, double min, double maximumVariation){
 		this.nombre = nombre;
 		this.valor = valor;
 		this.ultimoPorcentaje = ultimoPorcentaje;
-		this.max = max;
-		this.min = min;
+		if(Properties.STOCK_VARIATION > 1)
+			this.max = Double.POSITIVE_INFINITY;
+		else
+			this.max = max;
+		if(Properties.STOCK_VARIATION < 1)
+			this.min = 0;
+		else
+			this.min = min;
 		this.maximumVariation = maximumVariation;
 		System.out.println("Random:"+(long)(valor * (new Date()).getTime()));
 		random = new Random((long)(valor * (new Date()).getTime()));
 	}
 
 	public double getVariation() {
-		double variation = random.nextGaussian()/3;
+		double variation = random.nextGaussian()/Properties.VARIATION_SCALE; 
 		if(variation > 0) //Bear Market -> variation *= 0.X, Bull Market -> variation *= 1.X
 			variation *= Properties.STOCK_VARIATION;
 		if(variation > 1)
 			variation = 1;
 		else if(variation < -1)
 			variation = -1;
-		return  variation * maximumVariation;
+		variation *= maximumVariation;
+		if(variation > 0)
+			variationUp += variation;
+		else
+			variationDown += variation;
+		return  variation;
+		//return  variation * maximumVariation;
 	}
 	
 	// return a random value in the range [0..1] with normal distribution around 0.

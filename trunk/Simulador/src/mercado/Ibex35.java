@@ -32,9 +32,13 @@ public class Ibex35 extends CellOccupant {
 	
 	
 	public void rellenarAcciones(){
-		ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.11));
-		ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.13));
-		ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.15));
+		//ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.11));
+		//ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.13));
+		//ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.15));
+		ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.08));
+		ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.10));
+		ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.12));		
+		ibex35.put("BBVA",new Acciones("BBVA", 9.62, -0.23, 195, 3, 0.09));
 		System.out.println("Acciones rellenadas");
 	}
 
