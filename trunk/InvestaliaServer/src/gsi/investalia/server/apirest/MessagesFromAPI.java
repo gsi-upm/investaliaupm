@@ -68,6 +68,24 @@ public class MessagesFromAPI {
 			return ("IOException: " + ioe);
 		}
 	}
+	
+	/**
+	 * Elimina etiquetas HTML y pone acentos bien.
+	 */
+	public static String parseHTML(String input){
+		return input
+		.replaceAll("&aacute;", "á")
+		.replaceAll("&Aacute;", "Á")
+		.replaceAll("&eacute;", "é")
+		.replaceAll("&Eacute;", "É")
+		.replaceAll("&iacute;", "í")
+		.replaceAll("&Iacute;", "Í")
+		.replaceAll("&oacute;", "ó")
+		.replaceAll("&Oacute;", "Ó")
+		.replaceAll("&uacute;", "ú")
+		.replaceAll("&Uacute;", "Ú")
+		.replaceAll("\\<.*?>","");
+	}
 
 	/**
 	 * Authenticates using the Investalia API
@@ -113,9 +131,13 @@ public class MessagesFromAPI {
 				int id =Integer.parseInt(blogs.getJSONObject(i).getString("guid"));
 				String userName = blogs.getJSONObject(i).getString("owner_name");
 				String title= blogs.getJSONObject(i).getString("title");
-				String text = blogs.getJSONObject(i).getString("description");
+				String text = parseHTML(blogs.getJSONObject(i).getString("description"));
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(35, "Blog"));
+				
+				//We search if the tag of the blog is in the database.
+				//If so, we add the tag to this blog' ones in the database
+				//If not,we first insert the tag into the Tag database, and then to the blog one.
 				try{
 					List <Tag> allTags = MysqlInterface.getAllTags();
 					List<String> names = new ArrayList<String>();
@@ -179,7 +201,7 @@ public class MessagesFromAPI {
 				String userName = blogs.getJSONObject(i).getString("owner_name");
 				String title= "Anotación en el tablón del usuario en el tablón del usuario "+
 				blogs.getJSONObject(i).getString("entity_guid");
-				String text = blogs.getJSONObject(i).getString("value");
+				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(37,"Muro"));
 
@@ -217,7 +239,7 @@ public class MessagesFromAPI {
 				String userName = blogs.getJSONObject(i).getString("owner_name");
 				String title= "Comentario en la entrada "+
 				blogs.getJSONObject(i).getString("entity_guid");
-				String text = blogs.getJSONObject(i).getString("value");
+				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(36,"Comentarios"));
 
