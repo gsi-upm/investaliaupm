@@ -1,7 +1,8 @@
 package mercado;
 
 public class Properties {
-	public static double STOCK_VARIATION = 0.92;	
+	public static double VARIATION_SCALE = 5; //4,3
+	public static double STOCK_VARIATION = 1.05; //0.98;
 		//Bear Market -> variation *= 0.X, Bull Market -> variation *= 1.X
 	public static double LINEAL_REVERSE_SHARE_LIMIT = 2;
 	
@@ -17,6 +18,7 @@ public class Properties {
 	public static double GOOD_WRITER_PROBABILITY = 0.5;
 	public static double GOOD_MESSAGES_PROBABILITY_LIMITS[] = {0.7,0.9};
 	public static double BAD_MESSAGES_PROBABILITY_LIMITS[] = {0,0.2};
+	public static int maximumScore = 5;
 	public static Integer GOOD_MESSAGES_SCORE_PROBABILITY[] = {3,5};
 	public static Integer BAD_MESSAGES_SCORE_PROBABILITY[] = {0,3};
 	
@@ -45,15 +47,18 @@ public class Properties {
 	public static int TIME_CLUSTER = 100;
 	public static int MAX_DIFFERENCE_CLUSTERS = 6;
 	public static int TIME_LIMIT = TIME_CLUSTER * MAX_DIFFERENCE_CLUSTERS;
+	public static int CAPITAL_TIME_DIFFERENCE = 18;
 	
 	public static double CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR = 1.5;	
 	public static double READER_WEIGHT = 0.3;
 	public static double FOLLOWER_WEIGHT = 0.7;
-	public static double SCORER_WEIGHT = 0.5;
+	public static double SCORER_WEIGHT = 0.12; //0.5;
+	public static double USERS_TO_MAXIMUM_TRUST = 4;
+	public static double TRUST_WEIGHT = 10 / Properties.USERS_TO_MAXIMUM_TRUST;
 	
-	public static int STATISTICS_INTERVAL = 100;
+	public static int STATISTICS_INTERVAL = TIME_CLUSTER;
 	public static int CLEAN_INTERVAL = 1000;
-	public static int MESSAGE_TIME_TO_CLEAN = 10000;
+	public static int MESSAGE_TIME_TO_CLEAN = 2000; //10000
 	
 	public static double NEIGHBOR_DISTANCE_TO_PLAY = 4;
 	//Subdividir NEIGHBOR_DISTANCE_TO_PLAY en PLAY_OCASIONAL y PLAY_FREQUENT
@@ -61,24 +66,36 @@ public class Properties {
 	
 	
 	public static double PERCEPTION_DEGRADATION = 4;
-	public static double[][] anxietySellTable = {{0.01,0},{0.02,100}};
-	public static double[] anxietySellAll = {0,3};
-	//public static double[][] sellTable = {{0,0},{1,3},{2,7},{3,20},{4,50},{5,100}};
-	public static double[][] sellTable = {{0.03,0},{0.06,3},{0.1,7},{0.14,14},{0.21,25},{0.5,100}};
-	public static double[] sellAll = {4,6};
-	    //TODO: depender sellAll de Intelligent de la liquidez que tiene (si poca, vender)
+	public static double[][] anxietySellTable = {{0.01,0},{0.15,100}};
+	public static double[] anxietySellAll = {2,4};
+	
+	
+	//public static double[][] sellTable = {{0.03,0},{0.06,3},{0.1,7},{0.14,14},{0.21,25},{0.5,100}}; 
+			//-> valido para variation 1.05 o mas
+	public static double[][] sellTable = {{0.05,0},{0.05,3},{0.10,16},{0.13,23},{0.18,32},{0.4,100}};
+	public static double[] sellAll = {4,8};
+	    //TODO: depender sellAll de Intelligent de la liquidez que tiene (si poca, vender)	
+	
 	public static double[][] sellAmateurTable = null; //{{0.01-0.05,100}};
-	public static double[] sellAmateurRange = {0.01, 0.28};
-	public static double[] sellAmateurAll = {1,3};
+	//public static double[] sellAmateurRange = {0.01, 0.28}; //-> valido para variation 1.05 o mas
+	public static double[] sellAmateurRange = {0.02, 0.08}; //0.02,0.1
+	public static double[] sellAmateurAll = {2,4};
+	
 	public static int INITIAL_LIQUIDITY = 10000;
 	public static double MAX_BUY_VALUE = INITIAL_LIQUIDITY * 0.1;
 	public static double IMPULSIVE_INCREMENTATION = 2;
-	public static double BUY_PROFITABILITY[] = {-0.13,-0.04};
-	public static double BUY_PROBABILITY = 0.8;
-	public static double SELL_PROBABILITY = 0.7;
-	public static double RAND_INV_BUY_PROBABILITY = 0.15;
-	public static double RAND_INV_SELL_PROBABILITY = 0.15;
+	public static double BUY_PROFITABILITY[] = {-0.09,-0.03}; //{-0.13,-0.04}
+	public static double BUY_PROBABILITY = 0.25; //0.85;
+	public static double SELL_PROBABILITY = 0.9;
+	public static double RAND_INV_BUY_PROBABILITY = 0.11;  
+		//According to the programation, it has to depend of the share size of Ibex35
+	public static double RAND_INV_SELL_PROBABILITY = 0.05;  //0.15
 	
+	public static double OPERATION_CLOSED_WEIGHT = 0.2;
+	public static double OPERATION_OPENED_WEIGHT = 0.2;
+	public static double OPERATIONS_WEIGHT = 0.5;
+	public static double CAPITAL_INCREMENT_WEIGHT = 0.5;
+	public static double IF_RENTABILITY_NEGATIVE_DECREMENT = 1.5;	
 	
 	public static int NUM_INVERSORES = 400;
 	public static int FRIEND_DEGRADATION = (int) Math.log10(NUM_INVERSORES) * 15;
@@ -87,7 +104,7 @@ public class Properties {
 	public static double FRIENDLY_PROBABILITY_LIMITS[] = {0.04,0.06};
 	public static double NO_FRIENDLY_PROBABILITY_LIMITS[] = {0.015,0.02};
 	public static double LINEAL_FRIEND_STRENGH_INCREMENT = 3;
-	public static double EXPONENCIAL_FRIEND_STRENGH_DECREMENT = 2;
+	public static double EXPONENCIAL_FRIEND_STRENGH_DECREMENT = 3;
 	
 	public static int STOCK_MEMORY = 5;
 }

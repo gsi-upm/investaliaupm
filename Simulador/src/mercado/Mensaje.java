@@ -19,6 +19,7 @@ public class Mensaje {
 	private ArrayList<Inversores> readers;
 	private HashSet<Inversores> uniqueReaders;
 	private HashMap<Inversores, Integer> scores;
+	private int totalScore = 0;
 	private boolean good;
 	private double popularity[];
 	private double reputation[];
@@ -26,8 +27,7 @@ public class Mensaje {
 	public static int READER_FOLLOWER_SCORER_REPUTATION = 0;
 	public static int READER_FOLLOWER_REPUTATION = 3;
 	public static int READER_FOLLOWER_FINANCIAL_REPUTATION = 2; 
-	
-	
+		
 	//String body, not implemented
 	
 	public Mensaje(Inversores  owner, int date, boolean good){
@@ -46,11 +46,24 @@ public class Mensaje {
 	public int generateReputation(int time) {
 		int time_difference = (time - getDate()) / Properties.TIME_CLUSTER;
 		
-		reputation[READER_FOLLOWER_SCORER_REPUTATION] = (getUniqueNumReaders() * 
-			Properties.READER_WEIGHT + getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT 
-			+ getScore() * Properties.SCORER_WEIGHT);
+		//reputation[READER_FOLLOWER_SCORER_REPUTATION] = (getUniqueNumReaders() * 
+		//	Properties.READER_WEIGHT + getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT 
+		//	+ getScore() * Properties.SCORER_WEIGHT);
 			//*	Math.pow(Properties.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference); 
 			// |-> Se hace en generateReputation de la agregación de todos los mensajes
+		
+		reputation[READER_FOLLOWER_SCORER_REPUTATION] = getUniqueNumReaders() * 
+				Properties.READER_WEIGHT + getUniqueNumFollowers()* Properties.FOLLOWER_WEIGHT;
+		if(scores.size() > 0) {
+			double trust_degree;			
+			if(scores.size() >= Properties.USERS_TO_MAXIMUM_TRUST)
+				trust_degree = 0.6;	//Between log10(2,5) and log10(5)
+			else
+				trust_degree = Math.log10(scores.size() * Properties.TRUST_WEIGHT);
+			reputation[READER_FOLLOWER_SCORER_REPUTATION] += Properties.SCORER_WEIGHT * 
+					reputation[READER_FOLLOWER_SCORER_REPUTATION] * trust_degree * totalScore/scores.size();
+		}
+		
 		
 		//reputation[ONLY_FOLLOWER_REPUTATION] = getUniqueNumFollowers()* Math.pow(Mensaje.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);		
 		
@@ -92,6 +105,7 @@ public class Mensaje {
 	}
 	public void addScore(Inversores inversorScorer, Integer score){
 		scores.put(inversorScorer, score);
+		totalScore += score;
 	}	
 	
 	public ArrayList<Inversores> getReaders() {
@@ -138,14 +152,16 @@ public class Mensaje {
 	}
 	
 	public double getScore () {
-		double totalScore = 0;
-		for(Integer score: scores.values())
-			totalScore += score;		
+		return totalScore;
+		//double totalScore = 0;
+		//for(Integer score: scores.values())
+		//	totalScore += score;	
+		//return totalScore;
+		
 		//for(Inversores inversor : scores.keySet()) {
 		//	Integer score = scores.get(inversor);
 		//	totalScore += score * inversor.getFinancialReputation();
-		//}
-		return totalScore;
+		//}		
 		//return totalScore/scores.size();
 	}	
 	
