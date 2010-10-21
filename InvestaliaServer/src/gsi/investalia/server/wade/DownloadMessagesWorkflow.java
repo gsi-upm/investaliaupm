@@ -1,12 +1,9 @@
 package gsi.investalia.server.wade;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
-import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.apirest.MessagesFromAPI;
 import gsi.investalia.server.db.MysqlInterface;
@@ -88,15 +85,13 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         	MysqlInterface.saveMessage(mes);
         
         // Get the message list, tags and recommendations from db
-        List<Message> messages = MysqlInterface.getMessagesSinceLast(userName, lastUpdate);          
+        List<Message> messages = MysqlInterface.getMessagesIncludingRecommended(userName, lastUpdate);          
         System.out.println("message count: " + messages.size());
         List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
         System.out.println("tags count: " + tags.size());
-        HashMap<Long,Float> recommendations = MysqlInterface.getUserRecommendationData(userName);
-        System.out.println("recommendations count: " + recommendations.size());
-
+        
         // Generate the content
-        String content = JSONAdapter.messageListAndTagListAndRecommendationsToJSON(messages, tags, recommendations).toString();
+        String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
         System.out.println("content sent: " + content);
         
         // Send it as reply

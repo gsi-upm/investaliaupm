@@ -31,7 +31,9 @@ public class MysqlInterface {
 	private static Statement stmt;
 
 	public static final int LIMIT_INFINITY = -1;
-	public static final int LIMIT_DEFAULT = 50;
+	public static final int LIMIT_ALL = 20;
+	public static final int LIMIT_SUBSCRIBED = 20;
+	public static final int LIMIT_RECOMMENDATIONS = 20;
 
 	/**
 	 * Connects to the database
@@ -113,18 +115,17 @@ public class MysqlInterface {
 	/**
 	 * Updates the read and liked properties for a message list and user
 	 */
-	public static void updateReadAndLiked(List<Message> messages) {
+	public static void updateReadAndLiked(List<Message> messages, int idUser) {
 		for (Message m : messages) {
-			updateReadAndLiked(m);
+			updateReadAndLiked(m, idUser);
 		}
 	}
 
 	/**
 	 * Updates the read and liked properties for a message and user
 	 */
-	public static boolean updateReadAndLiked(Message m) {
+	public static boolean updateReadAndLiked(Message m, int idUser) {
 
-		int idUser = m.getIdUserUpdating();
 		Message oldMessage = getMessage(m, idUser);
 		// If the "new message" is not read, the method does nothing
 		if (!m.isRead()) {
@@ -318,7 +319,7 @@ public class MysqlInterface {
 	/**
 	 * Gets the list of all the messages that a user is following
 	 */
-	public static List<Message> getAllUserMessages(String userName, int limit) {
+	public static List<Message> getUserMessages(String userName, int limit) {
 		int idUser = getUser(userName).getId();
 		String limitStr = "";
 		if (limit > 0) {
@@ -337,7 +338,7 @@ public class MysqlInterface {
 		int idUser = getUser(userName).getId();
 		String query = "SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt WHERE m.idmessage = mt.idmessage AND idtag IN (SELECT idtag FROM users_tags WHERE iduser = "
 				+ idUser + ") AND m.idmessage > " + idMessageLast
-				+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_DEFAULT;
+				+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED;
 		return getMessagesFromQuery(query, idUser);
 	}
 
@@ -359,13 +360,41 @@ public class MysqlInterface {
 	 * Gets the list of the messages that a user is following after one given
 	 * Uses the default limit
 	 */
-	public static List<Message> getMessagesSinceLast(String userName,
+	public static List<Message> getAllMessagesSinceLast(String userName,
 			int idMessageLast) {
 		int idUser = getUser(userName).getId();
 		String query = "SELECT * FROM messages WHERE idmessage > "
-				+ idMessageLast + " ORDER BY idmessage DESC LIMIT " + LIMIT_DEFAULT;
+				+ idMessageLast + " ORDER BY idmessage DESC LIMIT " + LIMIT_ALL;
 		return getMessagesFromQuery(query, idUser);
 	}
+	
+	/**
+	 * Gets some messages: subscribed, not subscribed and recommended
+	 * according to the limits 
+	 * Uses the default limit
+	 */
+	public static List<Message> getMessagesIncludingRecommended(String userName,
+			int idMessageLast) {
+		int idUser = getUser(userName).getId();
+		String query = "(SELECT * FROM messages AS m, "
+			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
+			+ "AND ur.iduser = "+ idUser + " AND m.idmessage > " + idMessageLast
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
+			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
+			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
+			+ "WHERE m.idmessage > " + idMessageLast 
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
+			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
+			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage), "
+			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
+			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
+			+ idUser + ") AND m.idmessage > " + idMessageLast 
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+		return getMessagesFromQuery(query, idUser);
+	}
+	
+	
+	
 
 	/**
 	 * Gets a message with the read and liked attributes for a given user
@@ -502,7 +531,7 @@ public class MysqlInterface {
 					rs.getString(3), rs.getString(4), getMessageTags(rs
 							.getInt(1)),
 					new Date(rs.getTimestamp(5).getTime()), false, false, rs
-							.getInt(6), rs.getInt(7), idUser);
+							.getInt(6), rs.getInt(7), rs.getDouble(11));
 		} catch (SQLException e) {
 			System.out.println("SQL Exception");
 			return null;

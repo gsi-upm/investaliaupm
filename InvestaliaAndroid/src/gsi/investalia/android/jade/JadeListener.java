@@ -72,11 +72,10 @@ public class JadeListener implements ACLMessageListener {
 				List<Message> messages = new ArrayList<Message>();
 				List<Tag> tags = new ArrayList<Tag>();
 				HashMap<Long,Float> recommendations = new HashMap<Long,Float>();
-				JSONAdapter.JSONToMessageListAndTagListAndRecommendations(message.getContent(),
-						messages, tags, recommendations);
+				JSONAdapter.JSONToMessageListAndTagList(message.getContent(),
+						messages, tags);
 				SQLiteInterface.saveMessages(context, messages);
 				SQLiteInterface.saveTags(context, tags);
-				SQLiteInterface.saveUserRecommendations(context, recommendations);
 
 				// Broadcast reception
 				context.sendBroadcast(new Intent(

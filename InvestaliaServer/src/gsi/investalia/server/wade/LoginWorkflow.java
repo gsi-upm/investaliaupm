@@ -1,7 +1,6 @@
 package gsi.investalia.server.wade;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import gsi.investalia.domain.User;
 import gsi.investalia.domain.Tag;
@@ -9,8 +8,6 @@ import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.apirest.MessagesFromAPI;
 import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
-
-import jade.lang.acl.MessageTemplate;
 
 import com.tilab.wade.performer.layout.TransitionLayout;
 import com.tilab.wade.performer.layout.MarkerLayout;
