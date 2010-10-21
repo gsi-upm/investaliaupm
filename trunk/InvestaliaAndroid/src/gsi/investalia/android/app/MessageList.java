@@ -99,7 +99,10 @@ public class MessageList extends Activity implements OnItemClickListener {
 				// Inflate the views
 				Message m = getItem(position);
 
-				if (!m.isRead()) {
+				if (m.getAffinity() > 0) {
+					colorView.setBackgroundResource(R.color.blue);
+				}
+				else if (!m.isRead()) {
 					colorView.setBackgroundResource(R.color.green);
 				} else if (m.isLiked()) {
 					colorView.setBackgroundResource(R.color.yellow);
@@ -196,62 +199,36 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
 
-		switch (item.getItemId()) {
-		case R.id.menu_refresh:
+		if (item.getItemId() == R.id.menu_refresh) {
 			Log.i(TAG_LOGGER, "Message list: ask for new messages");
 			jadeAdapter.donwloadNewMessages();
-			break;
-		case R.id.menu_show:
-			break;
-
-		// Following, by date
-		case R.id.show_opt1_following:
+		} else if (item.getItemId() == R.id.menu_show) {
+			// TODO
+		} else {
 			item.setChecked(true);
-			Toast.makeText(getBaseContext(), R.string.show_opt1_following,
-					Toast.LENGTH_SHORT).show();
-			whichMessages = SQLiteInterface.FOLLOWING;
+			String toastStr = "";
+			if (item.getItemId() == R.id.show_opt1_following_affinity) {
+				toastStr = getString(R.string.show_opt1_following_affinity);
+				whichMessages = SQLiteInterface.FOLLOWING;
+				orderingBy = MessagesDBHelper.AFFINITY;
+			} else if (item.getItemId() == R.id.show_opt2_following_date) {
+				toastStr = getString(R.string.show_opt2_following_date);
+				whichMessages = SQLiteInterface.FOLLOWING;
+				orderingBy = MessagesDBHelper.DATE;
+			} else if (item.getItemId() == R.id.show_opt3_all_affinity) {
+				toastStr = getString(R.string.show_opt3_all_affinity);
+				whichMessages = SQLiteInterface.ALL;
+				orderingBy = MessagesDBHelper.AFFINITY;
+			} else if (item.getItemId() == R.id.show_opt4_all_date) {
+				toastStr = getString(R.string.show_opt4_all_date);
+				whichMessages = SQLiteInterface.ALL;
+				orderingBy = MessagesDBHelper.DATE;
+			}
+			Toast.makeText(getBaseContext(), toastStr, Toast.LENGTH_SHORT)
+					.show();
 			SQLiteInterface.addMessages(this, messages, whichMessages,
 					orderingBy);
 			arrayAdapter.notifyDataSetChanged();
-			break;
-
-		// All, by date
-		case R.id.show_opt2_all:
-			item.setChecked(true);
-			Toast.makeText(getBaseContext(), R.string.show_opt2_all,
-					Toast.LENGTH_SHORT).show();
-			whichMessages = SQLiteInterface.ALL;
-			SQLiteInterface.addMessages(this, messages, whichMessages,
-					orderingBy);
-			arrayAdapter.notifyDataSetChanged();
-			break;
-
-		// Recommendations, by affinity
-		case R.id.show_opt3_recommendations_affinity:
-			item.setChecked(true);
-			Toast.makeText(getBaseContext(),
-					R.string.show_opt3_recommendations_affinity,
-					Toast.LENGTH_SHORT).show();
-			whichMessages = SQLiteInterface.RECOMMENDATIONS;
-			orderingBy = MessagesDBHelper.AFFINITY;
-			SQLiteInterface.addMessages(this, messages, whichMessages,
-					orderingBy);
-			arrayAdapter.notifyDataSetChanged();
-			break;
-
-		// Recommendations, by date
-		case R.id.show_opt4_recommendations_date:
-			item.setChecked(true);
-			Toast
-					.makeText(getBaseContext(),
-							R.string.show_opt4_recommendations_date,
-							Toast.LENGTH_SHORT).show();
-			whichMessages = SQLiteInterface.RECOMMENDATIONS;
-			orderingBy = MessagesDBHelper.DATE;
-			SQLiteInterface.addMessages(this, messages, whichMessages,
-					orderingBy);
-			arrayAdapter.notifyDataSetChanged();
-			break;
 		}
 		return true;
 	}

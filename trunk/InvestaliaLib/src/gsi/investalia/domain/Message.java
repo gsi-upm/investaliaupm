@@ -14,11 +14,11 @@ public class Message {
 	private boolean liked; //This adds +1 to the total rating
 	private int rating;
 	private int timesRead;
-	private int idUserUpdating;
+	private double affinity;
 	
 	public Message(int id, String userName, String title, String text,
 			List<Tag> tags, Date date, boolean read, boolean liked,
-			int rating, int timesRead, int idUserUpdating) {
+			int rating, int timesRead, double affinity) {
 		super();
 		this.id = id;
 		this.userName = userName;
@@ -30,8 +30,9 @@ public class Message {
 		this.liked = liked;
 		this.rating = rating;
 		this.timesRead = timesRead;
-		this.idUserUpdating = idUserUpdating;
+		this.affinity = affinity;
 	}
+	
 
 	public int getId() {
 		return id;
@@ -113,12 +114,12 @@ public class Message {
 		this.timesRead = timesRead;
 	}
 
-	public int getIdUserUpdating() {
-		return idUserUpdating;
+	public double getAffinity() {
+		return affinity;
 	}
 
-	public void setIdUserUpdating(int idUserUpdating) {
-		this.idUserUpdating = idUserUpdating;
+	public void setAffinity(double affinity) {
+		this.affinity = affinity;
 	}
 
 	public String toString () {

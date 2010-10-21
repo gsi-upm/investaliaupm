@@ -6,13 +6,8 @@ import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 
 import java.util.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -34,7 +29,6 @@ public class SQLiteInterface {
 
 	public static final String FOLLOWING = "following";
 	public static final String ALL = "all";
-	public static final String RECOMMENDATIONS = "recomendations";
 
 	public static void saveMessages(Context context, List<Message> messages) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
@@ -59,6 +53,7 @@ public class SQLiteInterface {
 				messageValues.put(MessagesDBHelper.LIKED, m.isLiked());
 				messageValues.put(MessagesDBHelper.READ, m.isRead());
 				messageValues.put(MessagesDBHelper.RATING, m.getRating());
+				messageValues.put(MessagesDBHelper.AFFINITY, m.getAffinity());
 				messageValues
 						.put(MessagesDBHelper.TIMES_READ, m.getTimesRead());
 
@@ -153,27 +148,13 @@ public class SQLiteInterface {
 			String query = "";
 			// If ordering by date, show the newer ones before
 			if (which.equals(ALL)) {
-				if (orderBy.equals(MessagesDBHelper.IDMESSAGE)) {
-					// To determine the last idMessage
-					query = "SELECT * FROM messages ORDER BY IDMESSAGE DESC LIMIT 1";
-				} else if (orderBy.equals(MessagesDBHelper.DATE)) {
-					query = "SELECT * FROM messages ORDER BY DATE DESC";
-				}
+				query = "SELECT * FROM messages ORDER BY " + orderBy + " DESC";
 			} else if (which.equals(FOLLOWING)) {
 				query = "SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt "
 						+ "WHERE m.idmessage = mt.idmessage AND idtag IN ("
 						+ getUserTagsAsStringList(activity)
-						+ ") ORDER BY DATE DESC";
-			} else if (which.equals(RECOMMENDATIONS)) {
-				query = "SELECT m.* FROM messages AS m, users_recommendations AS ur "
-						+ " WHERE m.idMessage = ur.idMessage AND ur.idUser = "
-						+ idLoggedUser;
-				if (orderBy.equals(MessagesDBHelper.DATE)) {
-					query += " ORDER BY DATE DESC";
-				} else if (orderBy.equals(MessagesDBHelper.AFFINITY)) {
-					query += " ORDER BY ur.user_affinity DESC";
-				}
-			}
+						+ ") ORDER BY " + orderBy + " DESC";		
+			} 
 
 			Cursor cursor = db.rawQuery(query, null);
 			activity.startManagingCursor(cursor);
@@ -194,7 +175,7 @@ public class SQLiteInterface {
 				messages.add(new Message(cursor.getInt(0), cursor.getString(1),
 						cursor.getString(2), cursor.getString(3), tags, date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), idLoggedUser));
+								.getInt(7), cursor.getInt(8), cursor.getDouble(9)));
 			}
 			Log.d("DATABASE", "Messages added to list");
 
@@ -237,8 +218,7 @@ public class SQLiteInterface {
 						cursor.getString(2), cursor.getString(3),
 						getMessageTags(activity, cursor.getInt(0)), date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), getLoggedUser(
-								activity).getId());
+								.getInt(7), cursor.getInt(8), cursor.getDouble(9));
 			}
 			Log.d("DATABASE", "Messages returned");
 
@@ -399,78 +379,5 @@ public class SQLiteInterface {
 			return 0;
 		}
 		return tags.get(tags.size() - 1).getId();
-	}
-
-	public static void saveUserRecommendations(Context context,
-			HashMap<Long, Float> recommendations) {
-		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
-		try {
-			int idUser = getLoggedUser(context).getId();
-			// Get the database
-			SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-			db.delete(MessagesDBHelper.RECOMMENDATIONS_TABLE,
-					MessagesDBHelper.IDUSER + "=" + idUser, null);
-
-			Iterator<Long> recomendationsIterator = recommendations.keySet()
-					.iterator();
-			while (recomendationsIterator.hasNext()) {
-
-				ContentValues recommendationValues = new ContentValues();
-
-				Long idMessage = recomendationsIterator.next();
-
-				// Values into content: recommendations table
-				recommendationValues.put(MessagesDBHelper.IDMESSAGE, idMessage);
-				recommendationValues.put(MessagesDBHelper.IDUSER, idUser);
-				recommendationValues.put(MessagesDBHelper.AFFINITY,
-						recommendations.get(idMessage));
-
-				// Save the recommendation
-				db.insertOrThrow(MessagesDBHelper.RECOMMENDATIONS_TABLE, null,
-						recommendationValues);
-
-				Log.i("DATABASE", "Inserted into db");
-			}
-		} finally {
-			// Always close the dbHelper
-			dbHelper.close();
-		}
-	}
-
-	public static HashMap<Long, Float> getUserRecommendations(
-			Activity activity, int idUser) {
-		// Get the helper
-		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
-
-		HashMap<Long, Float> recommendations = new HashMap<Long, Float>();
-
-		try {
-			// Get the database
-			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Log.d("DATABASE", "Database obtained");
-
-			// Execute the query
-			Cursor cursor = db.query(MessagesDBHelper.RECOMMENDATIONS_TABLE,
-					null, MessagesDBHelper.IDUSER
-							+ " = "
-							+ getLoggedUser(activity.getApplicationContext())
-									.getId(), null, null, null, null);
-			activity.startManagingCursor(cursor);
-			Log.d("DATABASE", "Query for messages executed");
-
-			// Extract the results
-			while (cursor.moveToNext()) {
-				// Add the message
-				recommendations.put(new Long(cursor.getInt(0)), cursor
-						.getFloat(1));
-			}
-
-		} finally {
-			// Always close the helper
-			dbHelper.close();
-		}
-
-		return recommendations;
 	}
 }

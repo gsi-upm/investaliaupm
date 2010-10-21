@@ -2,13 +2,9 @@ package gsi.investalia.server.wade;
 
 import gsi.investalia.domain.Message;
 import gsi.investalia.json.JSONAdapter;
-import gsi.investalia.server.db.HsqldbInterface;
 import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
-import jade.lang.acl.MessageTemplate;
-
-import com.tilab.wade.performer.layout.TransitionLayout;
 import com.tilab.wade.performer.layout.MarkerLayout;
 import com.tilab.wade.performer.layout.ActivityLayout;
 import com.tilab.wade.performer.layout.WorkflowLayout;

@@ -98,7 +98,9 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 		Message message = JSONAdapter.JSONToMessage(content);
 			
 		// Update the message
-		successfulUpdate = MysqlInterface.updateReadAndLiked(message);
+		String userName = aclMessage.getSender().getLocalName();
+		int idUser = MysqlInterface.getUser(userName).getId();
+		successfulUpdate = MysqlInterface.updateReadAndLiked(message, idUser);
 	}
 
 	protected void executeUpdateFailure() throws Exception {
