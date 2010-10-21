@@ -199,7 +199,7 @@ public class MessagesFromAPI {
 			for(int i = 0;i<blogs.length();i++){
 				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
 				String userName = blogs.getJSONObject(i).getString("owner_name");
-				String title= "Anotación en el tablón del usuario en el tablón del usuario "+
+				String title= "Anotación en el tablón de "+
 				blogs.getJSONObject(i).getString("entity_guid");
 				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
@@ -237,7 +237,7 @@ public class MessagesFromAPI {
 			for(int i = 0;i<blogs.length();i++){
 				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
 				String userName = blogs.getJSONObject(i).getString("owner_name");
-				String title= "Comentario en la entrada "+
+				String title= "Comentario sobre "+
 				blogs.getJSONObject(i).getString("entity_guid");
 				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
