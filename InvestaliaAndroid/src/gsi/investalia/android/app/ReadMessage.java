@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.User;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +45,8 @@ public class ReadMessage extends Activity {
 		
 		liked = (CheckBox) findViewById(R.id.read_liked);
 		liked.setChecked(message.isLiked());
+		User loggedUser = SQLiteInterface.getLoggedUser(this);
+		liked.setEnabled(!message.getUserName().equalsIgnoreCase(loggedUser.getUserName()));
 		liked.setOnClickListener(new OnClickListener() {
 
 			@Override
