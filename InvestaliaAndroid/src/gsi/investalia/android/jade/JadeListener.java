@@ -92,6 +92,13 @@ public class JadeListener implements ACLMessageListener {
 			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));
 		} else if (message.getPerformative() == ACLMessage.INFORM_REF) {
 			Log.i(TAG_LOGGER, "User modified");
+			
+			// Save the user
+			SQLiteInterface.saveLoggedUser(message.getContent(), context);
+
+			// TODO Decide if deleting or not
+			SQLiteInterface.deleteAllMessages(context);
+			
 			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));
 		}
 	}
