@@ -126,20 +126,38 @@ public class MysqlInterface {
 	 */
 	public static boolean updateReadAndLiked(Message m, int idUser) {
 
-		Message oldMessage = getMessage(m, idUser);
 		// If the "new message" is not read, the method does nothing
 		if (!m.isRead()) {
 			return true;
 		}
-		// New and old message read
-		if (oldMessage.isRead()) {
+		
+		// Previous state
+		boolean isRead = false;
+		boolean liked = false;
+		
+		connectToDatabase();
+		try {
+			ResultSet rs = stmt
+					.executeQuery("SELECT liked FROM users_messages" +
+							" WHERE idMessage = " + m.getId() + " AND idUser = " + idUser);
+			if (rs.next()) {
+				isRead = true;
+				if (rs.getInt("liked") == 1)
+					liked = true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		closeConnectionDatabase();
+		
+		if (isRead) {
 			try {
 				// If liked does not change, the method does nothing
-				if (m.isLiked() == oldMessage.isLiked()) {
+				if (m.isLiked() == liked) {
 					return true;
 				}
-				connectToDatabase();
 				// Liked has changed, update the db
+				connectToDatabase();
 				stmt.executeUpdate("UPDATE users_messages" + " SET liked = "
 						+ (m.isLiked() ? 1 : 0) + " WHERE idmessage = "
 						+ m.getId() + " AND idUser = " + idUser);
@@ -160,8 +178,8 @@ public class MysqlInterface {
 			}
 		} else {
 			try {
-				connectToDatabase();
 				// Increase timesRead
+				connectToDatabase();
 				stmt.executeUpdate("UPDATE messages"
 						+ " SET times_read = (times_read + 1)"
 						+ " WHERE idMessage = " + m.getId());
@@ -169,13 +187,13 @@ public class MysqlInterface {
 				stmt.executeUpdate("INSERT INTO users_messages VALUES (Null, "
 						+ m.getId() + ", " + idUser + ", "
 						+ (m.isLiked() ? 1 : 0) + ", Null)");
+				closeConnectionDatabase();
 				/*
 				 * // If liked, rating++ if (m.isLiked()) {
 				 * stmt.executeUpdate("UPDATE messages " +
 				 * "SET rating = (rating + 1) WHERE idMessage = " + m.getId());
 				 * }
 				 */
-				closeConnectionDatabase();
 				return true;
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -432,7 +450,6 @@ public class MysqlInterface {
 	}
 
 	private static List<Tag> getTagListFromQuery(String query) {
-		// connectToDatabase();
 		List<Tag> tags = new ArrayList<Tag>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -464,6 +481,21 @@ public class MysqlInterface {
 			e.printStackTrace();
 		}
 		return user;
+	}
+	
+	private static String getUserName(int idUser) {
+		connectToDatabase();
+		String userName = null;
+		try {
+			ResultSet rs = stmt.executeQuery("SELECT userName FROM users WHERE idUser = "
+					+ idUser);
+			if (rs.next()) {
+				userName = rs.getString("userName");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userName;
 	}
 
 	// TODO: Perdonadme, en serio, pero con las prisas necesito este método
@@ -504,8 +536,7 @@ public class MysqlInterface {
 	 * Checks and sets the read and liked attribute for a given message and user
 	 */
 	private static void setReadAndLiked(Message m, int idUser) {
-		connectToDatabase();
-
+		//connectToDatabase();
 		try {
 			ResultSet rs = stmt
 					.executeQuery("SELECT liked FROM users_messages WHERE iduser = "
@@ -520,14 +551,14 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		closeConnectionDatabase();
+		//closeConnectionDatabase();
 	}
 
 	private static Message getMessageFromRS(ResultSet rs, int idUser) {
 		// Create the message; read and liked false by default
 		Message m;
 		try {
-			m = new Message(rs.getInt(1), getUser(rs.getInt(2)).getUserName(),
+			m = new Message(rs.getInt(1), getUserName(rs.getInt(2)),
 					rs.getString(3), rs.getString(4), getMessageTags(rs
 							.getInt(1)),
 					new Date(rs.getTimestamp(5).getTime()), false, false, rs
