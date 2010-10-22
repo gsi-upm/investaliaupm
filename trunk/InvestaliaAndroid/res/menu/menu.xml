@@ -11,13 +11,10 @@
 		<menu>
 			<group android:id="@+id/exclusive_checkable_group"
 				android:checkableBehavior="single">
-				<item android:id="@+id/show_opt1_following_affinity"
-					android:title="@string/show_opt1_following_affinity" android:checked="true" />
-				<item android:id="@+id/show_opt2_following_date" android:title="@string/show_opt2_following_date" />
-				<item android:id="@+id/show_opt3_all_affinity"
-					android:title="@string/show_opt3_all_affinity" />
-				<item android:id="@+id/show_opt4_all_date"
-					android:title="@string/show_opt4_all_date" />
+				<item android:id="@+id/show_opt1_following_date" android:title="@string/show_opt1_following_date" android:checked="true"/>
+				<item android:id="@+id/show_opt2_following_affinity" android:title="@string/show_opt2_following_affinity" />
+				<item android:id="@+id/show_opt3_all_date" android:title="@string/show_opt3_all_date" />
+				<item android:id="@+id/show_opt4_all_affinity" android:title="@string/show_opt4_all_affinity" />
 			</group>
 		</menu>
 
