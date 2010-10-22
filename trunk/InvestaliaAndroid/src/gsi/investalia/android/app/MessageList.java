@@ -207,20 +207,20 @@ public class MessageList extends Activity implements OnItemClickListener {
 		} else {
 			item.setChecked(true);
 			String toastStr = "";
-			if (item.getItemId() == R.id.show_opt1_following_affinity) {
-				toastStr = getString(R.string.show_opt1_following_affinity);
+			if (item.getItemId() == R.id.show_opt2_following_affinity) {
+				toastStr = getString(R.string.show_opt2_following_affinity);
 				whichMessages = SQLiteInterface.FOLLOWING;
 				orderingBy = MessagesDBHelper.AFFINITY;
-			} else if (item.getItemId() == R.id.show_opt2_following_date) {
-				toastStr = getString(R.string.show_opt2_following_date);
+			} else if (item.getItemId() == R.id.show_opt1_following_date) {
+				toastStr = getString(R.string.show_opt1_following_date);
 				whichMessages = SQLiteInterface.FOLLOWING;
 				orderingBy = MessagesDBHelper.DATE;
-			} else if (item.getItemId() == R.id.show_opt3_all_affinity) {
-				toastStr = getString(R.string.show_opt3_all_affinity);
+			} else if (item.getItemId() == R.id.show_opt4_all_affinity) {
+				toastStr = getString(R.string.show_opt4_all_affinity);
 				whichMessages = SQLiteInterface.ALL;
 				orderingBy = MessagesDBHelper.AFFINITY;
-			} else if (item.getItemId() == R.id.show_opt4_all_date) {
-				toastStr = getString(R.string.show_opt4_all_date);
+			} else if (item.getItemId() == R.id.show_opt3_all_date) {
+				toastStr = getString(R.string.show_opt3_all_date);
 				whichMessages = SQLiteInterface.ALL;
 				orderingBy = MessagesDBHelper.DATE;
 			}
