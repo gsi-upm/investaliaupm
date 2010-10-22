@@ -41,6 +41,10 @@ public class MessagesFromAPI {
 	/*Tokens of the comments in the blog URL*/
 	private final static String comments_TOKEN1 = "http://investalia.grupogesfor.com/pg/api/rest/json/?method=rest.comments";
 	private final static String comments_TOKEN2 = "&time_update=";
+	
+	/*Tokens of the ratings in the blog URL*/
+	private final static String ratings_TOKEN1 = "http://investalia.grupogesfor.com/pg/api/rest/json/?method=rest.rate";
+	private final static String ratings_TOKEN2 = "&time_update=";
 
 	/**
 	 * @param source URL to connect
@@ -252,6 +256,38 @@ public class MessagesFromAPI {
 				int idUserUpdating = 0; 
 				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
 				msgs.add(toBeAdded);
+			}
+		}catch(Exception e){
+			System.err.println(e.getMessage());
+		}
+		return msgs;
+	}
+
+	
+	public static List<String[]> getRatings (String lastUpdate){
+		/* Last Update es un número correspondiende con la última fecha que se actualizó */
+		/*Ej: 0000000000 devuelve todos los mensajes */
+
+		ArrayList<String[]> msgs = new ArrayList<String[]>();
+
+		try{
+
+			JSONObject result;
+			String resultFromAPI = connect(ratings_TOKEN1+ratings_TOKEN2+lastUpdate);
+			result = new JSONObject(resultFromAPI);
+			result=result.getJSONObject("result");/*Get rid of the extra field */
+			JSONArray blogs = result.getJSONArray("valoraciones"); /*Array of all the ratings since last update*/
+			for(int i = 0;i<blogs.length();i++){
+				if(blogs.getJSONObject(i).getInt("value")>=2){
+					/*Consideramos que han gustado los que tienen una valoracion mayor o igual que 2*/
+					String idUser = blogs.getJSONObject(i).getString("owner_name");
+					System.out.println(idUser);
+					String idBlog = blogs.getJSONObject(i).getString("entity_guid");
+					System.out.println(idBlog);
+					System.out.println(blogs.getJSONObject(i).getInt("value"));
+					String[] toBeAdded = {idUser,idBlog};
+					msgs.add(toBeAdded);
+				}
 			}
 		}catch(Exception e){
 			System.err.println(e.getMessage());
