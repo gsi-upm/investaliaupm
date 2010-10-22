@@ -9,6 +9,9 @@ import java.util.List;
 import org.ascape.model.CellOccupant;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
+import org.ascape.util.data.StatCollector;
+import org.ascape.util.data.StatCollectorCSA;
+import org.ascape.view.vis.ChartView;
 
 public class Inversores extends CellOccupant {	
 	private static final long serialVersionUID = -3651394341932621403L;
@@ -20,19 +23,19 @@ public class Inversores extends CellOccupant {
 	protected static boolean esPrimero = true;
 	protected static int cuenta = 0;
 	protected static int setId = 1;
-	private static int EXPERIMENTED_INVESTOR = 0;
-	private static int AMATEUR_INVESTOR = 1;
-	private static int RANDOM_INVESTOR = 2;
+	protected static int EXPERIMENTED_INVESTOR = 0;
+	protected static int AMATEUR_INVESTOR = 1;
+	protected static int RANDOM_INVESTOR = 2;
 	
 	private InvestorType investor;
 	
-	private static int FREQUENT_USER = 0;
-	private static int OCASIONAL_USER = 1;
-	private static int GOOD_WRITER = 0;
-	private static int BAD_WRITER = 1;
+	protected static int FREQUENT_USER = 0;
+	protected static int OCASIONAL_USER = 1;
+	protected static int GOOD_WRITER = 0;
+	protected static int BAD_WRITER = 1;
 	
-	private static int FRIENDLY_USER = 0;
-	private static int NO_FRIENDLY_USER = 1;
+	protected static int FRIENDLY_USER = 0;
+	protected static int NO_FRIENDLY_USER = 1;
 	
 	private int tipoAgente[];
 	private int id;
@@ -191,6 +194,9 @@ public class Inversores extends CellOccupant {
         			Properties.NO_FRIENDLY_PROBABILITY_LIMITS[1]);
         }
         setColorByAgentType();
+        
+        
+               
     }
    
     private void setColorByAgentType () {
@@ -249,7 +255,7 @@ public class Inversores extends CellOccupant {
 						 j*Properties.POPULARITY_INCREMENTATION_EXPONENCIAL_FACTOR/sizePopularMessages-1));
 				}
 			}
-			if(time % Properties.STATISTICS_INTERVAL == 1) { //Generate statistics
+			if(time % Properties.STATISTICS_INTERVAL == 0) { //Generate statistics
 				System.out.println("Estadistica en intervalo "+time+":");
 				Ibex35 ibex35 = ((SimulateSocialExchange)getRoot()).getStock();				
 				//Generate activity reputation and financial reputation of the investors
@@ -514,10 +520,16 @@ public class Inversores extends CellOccupant {
 	}
 	
 	public void printIbex35Statistics(Ibex35 ibex35) {
-		for(Acciones share : ibex35.getAcciones().values()) {
-			System.out.println(share.getNombre()+": "+share.getValor()+",maxR:"+share.getMaxReached()
-					+",minR:"+share.getMinReached()+",vU:"+share.variationUp+",vD:"+
-					share.variationDown+","+share.getHistoricoAccion());
+		for(Share share : ibex35.getAcciones().values()) {
+			if(share instanceof RandomShare) {
+				RandomShare ramShare = (RandomShare) share;
+				System.out.println(ramShare.getName()+": "+ramShare.getValue()+",maxR:"+ramShare.getMaxReached()
+						+",minR:"+ramShare.getMinReached()+",vU:"+ramShare.variationUp+",vD:"+
+						ramShare.variationDown+","+ramShare.getVariationsHistory());
+			} else {
+				HistoryFileShare fileShare = (HistoryFileShare) share;
+				System.out.println(fileShare.getName()+": "+fileShare.getValue()+","+fileShare.getVariationsHistory());
+			}
 		}
 	}	
 	
@@ -666,7 +678,7 @@ public class Inversores extends CellOccupant {
 		investor.jugarEnBolsa(myStock);
 		
 	
-		/*HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
+		/*HashMap<String, RandomShare> accionesDeBolsa = miBolsa.getAcciones();
 		//vender
 		if (randomInRange(0,1)> actividadVender){
 			//elegir empresa antes?, ver la mejor*probabilidad de vender??			
@@ -674,7 +686,7 @@ public class Inversores extends CellOccupant {
 			//and checking up on the profitability. If it is good, sell the share.			
 			for(int id = 0; id < misAcciones.size(); id++) {
 				Accion miAccion = misAcciones.get(id);
-				Acciones accionesBolsa = accionesDeBolsa.get(miAccion.getIdCompany());
+				RandomShare accionesBolsa = accionesDeBolsa.get(miAccion.getIdCompany());
 				//  I have the share, I have to check if is a good moment to
 				//  sell the share. look the movements. 
 				//  If the sum of last movements is better than the profitability sell it.				
@@ -717,7 +729,7 @@ public class Inversores extends CellOccupant {
 			//para cada accion de la bolsa, tendre que ver si me interesa comprar
 			// si compro le tengo que construir un objeto accion y meterlo en todas las acciones
 			// de la bolsa
-			for (Acciones accionesBolsa : accionesDeBolsa.values()) {
+			for (RandomShare accionesBolsa : accionesDeBolsa.values()) {
 				ArrayList<Double> historico = accionesBolsa.getHistoricoAccion();
 				double suma = 0;					
 				for ( int i = iteraccionesCompra-1; i<historico.size(); i++) {
@@ -798,19 +810,21 @@ public class Inversores extends CellOccupant {
 	public void play(Agent partner){
 		boolean isFirst = true;		
 		//Friend Relationship		
-		if(randomInRange(0.0,1.0) < friendlyProbability) {
+		if(randomInRange(0.0,1.0) < friendlyProbability && !friends.contains(partner)) {			
 			if(randomInRange(0.0,1.0) < getFriendlyProbability((Inversores) partner))
 				friends.add((Inversores)partner);
-		}		
+			
+		}	
+		//TODO: reputacion segun la amistad!
+		
 
 		//TODO: probabilidad de leer por cronologia y el resto de leer por reputacion total (mensajes recomendados / mensajes cronologicos)
 		//Leer mensaje con mas reputacion (por cronologia y/o reputacion total)
 		// las demás lecturas ir bajando probabilidad de leer -> Probabilidad_leer_recomendados/cronologicos
 		//TODO: afinidad de agentes, si un agente lee mucho de otro se le aumenta su afinidad de forma que juegue con de forma
 		//  más probable
-		/*
-		//By cronology:	
-		 
+		
+		//By cronology:		 
 		ArrayList<Mensaje> messagesFromPartner = ((Inversores) partner).getMensajes();			
 		double consecutiveMessageDegradation = 1.0;
 		int notReadMessages = 0;
@@ -846,8 +860,7 @@ public class Inversores extends CellOccupant {
 			} else if(++notReadMessages >= Properties.NOT_READ_MESSAGES_TO_LEAVE_USER)
 				return;
 			consecutiveMessageDegradation *= Properties.CONSECUTIVE_MESSAGE_CRONOLOGY_READ_DEGRADATION;
-		}
-		*/
+		}		
 		
 		
 		/*
@@ -878,7 +891,7 @@ public class Inversores extends CellOccupant {
 	}
 	
 	public double getFriendlyProbability(Inversores partner) {
-		double probability = 1;
+		double probability = 1.5;
 		double afinity = 0;
 		ArrayList<Mensaje> messagesFromPartner = partner.getMensajes();
 		for(int i = messagesFromPartner.size()-1; i >= 0; i--) {
@@ -901,15 +914,19 @@ public class Inversores extends CellOccupant {
 						(message.getScores().containsKey(this)?message.getScores().get(this):0);
 			}
 		}
-		if(friends.size() > 0)
+		if(friends.size() > 0) {
 			afinityAverage /= friends.size();		
-		probability *= afinity / afinityAverage;
-		int commonFriends = 1;
-		for(Inversores friend : friends) {
-			if(partner.getFriends().contains(friend)) 
-				commonFriends++;			
-		}
-		probability *= Properties.FRIENDLY_COMMON * commonFriends;
+			probability *= afinity / afinityAverage;
+			int commonFriends = 1;
+			for(Inversores friend : friends) {
+				if(partner.getFriends().contains(friend)) 
+					commonFriends++;			
+			}
+			if(commonFriends > 1/Properties.FRIENDLY_COMMON)
+				probability *= Properties.FRIENDLY_COMMON * commonFriends;
+			//else
+			//	probability *= Properties.FRIENDLY_COMMON;
+		}		
 		if(friends.size() > Properties.FRIEND_DEGRADATION) {
 			probability *= Math.pow(((double)friends.size())/Properties.FRIEND_DEGRADATION, 
 					Properties.EXPONENCIAL_FRIEND_STRENGH_DECREMENT);
@@ -986,7 +1003,7 @@ public class Inversores extends CellOccupant {
 	
 	
 	/**
-	 * Post a comment
+	 * Post a message
 	 */
 	public void postear(){
 	  //System.out.println("("+ time +") id: " + this.getId() + " posteo");
@@ -994,7 +1011,7 @@ public class Inversores extends CellOccupant {
 	}
 	
 	/**
-	 * Return us the list of comments
+	 * Return us the list of written messages
 	 */
 	public ArrayList<Mensaje> getMensajes(){
 		return misMensajes;
@@ -1104,7 +1121,7 @@ public class Inversores extends CellOccupant {
 		return messagesNum;
 	}
 	
-	private int[] getTipoAgente() {
+	public int[] getTipoAgente() {
 		return tipoAgente;
 	}
 	

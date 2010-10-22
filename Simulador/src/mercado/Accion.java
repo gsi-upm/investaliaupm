@@ -20,8 +20,8 @@ public class Accion {
 	}
 	
 	public double getRentability (Ibex35 ibex35) {
-		Acciones share = ibex35.getAcciones().get(idCompany);
-		return (share.getValor() - valorCompra) / valorCompra;
+		Share share = ibex35.getAcciones().get(idCompany);
+		return (share.getValue() - valorCompra) / valorCompra;
 	}
 
 	public void setCantidad(int cantidad) {

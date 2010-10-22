@@ -104,15 +104,15 @@ public class IntelligentInvestor extends InvestorType {
 			maxValorCompra *= Properties.IMPULSIVE_INCREMENTATION;
 	}
 	
-	public void jugarEnBolsa(Ibex35 miBolsa){
-		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
+	public void jugarEnBolsa(Ibex35 stock){
+		HashMap<String, Share> shares = stock.getAcciones();
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
 			//elegir empresa antes?, ver la mejor*probabilidad de vender??			
 			//For each share of exchange, I have look for my shares checking up on which I have it
 			//and checking up on the profitability. If it is good, sell the share.			
 			for(int id = 0; id < misAcciones.size(); id++) {
 				Accion myInversion = misAcciones.get(id);
-				Acciones share = accionesDeBolsa.get(myInversion.getIdCompany());
+				Share share = shares.get(myInversion.getIdCompany());
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
 				/* I have the share, I have to check if is a good moment to
 				 *  sell the share. look the movements. 
@@ -123,18 +123,18 @@ public class IntelligentInvestor extends InvestorType {
 					rentabilidad += historico.get(i);
 				}*/				
 				int sharesToSell = (int) (myInversion.getInitialQuantity() * 
-					getPercentToSell(share.getValor(),myInversion.getValorCompra(),inversionClusterTime)/100);
+					getPercentToSell(share.getValue(),myInversion.getValorCompra(),inversionClusterTime)/100);
 				if (sharesToSell > 0){
 					sells++;
 					if(sharesToSell > myInversion.getCantidad())
 						sharesToSell = myInversion.getCantidad();
 					myInversion.setCantidad(myInversion.getCantidad() - sharesToSell);
-					double stockLiquidity = sharesToSell * share.getValor();
+					double stockLiquidity = sharesToSell * share.getValue();
 					liquidity +=  stockLiquidity;
 					
 					//double inversionReturn = (share.getValor() - myInversion.getValorCompra()) 
 					//	/ myInversion.getValorCompra();
-					if((share.getValor() - myInversion.getValorCompra()) < 0)
+					if((share.getValue() - myInversion.getValorCompra()) < 0)
 						capitalWithNegativeReturn += stockLiquidity;
 					
 					addOperationClosed(myInversion, sharesToSell, stockLiquidity, investor.getTime());
@@ -160,8 +160,8 @@ public class IntelligentInvestor extends InvestorType {
 			//para cada accion de la bolsa, tendre que ver si me interesa comprar
 			// si compro le tengo que construir un objeto accion y meterlo en todas las acciones
 			// de la bolsa
-			for (Acciones accionesBolsa : accionesDeBolsa.values()) {
-				ArrayList<Double> historico = accionesBolsa.getHistoricoAccion();
+			for (Share share : shares.values()) {
+				ArrayList<Double> historico = share.getVariationsHistory();
 				double suma = 0;					
 				for ( int i = iteraccionesCompra-1; i<historico.size(); i++) {
 					suma += historico.get(i);
@@ -172,15 +172,15 @@ public class IntelligentInvestor extends InvestorType {
 				if (historico.size() > 1 && (historico.get(historico.size()-1) + historico.get(historico.size()-2)) < 0) { 
 					//suma <= rentabilidadCompra) {
 					if(isDiversifier) {
-						double actualInversion = actualInversionOnShare(accionesBolsa);
+						double actualInversion = actualInversionOnShare(share);
 						double buyProbability = Properties.MAX_BUY_VALUE/(actualInversion*2);
 						if(impulsive)
 							buyProbability *= suma/rentabilidadCompra;
 						if(actualInversion > 0 && investor.randomInRange(0.0,1.0) > buyProbability)
 							continue;
 					}					
-					int limite1 = (int)Math.floor(maxValorCompra / accionesBolsa.getValor());
-					int limite2 = (int)(liquidity / accionesBolsa.getValor());
+					int limite1 = (int)Math.floor(maxValorCompra / share.getValue());
+					int limite2 = (int)(liquidity / share.getValue());
 					int number2buy = 0;
 					if (limite1 > 0 && limite2 > 0){										
 						number2buy =  ((int)investor.randomInRange(1, limite1));
@@ -192,10 +192,10 @@ public class IntelligentInvestor extends InvestorType {
 						if(number2buy > limite2)
 							number2buy = limite2;
 						buys++;
-						Accion accionComprada = new Accion(number2buy, accionesBolsa.getValor(),
-								accionesBolsa.getNombre(), investor.getTime());
-						liquidity -=  number2buy*accionesBolsa.getValor();
-						investCapital += number2buy*accionesBolsa.getValor();
+						Accion accionComprada = new Accion(number2buy, share.getValue(),
+								share.getName(), investor.getTime());
+						liquidity -=  number2buy*share.getValue();
+						investCapital += number2buy*share.getValue();
 						misAcciones.add(accionComprada);
 
 						//System.out.println("("+ time +") id :" + getId() + ", compro(" + number2buy + ") de " + accionesBolsa.getNombre() 
@@ -209,11 +209,11 @@ public class IntelligentInvestor extends InvestorType {
 		}		
 	}
 	
-	private double actualInversionOnShare (Acciones share) {
+	private double actualInversionOnShare (Share share) {
 		double actualInversion = 0;
 		for(Accion inversion : misAcciones) {
-			if(inversion.getIdCompany().equalsIgnoreCase(share.getNombre()))
-				actualInversion += inversion.getCantidad() * share.getValor(); //inversion.getValorCompra()	
+			if(inversion.getIdCompany().equalsIgnoreCase(share.getName()))
+				actualInversion += inversion.getCantidad() * share.getValue(); //inversion.getValorCompra()	
 		}
 		return actualInversion;
 	}
@@ -221,7 +221,7 @@ public class IntelligentInvestor extends InvestorType {
 	private double getPercentToSell (double actualValue, double firstValue, int clusterTime) {
 		int value = 0;
 		double inversionReturn = (actualValue - firstValue) / firstValue;
-		if(liquidity > (Properties.MAX_BUY_VALUE*4)) {
+		if(liquidity < (Properties.MAX_BUY_VALUE*4)) {
 			if(clusterTime > sellAll[1]) {
 				sellsAll1++;
 				return 100;

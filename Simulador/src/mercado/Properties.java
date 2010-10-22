@@ -2,7 +2,7 @@ package mercado;
 
 public class Properties {
 	public static double VARIATION_SCALE = 5; //4,3
-	public static double STOCK_VARIATION = 1.05; //0.98;
+	public static double STOCK_VARIATION = 1.03; //0.98;
 		//Bear Market -> variation *= 0.X, Bull Market -> variation *= 1.X
 	public static double LINEAL_REVERSE_SHARE_LIMIT = 2;
 	
@@ -71,14 +71,19 @@ public class Properties {
 	
 	
 	//public static double[][] sellTable = {{0.03,0},{0.06,3},{0.1,7},{0.14,14},{0.21,25},{0.5,100}}; 
-			//-> valido para variation 1.05 o mas
-	public static double[][] sellTable = {{0.05,0},{0.05,3},{0.10,16},{0.13,23},{0.18,32},{0.4,100}};
-	public static double[] sellAll = {4,8};
-	    //TODO: depender sellAll de Intelligent de la liquidez que tiene (si poca, vender)	
+	//-> valido para variation 1.05 o mas
+	//public static double[][] sellTable = {{0.01,0},{0.01,3},{0.02,16},{0.027,23},{0.035,32},{0.5,100}};
+	// |- para 0.98
+	//public static double[][] sellTable = {{0.05,0},{0.05,3},{0.10,16},{0.13,23},{0.18,32},{0.4,100}};
+	// |- para 1.03
+	public static double[][] sellTable = {{0.05,0},{0.05,4},{0.10,16},{0.15,23},{0.24,32},{0.5,100}};
+	
+	public static double[] sellAll = {4,8};		
 	
 	public static double[][] sellAmateurTable = null; //{{0.01-0.05,100}};
 	//public static double[] sellAmateurRange = {0.01, 0.28}; //-> valido para variation 1.05 o mas
-	public static double[] sellAmateurRange = {0.02, 0.08}; //0.02,0.1
+	//public static double[] sellAmateurRange = {0.02, 0.08}; //para variation > 1
+	public static double[] sellAmateurRange = {0.01, 0.05}; //para variation < 1
 	public static double[] sellAmateurAll = {2,4};
 	
 	public static int INITIAL_LIQUIDITY = 10000;
@@ -97,12 +102,12 @@ public class Properties {
 	public static double CAPITAL_INCREMENT_WEIGHT = 0.5;
 	public static double IF_RENTABILITY_NEGATIVE_DECREMENT = 1.5;	
 	
-	public static int NUM_INVERSORES = 400;
-	public static int FRIEND_DEGRADATION = (int) Math.log10(NUM_INVERSORES) * 15;
+	public static int NUM_INVESTORS = 400;
+	public static int FRIEND_DEGRADATION = (int) Math.log10(NUM_INVESTORS) * 15;
 	public static double FRIENDLY_PROBABILITY = 0.5;
 	public static double FRIENDLY_COMMON = 0.3;
-	public static double FRIENDLY_PROBABILITY_LIMITS[] = {0.04,0.06};
-	public static double NO_FRIENDLY_PROBABILITY_LIMITS[] = {0.015,0.02};
+	public static double FRIENDLY_PROBABILITY_LIMITS[] = {0.04,0.8}; //{0.04,0.06};
+	public static double NO_FRIENDLY_PROBABILITY_LIMITS[] = {0.025,0.04}; //{0.015,0.02};
 	public static double LINEAL_FRIEND_STRENGH_INCREMENT = 3;
 	public static double EXPONENCIAL_FRIEND_STRENGH_DECREMENT = 3;
 	

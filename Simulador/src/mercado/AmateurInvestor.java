@@ -31,12 +31,12 @@ public class AmateurInvestor extends InvestorType {
 
 	@Override
 	public void jugarEnBolsa(Ibex35 miBolsa) {
-		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
+		HashMap<String, Share> shares = miBolsa.getAcciones();
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
 			for(int id = 0; id < misAcciones.size(); id++) {
 				Accion myInversion = misAcciones.get(id);
-				Acciones share = accionesDeBolsa.get(myInversion.getIdCompany());
-				double inversionReturn = (share.getValor() - myInversion.getValorCompra()) / myInversion.getValorCompra();
+				Share share = shares.get(myInversion.getIdCompany());
+				double inversionReturn = (share.getValue() - myInversion.getValorCompra()) / myInversion.getValorCompra();
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
 				boolean selling = false;				
 				if(inversionClusterTime > sellAll[1]) {
@@ -51,7 +51,7 @@ public class AmateurInvestor extends InvestorType {
 					sells++;
 					int sharesToSell = myInversion.getCantidad();
 					myInversion.setCantidad(0);
-					double stockLiquidity = sharesToSell * share.getValor();
+					double stockLiquidity = sharesToSell * share.getValue();
 					if(inversionReturn < 0)
 						capitalWithNegativeReturn += stockLiquidity;
 					liquidity +=  stockLiquidity;
@@ -67,22 +67,22 @@ public class AmateurInvestor extends InvestorType {
 			//para cada accion de la bolsa, tendre que ver si me interesa comprar
 			// si compro le tengo que construir un objeto accion y meterlo en todas las acciones
 			// de la bolsa
-			for (Acciones accionesBolsa : accionesDeBolsa.values()) {
-				ArrayList<Double> historico = accionesBolsa.getHistoricoAccion();				
+			for (Share share : shares.values()) {
+				ArrayList<Double> historico = share.getVariationsHistory();				
 				if(historico.size() == 0 || historico.get(historico.size()-1) >= 0) 
 					continue;	//accionesBolsa.getUltimoPorcentaje() >= 0			
-				int limite1 = (int)Math.floor(maxValorCompra / accionesBolsa.getValor());
-				int limite2 = (int)(liquidity / accionesBolsa.getValor());
+				int limite1 = (int)Math.floor(maxValorCompra / share.getValue());
+				int limite2 = (int)(liquidity / share.getValue());
 				int number2buy = 0;
 				if (limite1 > 0 && limite2 > 0){
 					buys++;
 					number2buy =  ((int)investor.randomInRange(1, limite1));
 					if(number2buy > limite2)
 						number2buy = limite2;
-					Accion accionComprada = new Accion(number2buy, accionesBolsa.getValor(),
-							accionesBolsa.getNombre(), investor.getTime());
-					liquidity -=  number2buy*accionesBolsa.getValor();
-					investCapital += number2buy*accionesBolsa.getValor();
+					Accion accionComprada = new Accion(number2buy, share.getValue(),
+							share.getName(), investor.getTime());
+					liquidity -=  number2buy * share.getValue();
+					investCapital += number2buy * share.getValue();
 					misAcciones.add(accionComprada);									
 				}
 				//if(investor.getId() == debugParam)
