@@ -12,7 +12,7 @@ import org.ascape.model.rule.Rule;
 public class Ibex35 extends CellOccupant {
 	
 	DecimalFormat miFormato = new DecimalFormat("0.000");
-	HashMap<String,Acciones> ibex35 = new HashMap<String,Acciones>(35);
+	HashMap<String,Share> ibex35 = new HashMap<String,Share>(35);
 	
 	
 	//create the list of rules for scape
@@ -32,33 +32,37 @@ public class Ibex35 extends CellOccupant {
 	
 	
 	public void rellenarAcciones(){
-		//ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.11));
-		//ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.13));
-		//ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.15));
-		ibex35.put("Telefonica",new Acciones("Telefonica", 17.970, -0.61, 95, 5, 0.08));
-		ibex35.put("Inditex",new Acciones("Inditex", 49.490, -0.86, 340, 10, 0.10));
-		ibex35.put("Santander",new Acciones("Santander", 10.62, -1.21, 95, 2, 0.12));		
-		ibex35.put("BBVA",new Acciones("BBVA", 9.62, -0.23, 195, 3, 0.09));
-		System.out.println("Acciones rellenadas");
+		//ibex35.put("Telefonica",new RandomShare("Telefonica", 17.970, -0.61, 95, 5, 0.11));
+		//ibex35.put("Inditex",new RandomShare("Inditex", 49.490, -0.86, 340, 10, 0.13));
+		//ibex35.put("Santander",new RandomShare("Santander", 10.62, -1.21, 95, 2, 0.15));
+		
+		/*ibex35.put("Telefonica",new RandomShare("Telefonica", 17.970, -0.61, 95, 5, 0.08));
+		ibex35.put("Inditex",new RandomShare("Inditex", 49.490, -0.86, 340, 10, 0.10));
+		ibex35.put("Santander",new RandomShare("Santander", 10.62, -1.21, 95, 2, 0.12));		
+		ibex35.put("BBVA",new RandomShare("BBVA", 9.62, -0.23, 195, 3, 0.09));*/
+		
+		
+		ibex35.put("Telefonica",new HistoryFileShare("Telefonica","FinancialFiles/Telefonica.txt"));
+		ibex35.put("Cepsa",new HistoryFileShare("Cepsa", "FinancialFiles/Cepsa.txt"));
+		ibex35.put("Santander",new HistoryFileShare("Santander", "FinancialFiles/Santander.txt"));		
+		ibex35.put("BBVA",new HistoryFileShare("BBVA", "FinancialFiles/BBVA.txt"));		
+		
+		System.out.println("RandomShare rellenadas");
 	}
 
 	public void update() {
-		for (Acciones accion : ibex35.values()) {
-			double variation = accion.getVariation();
-			//TODO: variation in stocks can overpass maximum and minimun value 
-			//      of the stocks configured in the constructor
-			//accion.setValor(accion.getValor() * (1 + variation));
-			variation = accion.setValor(accion.getValor(), variation);
+		for (Share share : ibex35.values()) {
+			share.setNextValue();
+			//double variation = accion.getVariation();
+			//variation = accion.setValor(accion.getValor(), variation);
 			//System.out.println("Variation "+accion.getNombre()+": "+accion.getVariation()+" value:"+accion.getValor());
-			
-			//accion.setValor(randomInRange(accion.getMax(), accion.getMin()));			
-			accion.setUltimoPorcentaje(variation); //accion.setUltimoPorcentaje(oldValue/newValue-1);			
+			//accion.setUltimoPorcentaje(variation); //accion.setUltimoPorcentaje(oldValue/newValue-1);			
 			//meto el porcentaje en la memoria de la bolsa
-			accion.addMovment(variation);	
+			//accion.addMovment(variation);	
 		}
 	}
 		
-	public HashMap<String,Acciones> getAcciones() {
+	public HashMap<String,Share> getAcciones() {
 		return ibex35;
 	}
 	

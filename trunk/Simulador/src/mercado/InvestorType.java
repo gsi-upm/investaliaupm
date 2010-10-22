@@ -48,11 +48,11 @@ public abstract class InvestorType {
 	}
 	
 	public double getActualCapital(Ibex35 miBolsa){
-		HashMap<String, Acciones> accionesDeBolsa = miBolsa.getAcciones();
+		HashMap<String, Share> shares = miBolsa.getAcciones();
 		double sum = 0;
 		for(Accion myInversion : misAcciones){
-			Acciones share = accionesDeBolsa.get(myInversion.getIdCompany());
-			sum += myInversion.getCantidad() * share.getValor();
+			Share share = shares.get(myInversion.getIdCompany());
+			sum += myInversion.getCantidad() * share.getValue();
 			//if(myInversion.getCantidad() <= 0)
 			//	System.out.println("WARNING!!!\n"+myInversion.getCantidad()+"\n" +
 			//			getClass()+"\n\n\n\n\n\n");
