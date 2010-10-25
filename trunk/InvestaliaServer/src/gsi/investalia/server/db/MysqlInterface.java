@@ -416,6 +416,28 @@ public class MysqlInterface {
 	
 	
 
+	public static Message getMessageByItsIdAPI(long idMessageAPI, int idUser) {
+		
+		if(idMessageAPI == 0) {
+			return null;
+		}
+		connectToDatabase();
+		Message message = null;
+		try {
+			ResultSet rs = stmt
+					.executeQuery("SELECT * FROM messages WHERE idMessageAPI = "
+							+ idMessageAPI + " LIMIT 1");
+			if (rs.next()) {
+				message = getMessageFromRS(rs, idUser);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		closeConnectionDatabase();
+		return message;
+	}
+	
+	
 	/**
 	 * Gets a message with the read and liked attributes for a given user
 	 */
