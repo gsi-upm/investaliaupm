@@ -169,7 +169,7 @@ public class Compose extends Activity implements OnClickListener {
 		// Only fill the necessary attributes
 		// new Date() gets the current date
 		Message message = new Message(-1, loggedUser.getUserName(), titleStr, textStr,
-		tags_selected, new Date(), false, false, 0, 0, -1);
+		tags_selected, new Date(), false, false, 0, 0, -1, 0);
 		
 		// Hide the keyboard
 		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);

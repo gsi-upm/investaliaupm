@@ -177,8 +177,11 @@ public class MessagesFromAPI {
 				}		
 
 				int timesRead = 0; //Por defecto, 0
-				int idUserUpdating = 0; 
-				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
+				double affinity = 0; 
+				long idMessageAPI = 0; // TODO
+				Message toBeAdded = new Message(id, userName, title, text,
+						tags, date, read, liked,rating, timesRead, affinity,
+						idMessageAPI);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -215,8 +218,11 @@ public class MessagesFromAPI {
 				int rating=0;	
 
 				int timesRead = 0; //Por defecto, 0
-				int idUserUpdating = 0; 
-				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
+				double affinity = 0; 
+				long idMessageAPI = 0; //TODO
+				Message toBeAdded = new Message(id, userName, title, text, 
+						tags, date, read, liked,rating, timesRead, affinity,
+						idMessageAPI);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -253,8 +259,11 @@ public class MessagesFromAPI {
 				int rating=0;	
 
 				int timesRead = 0; //Por defecto, 0
-				int idUserUpdating = 0; 
-				Message toBeAdded = new Message(id, userName, title, text,tags,date, read, liked,rating,timesRead,idUserUpdating);
+				double affinity = 0; 
+				long idMessageAPI = 0; // TODO
+				Message toBeAdded = new Message(id, userName, title, 
+						text,tags, date, read, liked, rating,timesRead,
+						affinity, idMessageAPI);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){

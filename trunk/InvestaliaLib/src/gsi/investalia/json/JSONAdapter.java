@@ -35,6 +35,7 @@ public class JSONAdapter {
 	public static final String LAST_TAG = "last_tag";
 	public static final String LAST_UPDATE = "last_update";
 	public static final String AFFINITY = "aff";
+	public static final String IDMESSAGE_API = "idapi";
 
 	public static JSONObject messageToJSON(Message message)
 			throws JSONException {
@@ -53,6 +54,7 @@ public class JSONAdapter {
 		jsonObj.put(RATING, message.getRating());
 		jsonObj.put(TIMES_READ, message.getTimesRead());
 		jsonObj.put(AFFINITY, message.getAffinity());
+		jsonObj.put(IDMESSAGE_API, message.getIdMessageAPI());
 		return jsonObj;
 	}
 
@@ -64,7 +66,8 @@ public class JSONAdapter {
 				JSONToTagList(jsonObj.getString(TAGS)), new Date(jsonObj
 						.getLong(DATE_MILIS)), jsonObj.getBoolean(READ),
 				jsonObj.getBoolean(LIKED), jsonObj.getInt(RATING), jsonObj
-						.getInt(TIMES_READ), jsonObj.getDouble(AFFINITY));
+						.getInt(TIMES_READ), jsonObj.getDouble(AFFINITY), 
+						jsonObj.getLong(IDMESSAGE_API));
 	}
 
 	public static void JSONToMessageList(String jsonStr, List<Message> messages)

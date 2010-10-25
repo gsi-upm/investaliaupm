@@ -78,7 +78,7 @@ public class MysqlInterface {
 
 		connectToDatabase();
 		// Save the message itself
-		String query = "INSERT INTO messages VALUES (Null, ?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO messages VALUES (Null, ?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement prep;
 		try {
 			prep = con.prepareStatement(query);
@@ -88,6 +88,7 @@ public class MysqlInterface {
 			prep.setTimestamp(4, new Timestamp(message.getDate().getTime()));
 			prep.setInt(5, 0); // Rating = 0 at start
 			prep.setInt(6, 0); // Not still read
+			prep.setLong(7, message.getIdMessageAPI());
 			prep.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -563,7 +564,8 @@ public class MysqlInterface {
 					rs.getString(3), rs.getString(4), getMessageTags(rs
 							.getInt(1)),
 					new Date(rs.getTimestamp(5).getTime()), false, false, rs
-							.getInt(6), rs.getInt(7), rs.getDouble(11));
+							.getInt(6), rs.getInt(7), rs.getDouble(11), 
+							rs.getLong(12));
 		} catch (SQLException e) {
 			System.out.println("SQL Exception");
 			return null;

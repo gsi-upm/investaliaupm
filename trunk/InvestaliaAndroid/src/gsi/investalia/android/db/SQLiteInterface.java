@@ -54,6 +54,7 @@ public class SQLiteInterface {
 				messageValues.put(MessagesDBHelper.READ, m.isRead());
 				messageValues.put(MessagesDBHelper.RATING, m.getRating());
 				messageValues.put(MessagesDBHelper.AFFINITY, m.getAffinity());
+				messageValues.put(MessagesDBHelper.IDMESSAGE_API, m.getIdMessageAPI());
 				messageValues
 						.put(MessagesDBHelper.TIMES_READ, m.getTimesRead());
 
@@ -175,7 +176,8 @@ public class SQLiteInterface {
 				messages.add(new Message(cursor.getInt(0), cursor.getString(1),
 						cursor.getString(2), cursor.getString(3), tags, date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), cursor.getDouble(9)));
+								.getInt(7), cursor.getInt(8), cursor.getDouble(9),
+								cursor.getLong(10)));
 			}
 			Log.d("DATABASE", "Messages added to list");
 
@@ -218,7 +220,8 @@ public class SQLiteInterface {
 						cursor.getString(2), cursor.getString(3),
 						getMessageTags(activity, cursor.getInt(0)), date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), cursor.getDouble(9));
+								.getInt(7), cursor.getInt(8), cursor.getDouble(9),
+								cursor.getLong(10));
 			}
 			Log.d("DATABASE", "Messages returned");
 

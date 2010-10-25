@@ -15,10 +15,12 @@ public class Message {
 	private int rating;
 	private int timesRead;
 	private double affinity;
+	private long idMessageAPI; 
 	
 	public Message(int id, String userName, String title, String text,
 			List<Tag> tags, Date date, boolean read, boolean liked,
-			int rating, int timesRead, double affinity) {
+			int rating, int timesRead, double affinity, 
+			long idMessageAPI) {
 		super();
 		this.id = id;
 		this.userName = userName;
@@ -31,6 +33,7 @@ public class Message {
 		this.rating = rating;
 		this.timesRead = timesRead;
 		this.affinity = affinity;
+		this.idMessageAPI = idMessageAPI;
 	}
 	
 
@@ -121,6 +124,14 @@ public class Message {
 	public void setAffinity(double affinity) {
 		this.affinity = affinity;
 	}
+	
+	public long getIdMessageAPI() {
+		return idMessageAPI;
+	}
+
+	public void setIdMessageAPI(long idMessageAPI) {
+		this.idMessageAPI = idMessageAPI;
+	}
 
 	public String toString () {
 		String str = "Message: id:" + id + ", @" + userName + ", text:\"" + text + "\", tags:";
@@ -128,5 +139,5 @@ public class Message {
 			str += " " + tag;
 		}
 		return str;
-	}
+	}	
 }
