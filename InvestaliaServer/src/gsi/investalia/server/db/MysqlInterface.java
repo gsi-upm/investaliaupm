@@ -403,7 +403,8 @@ public class MysqlInterface {
 			+ "WHERE m.idmessage > " + idMessageLast 
 			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
 			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
-			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage), "
+			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
+			+ "AND ur.iduser = "+ idUser + "), "
 			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
 			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
 			+ idUser + ") AND m.idmessage > " + idMessageLast 
