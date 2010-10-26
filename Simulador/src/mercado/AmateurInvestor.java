@@ -34,9 +34,9 @@ public class AmateurInvestor extends InvestorType {
 		HashMap<String, Share> shares = miBolsa.getAcciones();
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
 			for(int id = 0; id < misAcciones.size(); id++) {
-				Accion myInversion = misAcciones.get(id);
+				Investment myInversion = misAcciones.get(id);
 				Share share = shares.get(myInversion.getIdCompany());
-				double inversionReturn = (share.getValue() - myInversion.getValorCompra()) / myInversion.getValorCompra();
+				double inversionReturn = (share.getValue() - myInversion.getBuyValue()) / myInversion.getBuyValue();
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
 				boolean selling = false;				
 				if(inversionClusterTime > sellAll[1]) {
@@ -49,8 +49,8 @@ public class AmateurInvestor extends InvestorType {
 					selling = true;
 				if(selling) {
 					sells++;
-					int sharesToSell = myInversion.getCantidad();
-					myInversion.setCantidad(0);
+					int sharesToSell = myInversion.getQuantity();
+					myInversion.setQuantity(0);
 					double stockLiquidity = sharesToSell * share.getValue();
 					if(inversionReturn < 0)
 						capitalWithNegativeReturn += stockLiquidity;
@@ -79,7 +79,7 @@ public class AmateurInvestor extends InvestorType {
 					number2buy =  ((int)investor.randomInRange(1, limite1));
 					if(number2buy > limite2)
 						number2buy = limite2;
-					Accion accionComprada = new Accion(number2buy, share.getValue(),
+					Investment accionComprada = new Investment(number2buy, share.getValue(),
 							share.getName(), investor.getTime());
 					liquidity -=  number2buy * share.getValue();
 					investCapital += number2buy * share.getValue();

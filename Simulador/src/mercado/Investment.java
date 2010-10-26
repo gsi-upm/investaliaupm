@@ -1,43 +1,43 @@
 package mercado;
 
-public class Accion {
+public class Investment {
 
 	/**
 	 * A share (accion) has amount, price, id_company and date
 	 */
 	private int initialQuantity;
-	private int cantidad;
-	private double valorCompra;
+	private int quantity;
+	private double buyValue;
 	private String idCompany;
 	private int date;
 	
-	public Accion(int cantidad, double valorCompra, String idCompany, int date){
-		this.initialQuantity = cantidad;
-		this.setCantidad(cantidad);
-		this.setValorCompra(valorCompra);
+	public Investment(int quantity, double buyValue, String idCompany, int date){
+		this.initialQuantity = quantity;
+		this.setQuantity(quantity);
+		this.setBuyValue(buyValue);
 		this.setIdCompany(idCompany);
 		this.setDate(date);
 	}
 	
 	public double getRentability (Ibex35 ibex35) {
 		Share share = ibex35.getAcciones().get(idCompany);
-		return (share.getValue() - valorCompra) / valorCompra;
+		return (share.getValue() - buyValue) / buyValue;
 	}
 
-	public void setCantidad(int cantidad) {
-		this.cantidad = cantidad;
+	public void setQuantity(int cantidad) {
+		this.quantity = cantidad;
 	}
 
-	public int getCantidad() {
-		return cantidad;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setValorCompra(double valorCompra) {
-		this.valorCompra = valorCompra;
+	public void setBuyValue(double valorCompra) {
+		this.buyValue = valorCompra;
 	}
 
-	public double getValorCompra() {
-		return valorCompra;
+	public double getBuyValue() {
+		return buyValue;
 	}
 
 	public void setIdCompany(String idCompany) {

@@ -1,6 +1,5 @@
 package mercado;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RandomInvestor extends InvestorType {
@@ -28,24 +27,24 @@ public class RandomInvestor extends InvestorType {
 			if(investor.randomInRange(0.0,1.0) > sellProbability)
 				continue;
 			sells++;
-			Accion myInversion = misAcciones.get(id);
+			Investment myInversion = misAcciones.get(id);
 			Share share = shares.get(myInversion.getIdCompany());			
-			int sharesToSell = investor.randomInRange(Math.max(myInversion.getCantidad()/3,1)
+			int sharesToSell = investor.randomInRange(Math.max(myInversion.getQuantity()/3,1)
 					,myInversion.getInitialQuantity());
-			if(sharesToSell > myInversion.getCantidad())
-				sharesToSell = myInversion.getCantidad();
-			myInversion.setCantidad(myInversion.getCantidad() - sharesToSell);
+			if(sharesToSell > myInversion.getQuantity())
+				sharesToSell = myInversion.getQuantity();
+			myInversion.setQuantity(myInversion.getQuantity() - sharesToSell);
 			double stockLiquidity = sharesToSell * share.getValue();
 			liquidity +=  stockLiquidity;
 			//double inversionReturn = (share.getValor() - myInversion.getValorCompra()) 
 			//	/ myInversion.getValorCompra();
-			if((share.getValue() - myInversion.getValorCompra()) < 0)
+			if((share.getValue() - myInversion.getBuyValue()) < 0)
 				capitalWithNegativeReturn += stockLiquidity;
 			addOperationClosed (myInversion, sharesToSell, stockLiquidity, investor.getTime());
 			//investor.updateFinancialReputation(ibex35);
-			if (myInversion.getCantidad() < 0)
+			if (myInversion.getQuantity() < 0)
 				System.out.println("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			if (myInversion.getCantidad() <= 0) {
+			if (myInversion.getQuantity() <= 0) {
 				misAcciones.remove(myInversion);
 				id--;							
 			}			
@@ -64,7 +63,7 @@ public class RandomInvestor extends InvestorType {
 					number2buy =  ((int)investor.randomInRange(1, limit1));
 					if(number2buy > limit2)
 						number2buy = limit2;
-					Accion accionComprada = new Accion(number2buy, share.getValue(),
+					Investment accionComprada = new Investment(number2buy, share.getValue(),
 							share.getName(), investor.getTime());
 					liquidity -=  number2buy*share.getValue();
 					investCapital += number2buy*share.getValue();
