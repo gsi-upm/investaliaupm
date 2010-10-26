@@ -1,6 +1,5 @@
 package mercado;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -110,13 +109,6 @@ public class RandomShare extends Share{
 	}
 	public int getMinReached () {
 		return minReached;
-	}
-	/**
-	 * add a movement to the memory of the exchange
-	 * 
-	 * @param movement
-	 * @return true if the movement can put at the last position
-	 */
-		
+	}		
 	
 }

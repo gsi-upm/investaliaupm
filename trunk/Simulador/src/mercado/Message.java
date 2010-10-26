@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class Mensaje {
+public class Message {
 	/**
 	 * One comment has the owner (the body, but it doesn't care),
 	 * and one list of followers, not Set because we want one agent can post
@@ -30,7 +30,7 @@ public class Mensaje {
 		
 	//String body, not implemented
 	
-	public Mensaje(Inversores  owner, int date, boolean good){
+	public Message(Inversores  owner, int date, boolean good){
 		this.owner = owner;
 		this.date = date;
 		this.good = good;
@@ -57,15 +57,16 @@ public class Mensaje {
 		if(scores.size() > 0) {
 			double trust_degree;			
 			if(scores.size() >= Properties.USERS_TO_MAXIMUM_TRUST)
-				trust_degree = 0.6;	//Between log10(2,5) and log10(5)
+				trust_degree = 1;	//Between log10(2,5) and log10(5)
 			else
 				trust_degree = Math.log10(scores.size() * Properties.TRUST_WEIGHT);
 			reputation[READER_FOLLOWER_SCORER_REPUTATION] += Properties.SCORER_WEIGHT * 
-					reputation[READER_FOLLOWER_SCORER_REPUTATION] * trust_degree * totalScore/scores.size();
+					reputation[READER_FOLLOWER_SCORER_REPUTATION] * trust_degree 
+					* (totalScore/scores.size() - Properties.MAXIMUM_SCORE/2);
 		}
 		
 		
-		//reputation[ONLY_FOLLOWER_REPUTATION] = getUniqueNumFollowers()* Math.pow(Mensaje.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);		
+		//reputation[ONLY_FOLLOWER_REPUTATION] = getUniqueNumFollowers()* Math.pow(Message.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);		
 		
 		//reputation[READER_FOLLOWER_REPUTATION] = (getUniqueNumReaders() * Properties.READER_WEIGHT 
 		//		+ getUniqueNumFollowers() * Properties.FOLLOWER_WEIGHT ) *
@@ -77,10 +78,11 @@ public class Mensaje {
 		double followerReputation = 0;
 		for (Inversores inversor: uniqueFollowers)
 			followerReputation +=  inversor.getFinancialReputation();
-		double scorerReputation = getScore,descomentado () * Properties.SCORER_WEIGHT;
-		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] += 
-				followerReputation * Properties.FOLLOWER_WEIGHT + scorerReputation;
-		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] *= Math.pow(Mensaje.CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR,-time_difference);
+		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] += followerReputation * Properties.FOLLOWER_WEIGHT;
+		double trust_degree = Math.min(2,getScore,descomentado ());
+		double scorerReputation = trust_degree * (totalScore Properties.MAXIMUM_SCORE/2) * Properties.SCORER_WEIGHT;
+		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] += Properties.SCORER_WEIGHT * 
+					reputation[READER_FOLLOWER_SCORER_REPUTATION] * scorerReputation;
 		*/
 		for(int i = 0; i < popularity.length; i++)
 			popularity[i] = 1;
@@ -104,6 +106,9 @@ public class Mensaje {
 		uniqueReaders.add(inversorReader);
 	}
 	public void addScore(Inversores inversorScorer, Integer score){
+		if(scores.containsKey(inversorScorer)) {			
+			totalScore -= scores.get(inversorScorer);			
+		}
 		scores.put(inversorScorer, score);
 		totalScore += score;
 	}	
@@ -158,11 +163,14 @@ public class Mensaje {
 		//	totalScore += score;	
 		//return totalScore;
 		
-		//for(Inversores inversor : scores.keySet()) {
-		//	Integer score = scores.get(inversor);
-		//	totalScore += score * inversor.getFinancialReputation();
+		//int trust_degree = 0;
+		//for(Inversores investor : scores.keySet()) {
+		//	Integer score = scores.get(investor);
+		//	totalScore += score * investor.getFinancialReputation();
+		//	trust_degree += investor.getFinancialReputation();
 		//}		
-		//return totalScore/scores.size();
+		//totalScore = totalScore/scores.size();
+		//return trust_degree;
 	}	
 	
 	public HashMap<Inversores,Integer> getScores() {
@@ -180,7 +188,7 @@ public class Mensaje {
 	public int getIdOwner(){
 		return owner.getId();
 	}
-	private void setDate(int date) {
+	public void setDate(int date) {
 		this.date = date;
 	}
 	public int getDate() {
@@ -189,7 +197,7 @@ public class Mensaje {
 	public boolean isGood() {
 		return good;
 	}
-	private void setGood(boolean good) {
+	public void setGood(boolean good) {
 		this.good = good;
 	}	
 	

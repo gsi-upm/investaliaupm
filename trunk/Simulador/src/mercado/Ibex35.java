@@ -1,27 +1,24 @@
 package mercado;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-
 import org.ascape.model.Agent;
 import org.ascape.model.CellOccupant;
 import org.ascape.model.rule.Rule;
 
-public class Ibex35 extends CellOccupant {
-	
-	DecimalFormat miFormato = new DecimalFormat("0.000");
+public class Ibex35 extends CellOccupant {		
+	private static final long serialVersionUID = 4200869887037516524L;
 	HashMap<String,Share> ibex35 = new HashMap<String,Share>(35);
 	
 	
 	//create the list of rules for scape
 	public void scapeCreated() {
 		//rellenamos por primera vez las acciones
-		getScape().addInitialRule(new Rule("rellenarAcciones"){
+		getScape().addInitialRule(new Rule("generateShares"){			
+			private static final long serialVersionUID = -5487259943273733988L;
+
 			@Override
 			public void execute(Agent agent) {
-				((Ibex35) agent).rellenarAcciones();
+				((Ibex35) agent).generateShares();
 				
 			}
         });
@@ -31,7 +28,7 @@ public class Ibex35 extends CellOccupant {
 	}
 	
 	
-	public void rellenarAcciones(){
+	public void generateShares(){
 		//ibex35.put("Telefonica",new RandomShare("Telefonica", 17.970, -0.61, 95, 5, 0.11));
 		//ibex35.put("Inditex",new RandomShare("Inditex", 49.490, -0.86, 340, 10, 0.13));
 		//ibex35.put("Santander",new RandomShare("Santander", 10.62, -1.21, 95, 2, 0.15));

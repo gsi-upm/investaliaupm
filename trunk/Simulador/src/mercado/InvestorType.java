@@ -9,7 +9,7 @@ public abstract class InvestorType {
 	protected double liquidity;
 	private List<OperationClosed> financialHistory = new ArrayList<OperationClosed>();
 	private List<Double> capitalHistory = new ArrayList<Double>();
-	protected ArrayList<Accion> misAcciones = new ArrayList<Accion>();
+	protected ArrayList<Investment> misAcciones = new ArrayList<Investment>();
 	private double financialReputation = 0;
 	// The limit of money that one investor can invest
 	protected double maxValorCompra;
@@ -42,17 +42,17 @@ public abstract class InvestorType {
 	
 	public abstract String getAgentTypeToString();	
 
-	public void addOperationClosed (Accion myInversion, int quantity, double inversionReturn, int time) {
-		financialHistory.add(new OperationClosed(inversionReturn, myInversion.getValorCompra() * quantity, 
+	public void addOperationClosed (Investment myInversion, int quantity, double inversionReturn, int time) {
+		financialHistory.add(new OperationClosed(inversionReturn, myInversion.getBuyValue() * quantity, 
 				myInversion.getIdCompany(), time));
 	}
 	
 	public double getActualCapital(Ibex35 miBolsa){
 		HashMap<String, Share> shares = miBolsa.getAcciones();
 		double sum = 0;
-		for(Accion myInversion : misAcciones){
+		for(Investment myInversion : misAcciones){
 			Share share = shares.get(myInversion.getIdCompany());
-			sum += myInversion.getCantidad() * share.getValue();
+			sum += myInversion.getQuantity() * share.getValue();
 			//if(myInversion.getCantidad() <= 0)
 			//	System.out.println("WARNING!!!\n"+myInversion.getCantidad()+"\n" +
 			//			getClass()+"\n\n\n\n\n\n");
@@ -97,14 +97,14 @@ public abstract class InvestorType {
 		double operationOpened = 0;
 		capitalOpened = 0;
 		for(int i = 0; i < misAcciones.size(); i++) {
-			Accion operation = misAcciones.get(i);
+			Investment operation = misAcciones.get(i);
 			double rentability = operation.getRentability(ibex35);
-			operationOpened += rentability * operation.getValorCompra() * operation.getCantidad();
+			operationOpened += rentability * operation.getBuyValue() * operation.getQuantity();
 			//if(rentability < 0)				
 			//	operationOpened += 1.5 * rentability * operation.getValorCompra() * operation.getCantidad();
 			//else
 			//	operationOpened += rentability * operation.getValorCompra() * operation.getCantidad();
-			capitalOpened += operation.getValorCompra() * operation.getCantidad();
+			capitalOpened += operation.getBuyValue() * operation.getQuantity();
 			//if(investor.getId() == debugParam) 
 			//	System.out.println("Com:"+operation.getIdCompany()+" Can:"+operation.getCantidad()+" BV:"+
 			//	operation.getValorCompra()+" AV:"+ibex35.getAcciones().get(operation.getIdCompany()).getValor()+
