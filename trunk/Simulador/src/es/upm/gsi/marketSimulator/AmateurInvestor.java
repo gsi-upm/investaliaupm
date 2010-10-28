@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class AmateurInvestor extends InvestorType {	
 	
-	public AmateurInvestor(Inversores investor) {
+	public AmateurInvestor(Investors investor) {
 		initialCapital = Properties.INITIAL_LIQUIDITY;
 		liquidity = initialCapital; //setLiquidez(randomInRange(3000,10000));
         maxValorCompra = Properties.MAX_BUY_VALUE;
@@ -33,8 +33,8 @@ public class AmateurInvestor extends InvestorType {
 	public void jugarEnBolsa(Ibex35 miBolsa) {
 		HashMap<String, Share> shares = miBolsa.getAcciones();
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
-			for(int id = 0; id < misAcciones.size(); id++) {
-				Investment myInversion = misAcciones.get(id);
+			for(int id = 0; id < myPortfolio.size(); id++) {
+				Investment myInversion = myPortfolio.get(id);
 				Share share = shares.get(myInversion.getIdCompany());
 				double inversionReturn = (share.getValue() - myInversion.getBuyValue()) / myInversion.getBuyValue();
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
@@ -57,7 +57,7 @@ public class AmateurInvestor extends InvestorType {
 					liquidity +=  stockLiquidity;
 					//investor.updateFinancialReputation(ibex35);
 					addOperationClosed (myInversion, sharesToSell, stockLiquidity, investor.getTime());
-					misAcciones.remove(myInversion);
+					myPortfolio.remove(myInversion);
 					id--;	
 				}
 			}
@@ -80,10 +80,10 @@ public class AmateurInvestor extends InvestorType {
 					if(number2buy > limite2)
 						number2buy = limite2;
 					Investment accionComprada = new Investment(number2buy, share.getValue(),
-							share.getName(), investor.getTime());
+							share.getName(), share.getCategory(), investor.getTime());
 					liquidity -=  number2buy * share.getValue();
 					investCapital += number2buy * share.getValue();
-					misAcciones.add(accionComprada);									
+					myPortfolio.add(accionComprada);									
 				}
 				//if(investor.getId() == debugParam)
 				//	System.out.println("id:"+investor.getId()+"["+investor.getTime()+"] "+accionesBolsa.getNombre()+" compra "

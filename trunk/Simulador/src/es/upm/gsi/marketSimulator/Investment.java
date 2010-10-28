@@ -9,9 +9,10 @@ public class Investment {
 	private int quantity;
 	private double buyValue;
 	private String idCompany;
+	private String category;
 	private int date;
 	
-	public Investment(int quantity, double buyValue, String idCompany, int date){
+	public Investment(int quantity, double buyValue, String idCompany, String category, int date){
 		this.initialQuantity = quantity;
 		this.setQuantity(quantity);
 		this.setBuyValue(buyValue);
@@ -59,4 +60,13 @@ public class Investment {
 	public int getInitialQuantity() {
 		return initialQuantity;
 	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}	
+	
 }

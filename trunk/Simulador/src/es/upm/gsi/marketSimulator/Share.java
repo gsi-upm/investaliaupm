@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 abstract public class Share {
 	protected String name;
+	protected String category;
 	protected double value;	
 	private ArrayList<Double> variationsHistory = new ArrayList<Double>(Properties.STOCK_MEMORY);
 	
@@ -37,6 +38,14 @@ abstract public class Share {
 			variationsHistory.remove(0); // remove the first element
 		}
 		return variationsHistory.add(movement);
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 	
 }
