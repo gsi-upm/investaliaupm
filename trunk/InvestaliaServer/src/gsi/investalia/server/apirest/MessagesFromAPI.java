@@ -182,6 +182,7 @@ public class MessagesFromAPI {
 				Message toBeAdded = new Message(id, userName, title, text,
 						tags, date, read, liked,rating, timesRead, affinity,
 						idMessageAPI);
+				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -223,6 +224,7 @@ public class MessagesFromAPI {
 				Message toBeAdded = new Message(id, userName, title, text, 
 						tags, date, read, liked,rating, timesRead, affinity,
 						idMessageAPI);
+				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -264,6 +266,7 @@ public class MessagesFromAPI {
 				Message toBeAdded = new Message(id, userName, title, 
 						text,tags, date, read, liked, rating,timesRead,
 						affinity, idMessageAPI);
+				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -304,4 +307,9 @@ public class MessagesFromAPI {
 		return msgs;
 	}
 
+	public static void getRecommendationsFromAPI(long idMessageAPI,int idUser){
+	    ArrayList<Message> message = new ArrayList<Message>();
+	    message.add(MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser));
+	    MysqlInterface.updateReadAndLiked( message,  idUser);
+	}
 }

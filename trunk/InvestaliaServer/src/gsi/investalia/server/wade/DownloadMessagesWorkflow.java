@@ -1,5 +1,6 @@
 package gsi.investalia.server.wade;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
@@ -83,6 +84,11 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         for(Message mes: MessagesFromAPI.getNotesInTheWallFromAPI(
         		Long.toString(MysqlInterface.getDateLastMessage("Muro").getTime())))
         	MysqlInterface.saveMessage(mes);
+        
+        ArrayList<String[]> ratings = (ArrayList<String[]>) MessagesFromAPI.getRatings("0000000000");
+        for(String[] array:ratings){
+            MessagesFromAPI.getRecommendationsFromAPI(Long.parseLong(array[1]),Integer.parseInt(array[2]));
+        }
         
         // Get the message list, tags and recommendations from db
         List<Message> messages = MysqlInterface.getMessagesIncludingRecommended(userName, lastUpdate);          
