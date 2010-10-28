@@ -16,9 +16,10 @@ public class RandomShare extends Share{
 	public double variationUp = 0;
 	public double variationDown = 0;
 
-	public RandomShare(String companyName, double value, double ultimoPorcentaje
-			, double max, double min, double maximumVariation){
+	public RandomShare(String companyName, String stockCategory, double value, 
+			double ultimoPorcentaje, double max, double min, double maximumVariation){
 		this.name = companyName;
+		this.category = stockCategory;
 		this.value = value;
 		addHistory(ultimoPorcentaje);
 		if(Properties.STOCK_VARIATION > 1)

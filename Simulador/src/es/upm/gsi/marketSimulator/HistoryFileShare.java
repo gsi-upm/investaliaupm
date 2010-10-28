@@ -12,8 +12,9 @@ public class HistoryFileShare extends Share {
 	private Double values[];
 	private int iteration = 0;
 	
-	HistoryFileShare (String companyName, String path) {
+	HistoryFileShare (String companyName, String stockCategory, String path) {
 		this.name = companyName;
+		this.category = stockCategory;
 		try {
 			fileReader = new FileReader(path);
 			values = readFile();

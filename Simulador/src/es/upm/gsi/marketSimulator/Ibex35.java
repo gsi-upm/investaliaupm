@@ -39,10 +39,13 @@ public class Ibex35 extends CellOccupant {
 		ibex35.put("BBVA",new RandomShare("BBVA", 9.62, -0.23, 195, 3, 0.09));*/
 		
 		
-		ibex35.put("Telefonica",new HistoryFileShare("Telefonica","FinancialFiles/Telefonica.txt"));
-		ibex35.put("Cepsa",new HistoryFileShare("Cepsa", "FinancialFiles/Cepsa.txt"));
-		ibex35.put("Santander",new HistoryFileShare("Santander", "FinancialFiles/Santander.txt"));		
-		ibex35.put("BBVA",new HistoryFileShare("BBVA", "FinancialFiles/BBVA.txt"));		
+		ibex35.put("Telefonica",new HistoryFileShare("Telefonica","Communication","FinancialFiles/Telefonica.txt"));
+		ibex35.put("Cepsa",new HistoryFileShare("Cepsa","Petrol","FinancialFiles/Cepsa.txt"));
+		ibex35.put("Santander",new HistoryFileShare("Santander","Bank","FinancialFiles/Santander.txt"));		
+		ibex35.put("BBVA",new HistoryFileShare("BBVA","Bank","FinancialFiles/BBVA.txt"));
+		ibex35.put("Endesa",new HistoryFileShare("Endesa","Power","FinancialFiles/Endesa.txt"));
+		ibex35.put("Iberdrola",new HistoryFileShare("Iberdrola","Power","FinancialFiles/Iberdrola.txt"));
+		ibex35.put("GasNatural",new HistoryFileShare("GasNatural","Power","FinancialFiles/GasNatural.txt"));
 		
 		System.out.println("RandomShare rellenadas");
 	}

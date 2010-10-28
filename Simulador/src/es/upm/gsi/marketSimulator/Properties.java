@@ -56,7 +56,7 @@ public class Properties {
 	public static double USERS_TO_MAXIMUM_TRUST = 4;
 	public static double TRUST_WEIGHT = 10 / Properties.USERS_TO_MAXIMUM_TRUST;
 	
-	public static int STATISTICS_INTERVAL = 40; //TIME_CLUSTER;
+	public static int STATISTICS_INTERVAL = 100; //TIME_CLUSTER;
 	public static int CLEAN_INTERVAL = 1000;
 	public static int MESSAGE_TIME_TO_CLEAN = 2000; //10000
 	
@@ -66,7 +66,8 @@ public class Properties {
 	
 	
 	public static double PERCEPTION_DEGRADATION = 4;
-	public static double[][] anxietySellTable = {{0.01,0},{0.15,100}};
+	//public static double[][] anxietySellTable = {{0.01,0},{0.15,100}};
+	public static double[][] anxietySellTable = {{0.1,0},{0.2,100}}; //For HistoricFiles
 	public static double[] anxietySellAll = {2,4};
 	
 	
@@ -94,12 +95,14 @@ public class Properties {
 	public static double[][] sellAmateurTable = null; //{{0.01-0.05,100}};
 	//public static double[] sellAmateurRange = {0.01, 0.28}; //-> valido para variation 1.05 o mas
 	//public static double[] sellAmateurRange = {0.02, 0.08}; //para variation > 1
-	public static double[] sellAmateurRange = {0.01, 0.05}; //para variation < 1
+	//public static double[] sellAmateurRange = {0.01, 0.05}; //para variation < 1
+	public static double[] sellAmateurRange = {0.04, 0.25}; //Para HistoricFiles
 	public static double[] sellAmateurAll = {2,4};
 	
 	public static int INITIAL_LIQUIDITY = 10000;
 	public static double MAX_BUY_VALUE = INITIAL_LIQUIDITY * 0.1;
 	public static double IMPULSIVE_INCREMENTATION = 2;
+	public static double MAX_INCREMENT_DIVERSIFIER = 3;
 	public static double BUY_PROFITABILITY[] = {-0.09,-0.03}; //{-0.13,-0.04}
 	public static double BUY_PROBABILITY = 0.25; //0.85;
 	public static double SELL_PROBABILITY = 0.9;

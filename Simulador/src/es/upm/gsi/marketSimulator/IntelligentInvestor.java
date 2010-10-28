@@ -20,7 +20,7 @@ public class IntelligentInvestor extends InvestorType {
 	
 	double sharePercentInSell = 0;
 	
-	public IntelligentInvestor(Inversores investor) {
+	public IntelligentInvestor(Investors investor) {
 		iteraccionesCompra = 4;
         iteracionesVenta = 5;
         initialCapital = Properties.INITIAL_LIQUIDITY;
@@ -146,8 +146,8 @@ public class IntelligentInvestor extends InvestorType {
 			//elegir empresa antes?, ver la mejor*probabilidad de vender??			
 			//For each share of exchange, I have look for my shares checking up on which I have it
 			//and checking up on the profitability. If it is good, sell the share.			
-			for(int id = 0; id < misAcciones.size(); id++) {
-				Investment myInversion = misAcciones.get(id);
+			for(int id = 0; id < myPortfolio.size(); id++) {
+				Investment myInversion = myPortfolio.get(id);
 				Share share = shares.get(myInversion.getIdCompany());
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
 				/* I have the share, I have to check if is a good moment to
@@ -179,7 +179,7 @@ public class IntelligentInvestor extends InvestorType {
 					//System.out.println("("+ time +") id :" + getId() + ", vendo ("+  number2sell + " de " + 
 					//	accionesAntesVenta + "): " + accionesBolsa.getNombre() + ", total ingreso: " + stockLiquidity);						
 					if (myInversion.getQuantity() <= 0) {
-						misAcciones.remove(myInversion);
+						myPortfolio.remove(myInversion);
 						id--;							
 					}							
 				}
@@ -192,7 +192,8 @@ public class IntelligentInvestor extends InvestorType {
 		}
 		
 		//Buy
-		if (liquidity > 0 && investor.randomInRange(0.0,1.0) < buyProbability){			
+		if (liquidity > 0 && investor.randomInRange(0.0,1.0) < buyProbability){
+			Map<String,Double> capitalByStockCategory = null;			
 			for (Share share : shares.values()) {
 				ArrayList<Double> history = share.getVariationsHistory();
 				double suma = 0;					
@@ -208,21 +209,26 @@ public class IntelligentInvestor extends InvestorType {
 					if(!memory && (history.get(history.size()-1) + history.get(history.size()-2)) > 0)
 						continue;
 				} else
-					break;
-				//suma <= rentabilidadCompra) {
-				if(isDiversifier) {
+					break;				
+				if(isDiversifier && capitalByStockCategory == null) {
+					capitalByStockCategory = getBuyInvestmentByCategory();					
+				}
+				/*if(isDiversifier) {
 					double actualInversion = actualInversionOnShare(share);
 					double buyProbability = Properties.MAX_BUY_VALUE/(actualInversion*2);
 					if(impulsive)
 						buyProbability *= Math.abs(suma/rentabilidadCompra);
 					if(actualInversion > 0 && investor.randomInRange(0.0,1.0) > buyProbability)
 						continue;
-				}					
+				}*/
 				int limite1 = (int)Math.floor(maxValorCompra / share.getValue());
 				int limite2 = (int)(liquidity / share.getValue());
 				int number2buy = 0;
 				if (limite1 > 0 && limite2 > 0){										
 					number2buy =  ((int)investor.randomInRange(1, limite1));
+					if(isDiversifier) {
+						number2buy *= getIncrementByStockCategory(number2buy,share,capitalByStockCategory);
+					}
 					if(impulsive) {
 						if(suma/rentabilidadCompra > 1)
 							number2buy = (int) Math.abs(number2buy * suma/rentabilidadCompra);
@@ -233,10 +239,10 @@ public class IntelligentInvestor extends InvestorType {
 						number2buy = limite2;
 					buys++;
 					Investment accionComprada = new Investment(number2buy, share.getValue(),
-							share.getName(), investor.getTime());
+							share.getName(), share.getCategory(), investor.getTime());
 					liquidity -=  number2buy*share.getValue();
 					investCapital += number2buy*share.getValue();
-					misAcciones.add(accionComprada);
+					myPortfolio.add(accionComprada);
 
 					//System.out.println("("+ time +") id :" + getId() + ", compro(" + number2buy + ") de " + accionesBolsa.getNombre() 
 					//		+ ", total gasto: " + number2buy*accionesBolsa.getValor());					
@@ -248,9 +254,45 @@ public class IntelligentInvestor extends InvestorType {
 		}		
 	}
 	
-	private double actualInversionOnShare (Share share) {
+	public Double getIncrementByStockCategory (int number2buy, Share share, 
+			Map<String,Double> capitalByStockCategory) {
+		if( capitalByStockCategory.size() == 0 || 
+				(capitalByStockCategory.size() == 1 && capitalByStockCategory.containsKey(share.getCategory())) )
+			return 1.0;
+		Double total = 0.0;
+		for(Double categoryInversion : capitalByStockCategory.values())
+			total += categoryInversion;
+		total += number2buy * share.getValue();
+		Double categoryCapital = capitalByStockCategory.get(share.getCategory());
+		if(categoryCapital == null) {
+			total /= (capitalByStockCategory.size()+1) * (number2buy * share.getValue());
+		} else
+			total /= capitalByStockCategory.size() * (number2buy * share.getValue() + categoryCapital);
+		total = Math.max(Properties.MAX_INCREMENT_DIVERSIFIER, total);
+		return Math.min(1/Properties.MAX_INCREMENT_DIVERSIFIER, total);		
+	}	
+	
+	public Map<String, Double> getBuyInvestmentByCategory () {
+		Map<String, Double> buyInvestmentByCategory = new HashMap<String, Double> ();
+		for (Investment investment : myPortfolio) {
+			//Now, invesment capital is from buy and not actual value
+			//if(investment.getIdCompany().equalsIgnoreCase(share.getName())) {
+				Double value;
+				if( (value = buyInvestmentByCategory.get(investment.getCategory())) != null) {
+					buyInvestmentByCategory.put(investment.getCategory(), 
+							value + investment.getBuyValue()*investment.getQuantity());
+				} else {
+					buyInvestmentByCategory.put(investment.getCategory(), 
+							investment.getBuyValue()*investment.getQuantity());
+				}
+			//}
+		}
+		return buyInvestmentByCategory;
+	}			
+	
+	public double actualInversionOnShare (Share share) {
 		double actualInversion = 0;
-		for(Investment inversion : misAcciones) {
+		for(Investment inversion : myPortfolio) {
 			if(inversion.getIdCompany().equalsIgnoreCase(share.getName()))
 				actualInversion += inversion.getQuantity() * share.getValue(); //inversion.getValorCompra()	
 		}

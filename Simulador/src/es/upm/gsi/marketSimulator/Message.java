@@ -12,13 +12,13 @@ public class Message {
 	 */
 	//igual es demasiado poner el owner como un objeto inversor tan grande.
 	// dependerá si queremos extraer las acciones... o con el id basta
-	private Inversores owner;
+	private Investors owner;
 	private int date;
-	protected ArrayList<Inversores> followers;
-	private HashSet<Inversores> uniqueFollowers;	
-	private ArrayList<Inversores> readers;
-	private HashSet<Inversores> uniqueReaders;
-	private HashMap<Inversores, Integer> scores;
+	protected ArrayList<Investors> followers;
+	private HashSet<Investors> uniqueFollowers;	
+	private ArrayList<Investors> readers;
+	private HashSet<Investors> uniqueReaders;
+	private HashMap<Investors, Integer> scores;
 	private int totalScore = 0;
 	private boolean good;
 	private double popularity[];
@@ -30,15 +30,15 @@ public class Message {
 		
 	//String body, not implemented
 	
-	public Message(Inversores  owner, int date, boolean good){
+	public Message(Investors  owner, int date, boolean good){
 		this.owner = owner;
 		this.date = date;
 		this.good = good;
-		followers = new ArrayList<Inversores>();
-		readers = new ArrayList<Inversores>();
-		uniqueFollowers = new HashSet<Inversores>();
-		uniqueReaders = new HashSet<Inversores>();
-		scores = new HashMap<Inversores, Integer>();
+		followers = new ArrayList<Investors>();
+		readers = new ArrayList<Investors>();
+		uniqueFollowers = new HashSet<Investors>();
+		uniqueReaders = new HashSet<Investors>();
+		scores = new HashMap<Investors, Integer>();
 		popularity = new double[1];
 		reputation = new double[1];
 	}
@@ -76,7 +76,7 @@ public class Message {
 		reputation[READER_FOLLOWER_SCORER_FINANCIAL_REPUTATION] = 
 				getUniqueNumReaders() * Properties.READER_WEIGHT;
 		double followerReputation = 0;
-		for (Inversores inversor: uniqueFollowers)
+		for (Investors inversor: uniqueFollowers)
 			followerReputation +=  inversor.getFinancialReputation();
 		reputation[READER_FOLLOWER_FINANCIAL_REPUTATION] += followerReputation * Properties.FOLLOWER_WEIGHT;
 		double trust_degree = Math.min(2,getScore,descomentado ());
@@ -93,19 +93,19 @@ public class Message {
 	 * Add a comment
 	 * @param inversorPosteador
 	 */
-	public void addComment(Inversores inversorPosteador){	
+	public void addComment(Investors inversorPosteador){	
 		//System.out.print(", el inversor: " + inversorPosteador.getId() +
 		//		" se ha añadido como follower de : " + owner.getId());
 		followers.add(inversorPosteador);
 		uniqueFollowers.add(inversorPosteador);
 	}	
-	public void addReader(Inversores inversorReader){	
+	public void addReader(Investors inversorReader){	
 		//System.out.print(", el inversor: " + inversorReader.getId() +
 		//		" se ha añadido como reader de : " + owner.getId());
 		readers.add(inversorReader);
 		uniqueReaders.add(inversorReader);
 	}
-	public void addScore(Inversores inversorScorer, Integer score){
+	public void addScore(Investors inversorScorer, Integer score){
 		if(scores.containsKey(inversorScorer)) {			
 			totalScore -= scores.get(inversorScorer);			
 		}
@@ -113,7 +113,7 @@ public class Message {
 		totalScore += score;
 	}	
 	
-	public ArrayList<Inversores> getReaders() {
+	public ArrayList<Investors> getReaders() {
 		return readers;
 	}
 	public int getNumReaders() {
@@ -124,7 +124,7 @@ public class Message {
 		return reputation;
 	}
 	
-	public ArrayList<Inversores> getFollowers(){
+	public ArrayList<Investors> getFollowers(){
 		return followers;
 	}
 	public int getNumFollowers(){
@@ -133,26 +133,26 @@ public class Message {
 	
 	
 	public int getUniqueNumFollowers () {
-		/*HashSet<Inversores> uniqueFollowers = new HashSet<Inversores>();
-		for(Inversores follower : followers) {
+		/*HashSet<Investors> uniqueFollowers = new HashSet<Investors>();
+		for(Investors follower : followers) {
 			uniqueFollowers.add(follower);
 		}*/
 		return uniqueFollowers.size();
 	}
 	
-	public HashSet<Inversores> getUniqueFollowers () {
+	public HashSet<Investors> getUniqueFollowers () {
 		return uniqueFollowers;
 	}
 	
 	public int getUniqueNumReaders () {
-		/*HashSet<Inversores> uniqueReaders = new HashSet<Inversores>();
-		for(Inversores reader : readers) {
+		/*HashSet<Investors> uniqueReaders = new HashSet<Investors>();
+		for(Investors reader : readers) {
 			uniqueReaders.add(reader);
 		}*/
 		return uniqueReaders.size();
 	}
 	
-	public HashSet<Inversores> getUniqueReaders () {
+	public HashSet<Investors> getUniqueReaders () {
 		return uniqueReaders;
 	}
 	
@@ -164,7 +164,7 @@ public class Message {
 		//return totalScore;
 		
 		//int trust_degree = 0;
-		//for(Inversores investor : scores.keySet()) {
+		//for(Investors investor : scores.keySet()) {
 		//	Integer score = scores.get(investor);
 		//	totalScore += score * investor.getFinancialReputation();
 		//	trust_degree += investor.getFinancialReputation();
@@ -173,7 +173,7 @@ public class Message {
 		//return trust_degree;
 	}	
 	
-	public HashMap<Inversores,Integer> getScores() {
+	public HashMap<Investors,Integer> getScores() {
 		return scores;
 	}
 	

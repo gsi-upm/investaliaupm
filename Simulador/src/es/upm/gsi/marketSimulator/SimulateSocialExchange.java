@@ -23,12 +23,11 @@ public class SimulateSocialExchange extends Scape {
 	private Scape socialSpace;
 	private Scape people;
 	private Scape stock;
-	//public static Bolsa miBolsa;
 	private Ibex35 myStock;
 	
 	private List<Message> popularMessages[] = new ArrayList[1];
-	private List<Inversores> sortInvestorByFinance;
-	private List<Inversores> sortInvestorByActivity;
+	private List<Investors> sortInvestorByFinance;
+	private List<Investors> sortInvestorByActivity;
 	
 	public int nInvestors = Properties.NUM_INVESTORS;
 	private int nBolsas = 1;	
@@ -51,11 +50,11 @@ public class SimulateSocialExchange extends Scape {
         myStock.setHostScape(socialSpace);
         stock = new Scape(new Array1D(), "Bolsa- ibex35", myStock);    
         stock.setExecutionOrder(Scape.RULE_ORDER);
-        Inversores miInversor = new Inversores();
+        Investors miInversor = new Investors();
         
         miInversor.setHostScape(socialSpace);
         people = new Scape();
-        people.setName("Inversores");
+        people.setName("Investors");
         people.setPrototypeAgent(miInversor);
         people.setExecutionOrder(Scape.RULE_ORDER);
         
@@ -69,7 +68,7 @@ public class SimulateSocialExchange extends Scape {
 	        private static final long serialVersionUID = 665608531104091849L;
 	
 	        public void execute(Agent a) {
-	        	((Inversores) a).jugarEnBolsa(myStock);
+	        	((Investors) a).jugarEnBolsa(myStock);
 	        }
 	    };	
 	    //bolsa.addRule(jugarEnBolsa);
@@ -77,14 +76,14 @@ public class SimulateSocialExchange extends Scape {
 		Rule tipoInversor = new Rule("Choose the type of the investor") {	        
 	        private static final long serialVersionUID = 66560843110409183L;	
 	        public void execute(Agent a) {
-	        	((Inversores) a).eligeInversor();
+	        	((Investors) a).eligeInversor();
 	        }
 	    };	    
 	    people.addInitialRule(tipoInversor);
 	    Rule readAndCommentNeighbors = new Rule("Reading and commenting to his neighbours") {	        
 	        private static final long serialVersionUID = 66560843110409123L;	
 	        public void execute(Agent a) {
-	        	((Inversores) a).chooseNeighborToPlay();
+	        	((Investors) a).chooseNeighborToPlay();
 	        }
 	    };	    
 	    people.addRule(readAndCommentNeighbors);
@@ -93,179 +92,179 @@ public class SimulateSocialExchange extends Scape {
        
         StatCollector FinRepEXP = new StatCollectorCondCSAMM("FinRepEXP") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR);
             }
         };
         StatCollector FinRepEPerY = new StatCollectorCondCSAMM("FinRep EXP Per Y") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).perception == true);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).perception == true);
             }
         };
         StatCollector FinRepEPerN = new StatCollectorCondCSAMM("FinRep EXP Per N") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).perception == false);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).perception == false);
             }
         };
         StatCollector FinRepEAnxY = new StatCollectorCondCSAMM("FinRep EXP Anx Y") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).anxiety == true);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).anxiety == true);
             }
         };
         StatCollector FinRepEAnxN = new StatCollectorCondCSAMM("FinRep EXP Anx N") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).anxiety == false);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).anxiety == false);
             }
         };
         StatCollector FinRepEDivY = new StatCollectorCondCSAMM("FinRep EXP Div Y") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).isDiversifier == true);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).isDiversifier == true);
             }
         };
         StatCollector FinRepEDivN = new StatCollectorCondCSAMM("FinRep EXP Div N") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).isDiversifier == false);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).isDiversifier == false);
             }
         };        
         StatCollector FinRepEMenY = new StatCollectorCondCSAMM("FinRep EXP Alcista") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).memory == true);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).memory == true);
             }
         };
         StatCollector FinRepEMenN = new StatCollectorCondCSAMM("FinRep EXP Bajista") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR &&
-                		((IntelligentInvestor)((Inversores)object).getInvestor()).memory == false);
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).memory == false);
             }
         };        
         StatCollector FinRepAMA = new StatCollectorCondCSAMM("FinRepAMA") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.AMATEUR_INVESTOR);
+                return (((Investors) object).getAgentType()[0] == Investors.AMATEUR_INVESTOR);
             }
         };
         StatCollector FinRepRAM = new StatCollectorCondCSAMM("FinRepRAM") {
             public double getValue(Object object) {
-               return ((Inversores) object).getInvestor().getFinancialReputation();
+               return ((Investors) object).getInvestor().getFinancialReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[0] == Inversores.RANDOM_INVESTOR);
+                return (((Investors) object).getAgentType()[0] == Investors.RANDOM_INVESTOR);
             }
         };
         
         StatCollector ActRepFRE_GOW_NFRIE = new StatCollectorCondCSAMM("ActRep FREQ GOWR NO_FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[1] == Inversores.FREQUENT_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.GOOD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.NO_FRIENDLY_USER);
+                return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
             }
         };
         StatCollector ActRepFRE_GOW_FRIE = new StatCollectorCondCSAMM("ActRep FREQ GOWR FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.FREQUENT_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.GOOD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
             }
         };
         StatCollector ActRepOCA_GOW_FRIE = new StatCollectorCondCSAMM("ActRep OCAS GOWR FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.OCASIONAL_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.GOOD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
             }
         };
         StatCollector ActRepOCA_GOW_NFRIE = new StatCollectorCondCSAMM("ActRep OCAS GOWR NO_FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.OCASIONAL_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.GOOD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.NO_FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
             }
         };
         StatCollector ActRepFRE_BAW_NFRIE = new StatCollectorCondCSAMM("ActRep FREQ BADWR NO_FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-                return (((Inversores) object).getTipoAgente()[1] == Inversores.FREQUENT_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.BAD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.NO_FRIENDLY_USER);
+                return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
             }
         };
         StatCollector ActRepFRE_BAW_FRIE = new StatCollectorCondCSAMM("ActRep FREQ BADWR FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.FREQUENT_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.BAD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
             }
         };
         StatCollector ActRepOCA_BAW_FRIE = new StatCollectorCondCSAMM("ActRep OCAS BADWR FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.OCASIONAL_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.BAD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
             }
         };
         StatCollector ActRepOCA_BAW_NFRIE = new StatCollectorCondCSAMM("ActRep OCAS BADWR NO_FRIEN") {
             public double getValue(Object object) {
-               return ((Inversores) object).getActivityReputation();
+               return ((Investors) object).getActivityReputation();
             }
             public boolean meetsCondition(Object object) {
-            	return (((Inversores) object).getTipoAgente()[1] == Inversores.OCASIONAL_USER &&
-                		((Inversores) object).getTipoAgente()[2] == Inversores.BAD_WRITER &&
-                		((Inversores) object).getTipoAgente()[3] == Inversores.NO_FRIENDLY_USER);
+            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
             }
         };
         
@@ -273,13 +272,13 @@ public class SimulateSocialExchange extends Scape {
             public double getValue(Object object) {
             	int sum = 0;
             	Scape scape  = (Scape)object;
-            	if(scape.getName().equalsIgnoreCase("Inversores")) {
+            	if(scape.getName().equalsIgnoreCase("Investors")) {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;	            	
-            		List<Inversores> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
+            		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
 	            	for(int i = 0; i < 10; i++) {
-	            		Inversores investor = investors.get(i);
-	            		if(investor.getTipoAgente()[0] == Inversores.EXPERIMENTED_INVESTOR)
+	            		Investors investor = investors.get(i);
+	            		if(investor.getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR)
 	            			sum++;
 	            	}
             	}            		
@@ -290,13 +289,13 @@ public class SimulateSocialExchange extends Scape {
             public double getValue(Object object) {
             	int sum = 0;
             	Scape scape  = (Scape)object;
-            	if(scape.getName().equalsIgnoreCase("Inversores")) {
+            	if(scape.getName().equalsIgnoreCase("Investors")) {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;	            	
-            		List<Inversores> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
+            		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
 	            	for(int i = 0; i < 10; i++) {
-	            		Inversores investor = investors.get(i);
-	            		if(investor.getTipoAgente()[0] == Inversores.AMATEUR_INVESTOR)
+	            		Investors investor = investors.get(i);
+	            		if(investor.getAgentType()[0] == Investors.AMATEUR_INVESTOR)
 	            			sum++;
 	            	}
             	}            		
@@ -307,13 +306,13 @@ public class SimulateSocialExchange extends Scape {
             public double getValue(Object object) {
             	int sum = 0;
             	Scape scape  = (Scape)object;
-            	if(scape.getName().equalsIgnoreCase("Inversores")) {
+            	if(scape.getName().equalsIgnoreCase("Investors")) {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;
-            		List<Inversores> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
+            		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
 	            	for(int i = 0; i < 10; i++) {
-	            		Inversores investor = investors.get(i);
-	            		if(investor.getTipoAgente()[0] == Inversores.RANDOM_INVESTOR)
+	            		Investors investor = investors.get(i);
+	            		if(investor.getAgentType()[0] == Investors.RANDOM_INVESTOR)
 	            			sum++;
 	            	}
             	}            		
@@ -452,19 +451,19 @@ public class SimulateSocialExchange extends Scape {
 		return people;
 	}
 
-	public List<Inversores> getSortInvestorByFinance() {
+	public List<Investors> getSortInvestorByFinance() {
 		return sortInvestorByFinance;
 	}
 
-	public void setSortInvestorByFinance(List<Inversores> sortInvestorByFinance) {
+	public void setSortInvestorByFinance(List<Investors> sortInvestorByFinance) {
 		this.sortInvestorByFinance = sortInvestorByFinance;
 	}
 
-	public List<Inversores> getSortInvestorByActivity() {
+	public List<Investors> getSortInvestorByActivity() {
 		return sortInvestorByActivity;
 	}
 
-	public void setSortInvestorByActivity(List<Inversores> sortInvestorByActivity) {
+	public void setSortInvestorByActivity(List<Investors> sortInvestorByActivity) {
 		this.sortInvestorByActivity = sortInvestorByActivity;
 	}	
 	

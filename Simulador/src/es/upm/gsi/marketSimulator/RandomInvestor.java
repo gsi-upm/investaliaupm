@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class RandomInvestor extends InvestorType {
 
-	public RandomInvestor(Inversores investor) {
+	public RandomInvestor(Investors investor) {
 		initialCapital = Properties.INITIAL_LIQUIDITY;
 		liquidity = initialCapital;
 		maxValorCompra = Properties.MAX_BUY_VALUE;
@@ -23,11 +23,11 @@ public class RandomInvestor extends InvestorType {
 	@Override
 	public void jugarEnBolsa(Ibex35 stock) {
 		HashMap<String, Share> shares = stock.getAcciones();
-		for(int id = 0; id < misAcciones.size(); id++) {
+		for(int id = 0; id < myPortfolio.size(); id++) {
 			if(investor.randomInRange(0.0,1.0) > sellProbability)
 				continue;
 			sells++;
-			Investment myInversion = misAcciones.get(id);
+			Investment myInversion = myPortfolio.get(id);
 			Share share = shares.get(myInversion.getIdCompany());			
 			int sharesToSell = investor.randomInRange(Math.max(myInversion.getQuantity()/3,1)
 					,myInversion.getInitialQuantity());
@@ -45,7 +45,7 @@ public class RandomInvestor extends InvestorType {
 			if (myInversion.getQuantity() < 0)
 				System.out.println("WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			if (myInversion.getQuantity() <= 0) {
-				misAcciones.remove(myInversion);
+				myPortfolio.remove(myInversion);
 				id--;							
 			}			
 		}		
@@ -64,10 +64,10 @@ public class RandomInvestor extends InvestorType {
 					if(number2buy > limit2)
 						number2buy = limit2;
 					Investment accionComprada = new Investment(number2buy, share.getValue(),
-							share.getName(), investor.getTime());
+							share.getName(), share.getCategory(), investor.getTime());
 					liquidity -=  number2buy*share.getValue();
 					investCapital += number2buy*share.getValue();
-					misAcciones.add(accionComprada);									
+					myPortfolio.add(accionComprada);									
 				}
 			}			
 		}

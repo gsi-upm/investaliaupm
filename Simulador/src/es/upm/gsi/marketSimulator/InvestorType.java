@@ -9,7 +9,7 @@ public abstract class InvestorType {
 	protected double liquidity;
 	private List<OperationClosed> financialHistory = new ArrayList<OperationClosed>();
 	private List<Double> capitalHistory = new ArrayList<Double>();
-	protected ArrayList<Investment> misAcciones = new ArrayList<Investment>();
+	protected ArrayList<Investment> myPortfolio = new ArrayList<Investment>();
 	private double financialReputation = 0;
 	// The limit of money that one investor can invest
 	protected double maxValorCompra;
@@ -23,7 +23,7 @@ public abstract class InvestorType {
 	 * iteracionesVenta (iteracionesCompra) the investor makes a decision */
 	protected int iteracionesVenta;
 	protected int iteraccionesCompra;
-	protected Inversores investor;
+	protected Investors investor;
 	double sellTable[][];
 	double sellAll[];
 	
@@ -50,7 +50,7 @@ public abstract class InvestorType {
 	public double getActualCapital(Ibex35 miBolsa){
 		HashMap<String, Share> shares = miBolsa.getAcciones();
 		double sum = 0;
-		for(Investment myInversion : misAcciones){
+		for(Investment myInversion : myPortfolio){
 			Share share = shares.get(myInversion.getIdCompany());
 			sum += myInversion.getQuantity() * share.getValue();
 			//if(myInversion.getCantidad() <= 0)
@@ -96,8 +96,8 @@ public abstract class InvestorType {
 		double capitalOpened = 0;
 		double operationOpened = 0;
 		capitalOpened = 0;
-		for(int i = 0; i < misAcciones.size(); i++) {
-			Investment operation = misAcciones.get(i);
+		for(int i = 0; i < myPortfolio.size(); i++) {
+			Investment operation = myPortfolio.get(i);
 			double rentability = operation.getRentability(ibex35);
 			operationOpened += rentability * operation.getBuyValue() * operation.getQuantity();
 			//if(rentability < 0)				
