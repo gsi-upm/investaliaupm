@@ -12,7 +12,7 @@ import org.ascape.model.Scape;
 public class Investors extends CellOccupant {	
 	private static final long serialVersionUID = -3651394341932621403L;
 	
-	protected static int iterations = 0;
+	//private static int iterations = 0;
 	private static int time = 0;
 	protected static boolean isNewIteration = true;
 	protected static int setId = 1;
@@ -99,26 +99,11 @@ public class Investors extends CellOccupant {
     	double investorType = randomInRange(0.0, totalProbability);
         if (investorType < Properties.INTELLIGENT_INVESTOR_PROBABILITY) {
             agentType[0] = EXPERIMENTED_INVESTOR;            
-            investor = new IntelligentInvestor(this);
-            //aggressive investor
-            //iteraccionesCompra = 3;
-            //iteracionesVenta = 2;
-            //calm investor            
+            investor = new IntelligentInvestor(this);                    
         } else if(investorType < (Properties.INTELLIGENT_INVESTOR_PROBABILITY +
         		Properties.AMATEUR_INVESTOR_PROBABILITY)) {
         	agentType[0] = AMATEUR_INVESTOR;
-        	investor = new AmateurInvestor(this);
-        	/*//calm investor
-            iteraccionesCompra = 4;
-            iteracionesVenta = 5;
-            setLiquidez(Properties.INITIAL_LIQUIDITY/4); //setLiquidez(randomInRange(1000,3000));
-            maxValorCompra = getLiquidez()*0.1;
-            actividadComprar = Properties.BUY_PROBABILITY;
-            actividadVender = 0.4;
-            //if one share along the movements decrease his value in 22% you might buy
-            rentabilidadCompra = 0.22;
-            //if one share along the movements increase his value in 17% you may sell
-            //rentabilidadVenta = 0.17;*/        	           
+        	investor = new AmateurInvestor(this);        	       	           
         } else {
         	agentType[0] = RANDOM_INVESTOR;
         	investor = new RandomInvestor(this);
@@ -133,11 +118,7 @@ public class Investors extends CellOccupant {
         	postProbability = randomInRange(Properties.FREQ_USER_POST_PROBABILITY_LIMITS[0],
         			Properties.FREQ_USER_POST_PROBABILITY_LIMITS[1]);
         	scoreProbability = randomInRange(Properties.FREQ_USER_SCORE_PROBABILITY_LIMITS[0],
-        			Properties.FREQ_USER_SCORE_PROBABILITY_LIMITS[1]);
-        	//readProbability = randomInRange(0.6,0.9);
-        	//commentProbability = randomInRange(0.2,0.36);
-        	//postProbability = randomInRange(0.08,0.14);
-        	//scoreProbability = randomInRange(0.1,0.34);
+        			Properties.FREQ_USER_SCORE_PROBABILITY_LIMITS[1]);        	
         } else {
         	agentType[1] = OCASIONAL_USER;
         	readProbability = randomInRange(Properties.OCA_USER_READ_PROBABILITY_LIMITS[0],
@@ -147,11 +128,7 @@ public class Investors extends CellOccupant {
         	postProbability = randomInRange(Properties.OCA_USER_POST_PROBABILITY_LIMITS[0],
         			Properties.OCA_USER_POST_PROBABILITY_LIMITS[1]);
         	scoreProbability = randomInRange(Properties.OCA_USER_SCORE_PROBABILITY_LIMITS[0],
-        			Properties.OCA_USER_SCORE_PROBABILITY_LIMITS[1]);
-        	//readProbability = randomInRange(0.05,0.3);
-        	//commentProbability = randomInRange(0.03,0.08);
-        	//postProbability = randomInRange(0.01,0.04);
-        	//scoreProbability = randomInRange(0.1,0.3);
+        			Properties.OCA_USER_SCORE_PROBABILITY_LIMITS[1]);        	
         }
         //Good o bad writer?
         if(randomInRange(0.0, 1.0) < Properties.GOOD_WRITER_PROBABILITY) {
@@ -200,14 +177,9 @@ public class Investors extends CellOccupant {
     	setColor(new Color(red, green, blue));	
     }
         
-	public void iterate(){
-		// Ascape must just call it one time per iteration of the first agent...
-		/*
-		 * I think already I don't need it.
-		 */
-		if ((iterations % ((SimulateSocialExchange)getRoot()).getnInversores() == 0) 
-				&& isNewIteration ){
-			isNewIteration = false;
+	public void iterate(){		
+		if (isNewIteration){ //(iterations % ((SimulateSocialExchange)getRoot()).getnInversores() == 0)&& 
+			isNewIteration = false;			
 			time++;
 			//Generate popularity and reputation of investor´messages
 			for(int i = 0; i < ((SimulateSocialExchange)getRoot()).getPopularMessages().length; i++)
@@ -234,135 +206,136 @@ public class Investors extends CellOccupant {
 				}
 			}
 			if(time % Properties.STATISTICS_INTERVAL == 0) { //Generate statistics
-				System.out.println("Estadistica en intervalo "+time+":");
-				Ibex35 ibex35 = ((SimulateSocialExchange)getRoot()).getStock();				
-				//Generate activity reputation and financial reputation of the investors
-				for(Object cell : scape) {
-					if(cell instanceof Investors) {
-						((Investors)cell).generateActivityReputation();
-						((Investors) cell).investor.updateFinancialReputation(ibex35);
-					}					
-				}
-				double intelligentStatistics[][][] = new double[5][2][7]; 
-					//0=IMP,1=PER,2=ANX,3=MEM,4=DIV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=LIQ,6=CapNegReturn
-				double investorStatistics[][] = new double[3][11]; 
-					//0=EXP_INV,1=AMA_INV,2=RA_INV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=liquidity,
-					//  6=capitalWithNegativeReturn,7=buyProfibility,sellRange,X	
-				((SimulateSocialExchange)getRoot()).setSortInvestorByFinance(sortByFinancialReputation(scape));
-				for(int i = 0; i < ((SimulateSocialExchange)getRoot()).getSortInvestorByFinance().size(); i++) {
-					Investors cell = ((SimulateSocialExchange)getRoot()).getSortInvestorByFinance().get(i);
-					double capital = cell.investor.getActualCapital(ibex35);
-					cell.investor.addCapitalToHistory(capital);
-					
-					System.out.println("  id:" + cell.getId() + cell.getAgentTypeToString() + " with financial reputation:" +
-							cell.investor.getFinancialReputation() );
-					investorStatistics[cell.getAgentType()[0]][0] += cell.investor.buys;
-					investorStatistics[cell.getAgentType()[0]][1] += cell.investor.sells;
-					investorStatistics[cell.getAgentType()[0]][2]++;
-					investorStatistics[cell.getAgentType()[0]][3] += cell.investor.getFinancialReputation();					
-					investorStatistics[cell.getAgentType()[0]][4] += capital;
-					investorStatistics[cell.getAgentType()[0]][5] += cell.investor.liquidity;
-					investorStatistics[cell.getAgentType()[0]][6] += cell.investor.investCapital;
-					investorStatistics[cell.getAgentType()[0]][7] += cell.investor.capitalWithNegativeReturn;
-					investorStatistics[cell.getAgentType()[0]][8] += cell.investor.sellsAll1;
-					investorStatistics[cell.getAgentType()[0]][9] += cell.investor.sellsAll0;					
-					if(cell.getAgentType()[0] == EXPERIMENTED_INVESTOR) {
-						investorStatistics[cell.getAgentType()[0]][10] += cell.investor.rentabilidadCompra;						
-					}
-					else if(cell.getAgentType()[0] == AMATEUR_INVESTOR)
-						investorStatistics[cell.getAgentType()[0]][10] += cell.investor.sellTable[0][0];
-					if(cell.investor instanceof IntelligentInvestor) {
-						IntelligentInvestor intelligentCell = (IntelligentInvestor)cell.investor;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][0] += intelligentCell.buys;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][1] += intelligentCell.sells;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][2]++;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][3] += intelligentCell.getFinancialReputation();
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][4] += capital;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][5] += intelligentCell.liquidity;
-						intelligentStatistics[0][intelligentCell.impulsive?1:0][6] += intelligentCell.capitalWithNegativeReturn;
-						intelligentStatistics[1][intelligentCell.perception?1:0][0] += intelligentCell.buys;
-						intelligentStatistics[1][intelligentCell.perception?1:0][1] += intelligentCell.sells;
-						intelligentStatistics[1][intelligentCell.perception?1:0][2]++;
-						intelligentStatistics[1][intelligentCell.perception?1:0][3] += intelligentCell.getFinancialReputation();
-						intelligentStatistics[1][intelligentCell.perception?1:0][4] += capital;
-						intelligentStatistics[1][intelligentCell.perception?1:0][5] += intelligentCell.liquidity;
-						intelligentStatistics[1][intelligentCell.perception?1:0][6] += intelligentCell.capitalWithNegativeReturn;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][0] += intelligentCell.buys;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][1] += intelligentCell.sells;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][2]++;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][3] += intelligentCell.getFinancialReputation();
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][4] += capital;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][5] += intelligentCell.liquidity;
-						intelligentStatistics[2][intelligentCell.anxiety?1:0][6] += intelligentCell.capitalWithNegativeReturn;
-						intelligentStatistics[3][intelligentCell.memory?1:0][0] += intelligentCell.buys;
-						intelligentStatistics[3][intelligentCell.memory?1:0][1] += intelligentCell.sells;
-						intelligentStatistics[3][intelligentCell.memory?1:0][2]++;
-						intelligentStatistics[3][intelligentCell.memory?1:0][3] += intelligentCell.getFinancialReputation();
-						intelligentStatistics[3][intelligentCell.memory?1:0][4] += capital;
-						intelligentStatistics[3][intelligentCell.memory?1:0][5] += intelligentCell.liquidity;
-						intelligentStatistics[3][intelligentCell.memory?1:0][6] += intelligentCell.capitalWithNegativeReturn;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][0] += intelligentCell.buys;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][1] += intelligentCell.sells;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][2]++;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][3] += intelligentCell.getFinancialReputation();
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][4] += capital;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][5] += intelligentCell.liquidity;
-						intelligentStatistics[4][intelligentCell.isDiversifier?1:0][6] += intelligentCell.capitalWithNegativeReturn;
-					}		
-				}
-				
-				double reputationByAgentType[][][] = new double[2][2][2 + 5];
-				long messageStatistics[][] = {{0,0,0,0,0,0,0}, {0,0,0,0,0,0,0}};
-				((SimulateSocialExchange)getRoot()).setSortInvestorByActivity(sortByMessageReputation(scape));
-				for(int i = 0; i < ((SimulateSocialExchange)getRoot()).getSortInvestorByActivity().size(); i++) {
-					Investors cell = ((SimulateSocialExchange)getRoot()).getSortInvestorByActivity().get(i);
-					System.out.print("  id:" + cell.getId() + cell.getAgentTypeToString() + " with messages[");
-					int statistics[][] = cell.messageStatistics();
-					int historyStatistics[][] = cell.historyMessageStatistics();
-					for(int j = 0; j < statistics.length; j++) {
-						for(int k = 0; k < statistics[j].length; k++) {
-							messageStatistics[j][k] += statistics[j][k] + historyStatistics[j][k];
-							System.out.print(statistics[j][k]+"-");
-						}
-						System.out.print(";");
-					}
-					System.out.print("],play:" + cell.getPlayed() + ", activ rep:");					
-					System.out.print(String.format("%.2f  [", cell.getActivityReputation()));	
-					System.out.print(String.format("fri:%.2f,", cell.friendReputation));
-					for(int j = 0; j < cell.getMessageReputation().length; j++)
-						System.out.print(String.format("mes:%.2f,", cell.getMessageReputation()[j]));
-					System.out.println("("+cell.sizeMessageByLimit+")]");
-					
-					reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][0]++;
-					reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][1] += cell.getPlayed();
-					reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][2] += cell.getNumMensajes() + cell.getMessagesHistory();
-					reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][3] += cell.postProbability;
-					reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][4] += cell.goodMessageProbability;
-					for(int j = 0; j < cell.getMessageReputation().length; j++) {
-						reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][j+5] += cell.getMessageReputation()[j];
-					}
-				}
-				printInvestorsStatistics(investorStatistics, intelligentStatistics);
-				for(int i = 0; i < reputationByAgentType.length; i++) {
-					for(int j = 0; j < reputationByAgentType[i].length; j++) {
-						printReputationByAgentType(i,j,reputationByAgentType[i][j]);
-					}
-				}				
-				printMessageStatistics(messageStatistics);
-				printIbex35Statistics(((SimulateSocialExchange)getRoot()).getStock());				
-				//Clean messages users'history of many time ago
-				if(time % Properties.CLEAN_INTERVAL == 1) {
-					for(Object cell : scape) {
-						if(cell instanceof Investors) {							
-							((Investors)cell).cleanMessages(time - Properties.MESSAGE_TIME_TO_CLEAN);
-						}
-					}
-				}
-				//for(StatCollector stat : ((SimulateSocialExchange)getRoot()).getPeople().getStatCollectors()) {
-				//	stat.addValue(randomInRange(0.0,1.0)); //stat.calculateValue());
-				//}
+				generateStatistics();				
 			}		
 		}		
+	}
+	
+	public void generateStatistics () {
+		System.out.println("Estadistica en intervalo "+time+":");
+		Ibex35 ibex35 = ((SimulateSocialExchange)getRoot()).getStock();				
+		//Generate activity reputation and financial reputation of the investors
+		for(Object cell : scape) {
+			if(cell instanceof Investors) {
+				((Investors)cell).generateActivityReputation();
+				((Investors) cell).investor.updateFinancialReputation(ibex35);
+			}					
+		}
+		double intelligentStatistics[][][] = new double[5][2][7]; 
+			//0=IMP,1=PER,2=ANX,3=MEM,4=DIV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=LIQ,6=CapNegReturn
+		double investorStatistics[][] = new double[3][11]; 
+			//0=EXP_INV,1=AMA_INV,2=RA_INV; 0=BUY,1=SELL,2=NUM,3=ROI,4=CAP,5=liquidity,
+			//  6=capitalWithNegativeReturn,7=buyProfibility,sellRange,X	
+		((SimulateSocialExchange)getRoot()).setSortInvestorByFinance(sortByFinancialReputation(scape));
+		for(int i = 0; i < ((SimulateSocialExchange)getRoot()).getSortInvestorByFinance().size(); i++) {
+			Investors cell = ((SimulateSocialExchange)getRoot()).getSortInvestorByFinance().get(i);
+			double capital = cell.investor.getActualCapital(ibex35);
+			cell.investor.addCapitalToHistory(capital);
+			
+			System.out.println("  id:" + cell.getId() + cell.getAgentTypeToString() + " with financial reputation:" +
+					cell.investor.getFinancialReputation() );
+			investorStatistics[cell.getAgentType()[0]][0] += cell.investor.buys;
+			investorStatistics[cell.getAgentType()[0]][1] += cell.investor.sells;
+			investorStatistics[cell.getAgentType()[0]][2]++;
+			investorStatistics[cell.getAgentType()[0]][3] += cell.investor.getFinancialReputation();					
+			investorStatistics[cell.getAgentType()[0]][4] += capital;
+			investorStatistics[cell.getAgentType()[0]][5] += cell.investor.liquidity;
+			investorStatistics[cell.getAgentType()[0]][6] += cell.investor.investCapital;
+			investorStatistics[cell.getAgentType()[0]][7] += cell.investor.capitalWithNegativeReturn;
+			investorStatistics[cell.getAgentType()[0]][8] += cell.investor.sellsAll1;
+			investorStatistics[cell.getAgentType()[0]][9] += cell.investor.sellsAll0;					
+			if(cell.getAgentType()[0] == EXPERIMENTED_INVESTOR) {
+				investorStatistics[cell.getAgentType()[0]][10] += cell.investor.rentabilidadCompra;						
+			}
+			else if(cell.getAgentType()[0] == AMATEUR_INVESTOR)
+				investorStatistics[cell.getAgentType()[0]][10] += cell.investor.sellTable[0][0];
+			if(cell.investor instanceof IntelligentInvestor) {
+				IntelligentInvestor intelligentCell = (IntelligentInvestor)cell.investor;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][0] += intelligentCell.buys;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][1] += intelligentCell.sells;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][2]++;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][3] += intelligentCell.getFinancialReputation();
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][4] += capital;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][5] += intelligentCell.liquidity;
+				intelligentStatistics[0][intelligentCell.impulsive?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+				intelligentStatistics[1][intelligentCell.perception?1:0][0] += intelligentCell.buys;
+				intelligentStatistics[1][intelligentCell.perception?1:0][1] += intelligentCell.sells;
+				intelligentStatistics[1][intelligentCell.perception?1:0][2]++;
+				intelligentStatistics[1][intelligentCell.perception?1:0][3] += intelligentCell.getFinancialReputation();
+				intelligentStatistics[1][intelligentCell.perception?1:0][4] += capital;
+				intelligentStatistics[1][intelligentCell.perception?1:0][5] += intelligentCell.liquidity;
+				intelligentStatistics[1][intelligentCell.perception?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][0] += intelligentCell.buys;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][1] += intelligentCell.sells;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][2]++;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][3] += intelligentCell.getFinancialReputation();
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][4] += capital;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][5] += intelligentCell.liquidity;
+				intelligentStatistics[2][intelligentCell.anxiety?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+				intelligentStatistics[3][intelligentCell.memory?1:0][0] += intelligentCell.buys;
+				intelligentStatistics[3][intelligentCell.memory?1:0][1] += intelligentCell.sells;
+				intelligentStatistics[3][intelligentCell.memory?1:0][2]++;
+				intelligentStatistics[3][intelligentCell.memory?1:0][3] += intelligentCell.getFinancialReputation();
+				intelligentStatistics[3][intelligentCell.memory?1:0][4] += capital;
+				intelligentStatistics[3][intelligentCell.memory?1:0][5] += intelligentCell.liquidity;
+				intelligentStatistics[3][intelligentCell.memory?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][0] += intelligentCell.buys;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][1] += intelligentCell.sells;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][2]++;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][3] += intelligentCell.getFinancialReputation();
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][4] += capital;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][5] += intelligentCell.liquidity;
+				intelligentStatistics[4][intelligentCell.isDiversifier?1:0][6] += intelligentCell.capitalWithNegativeReturn;
+			}		
+		}
+		
+		double reputationByAgentType[][][] = new double[2][2][2 + 5];
+		long messageStatistics[][] = {{0,0,0,0,0,0,0}, {0,0,0,0,0,0,0}};
+		((SimulateSocialExchange)getRoot()).setSortInvestorByActivity(sortByMessageReputation(scape));
+		for(int i = 0; i < ((SimulateSocialExchange)getRoot()).getSortInvestorByActivity().size(); i++) {
+			Investors cell = ((SimulateSocialExchange)getRoot()).getSortInvestorByActivity().get(i);
+			System.out.print("  id:" + cell.getId() + cell.getAgentTypeToString() + " with messages[");
+			int statistics[][] = cell.messageStatistics();
+			int historyStatistics[][] = cell.historyMessageStatistics();
+			for(int j = 0; j < statistics.length; j++) {
+				for(int k = 0; k < statistics[j].length; k++) {
+					messageStatistics[j][k] += statistics[j][k] + historyStatistics[j][k];
+					System.out.print(statistics[j][k]+"-");
+				}
+				System.out.print(";");
+			}
+			System.out.print("],play:" + cell.getPlayed() + ", activ rep:");					
+			System.out.print(String.format("%.2f  [", cell.getActivityReputation()));	
+			System.out.print(String.format("fri:%.2f,", cell.friendReputation));
+			for(int j = 0; j < cell.getMessageReputation().length; j++)
+				System.out.print(String.format("mes:%.2f,", cell.getMessageReputation()[j]));
+			System.out.println("("+cell.sizeMessageByLimit+")]");
+			
+			reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][0]++;
+			reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][1] += cell.getPlayed();
+			reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][2] += cell.getNumMensajes() + cell.getMessagesHistory();
+			reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][3] += cell.postProbability;
+			reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][4] += cell.goodMessageProbability;
+			for(int j = 0; j < cell.getMessageReputation().length; j++) {
+				reputationByAgentType[cell.getAgentType()[1]][cell.getAgentType()[2]][j+5] += cell.getMessageReputation()[j];
+			}
+		}
+		printInvestorsStatistics(investorStatistics, intelligentStatistics);
+		for(int i = 0; i < reputationByAgentType.length; i++) {
+			for(int j = 0; j < reputationByAgentType[i].length; j++) {
+				printReputationByAgentType(i,j,reputationByAgentType[i][j]);
+			}
+		}				
+		printMessageStatistics(messageStatistics);
+		printIbex35Statistics(((SimulateSocialExchange)getRoot()).getStock());				
+		//Clean messages users'history of many time ago
+		if(time % Properties.CLEAN_INTERVAL == 1) {
+			for(Object cell : scape) {
+				if(cell instanceof Investors) {							
+					((Investors)cell).cleanMessages(time - Properties.MESSAGE_TIME_TO_CLEAN);
+				}
+			}
+		}
 	}
 	
 	public void printInvestorsStatistics(double investorStatistics[][], double intelligentStatistics[][][]) {
@@ -622,7 +595,7 @@ public class Investors extends CellOccupant {
 	}
 	
 	public void update(){
-		iterations++;
+		//iterations++;
 		isNewIteration = true;
 		//post in own page.
 		if(randomInRange(0,1.0) < postProbability){
@@ -649,8 +622,6 @@ public class Investors extends CellOccupant {
 	 * @param miBolsa
 	 */
 	public void jugarEnBolsa(Ibex35 myStock){
-		//posiblidad de si entra en vender, la probabilidad de entrar en comprar sea menor 
-		//y al reves		
 		investor.jugarEnBolsa(myStock);	
 	}	
 	
@@ -729,13 +700,13 @@ public class Investors extends CellOccupant {
 				((Investors) partner).followers.add(this);
 			}			
 		}	
-		//TODO: probabilidad de leer por cronologia y el resto de leer por reputacion total (mensajes recomendados / mensajes cronologicos)
-		//Leer mensaje con mas reputacion (por cronologia y/o reputacion total)
-		// las demás lecturas ir bajando probabilidad de leer -> Probabilidad_leer_recomendados/cronologicos
-		//TODO: afinidad de agentes, si un agente lee mucho de otro se le aumenta su afinidad de forma que juegue con de forma
-		//  más probable
+		//TODO: probabilidad de leer por cronologia y el resto de leer por reputacion
+		//      total (mensajes recomendados / mensajes cronologicos)
+		//TODO: afinidad de agentes, si un agente lee mucho de otro se le aumenta su
+		//      afinidad de forma que juegue con de forma más probable
 		
 		//By cronology:		 
+		//UNCOMMENT THIS TO EXECUTE ACTIVITY AGENT BY ARTICLES, COMMENTS AND SCORES:
 		/*ArrayList<Message> messagesFromPartner = ((Investors) partner).getMensajes();			
 		double consecutiveMessageDegradation = 1.0;
 		int notReadMessages = 0;
@@ -945,18 +916,7 @@ public class Investors extends CellOccupant {
 			total += message.getNumReaders();
 		}
 		return total;
-	}
-	
-	/*public int getReadersUnicos(){
-		HashSet<Investors> uniqueReaders = new HashSet<Investors>();
-		for(Message message : myMessages){
-			HashSet<Investors> followers1Comment = message.getUniqueReaders();
-			for(Investors investor : followers1Comment){
-				uniqueReaders.add(investor);
-			}
-		}
-		return uniqueReaders.size();
-	}*/
+	}	
 	
 	/**
 	 * Ask for the all of followers of whole comments that Investor has. Doesn't care
@@ -990,8 +950,7 @@ public class Investors extends CellOccupant {
 	/**
 	 * Getter of Color
 	 * @param ncolor
-	 */
-	//hay que llamalos setColor y getColor para que ascape los pinte
+	 */	
 	public void setColor(Color ncolor) {
 		myColor = ncolor;
 	}

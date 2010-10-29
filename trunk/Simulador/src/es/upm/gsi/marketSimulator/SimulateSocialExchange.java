@@ -70,8 +70,7 @@ public class SimulateSocialExchange extends Scape {
 	        public void execute(Agent a) {
 	        	((Investors) a).jugarEnBolsa(myStock);
 	        }
-	    };	
-	    //bolsa.addRule(jugarEnBolsa);
+	    };
 	    people.addRule(jugarEnBolsa);			
 		Rule tipoInversor = new Rule("Choose the type of the investor") {	        
 	        private static final long serialVersionUID = 66560843110409183L;	
