@@ -24,8 +24,8 @@ public abstract class InvestorType {
 	protected int iteracionesVenta;
 	protected int iteraccionesCompra;
 	protected Investors investor;
-	double sellTable[][];
-	double sellAll[];
+	protected double sellTable[][];
+	protected double sellAll[];
 	
 	//For statistics
 	int buys = 0;

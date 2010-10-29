@@ -16,9 +16,11 @@ public class IntelligentInvestor extends InvestorType {
 	boolean isEspeculator;
 	boolean isOptimism;
 		
-	Map<String, Double> memoryPonderation;
-	
-	double sharePercentInSell = 0;
+	//Map<String, Double> memoryPonderation;
+		
+	//Variables for debug
+	double totalIncrementAverage = 0;
+	double totalAverage = 0;
 	
 	public IntelligentInvestor(Investors investor) {
 		iteraccionesCompra = 4;
@@ -149,15 +151,7 @@ public class IntelligentInvestor extends InvestorType {
 			for(int id = 0; id < myPortfolio.size(); id++) {
 				Investment myInversion = myPortfolio.get(id);
 				Share share = shares.get(myInversion.getIdCompany());
-				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;
-				/* I have the share, I have to check if is a good moment to
-				 *  sell the share. look the movements. 
-				 *  If the sum of last movements is better than the profitability sell it.				
-				double rentabilidad = 0;
-				ArrayList<Double> historico = accionesBolsa.getHistoricoAccion();
-				for ( int i = iteracionesVenta-1; i<historico.size(); i++) {
-					rentabilidad += historico.get(i);
-				}*/				
+				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;							
 				int sharesToSell = (int) (myInversion.getInitialQuantity() * 
 					getPercentToSell(share.getValue(),myInversion.getBuyValue(),inversionClusterTime)/100);
 				if (sharesToSell > 0){
@@ -227,7 +221,16 @@ public class IntelligentInvestor extends InvestorType {
 				if (limite1 > 0 && limite2 > 0){										
 					number2buy =  ((int)investor.randomInRange(1, limite1));
 					if(isDiversifier) {
-						number2buy *= getIncrementByStockCategory(number2buy,share,capitalByStockCategory);
+						Double forDebug = getIncrementByStockCategory(number2buy,share,capitalByStockCategory);
+						number2buy *= forDebug;
+						/*totalIncrementAverage += forDebug;
+						totalAverage++;
+						if(forDebug > 2)
+							System.out.println(investor.getId()+": "+share.getName()+forDebug + 
+									" > 2  ("+totalIncrementAverage/totalAverage);
+						else if(forDebug < 0.5)
+							System.out.println(investor.getId()+": "+share.getName()+forDebug + 
+									" < 0.5  ("+totalIncrementAverage/totalAverage);*/
 					}
 					if(impulsive) {
 						if(suma/rentabilidadCompra > 1)
@@ -268,8 +271,8 @@ public class IntelligentInvestor extends InvestorType {
 			total /= (capitalByStockCategory.size()+1) * (number2buy * share.getValue());
 		} else
 			total /= capitalByStockCategory.size() * (number2buy * share.getValue() + categoryCapital);
-		total = Math.max(Properties.MAX_INCREMENT_DIVERSIFIER, total);
-		return Math.min(1/Properties.MAX_INCREMENT_DIVERSIFIER, total);		
+		total = Math.min(Properties.MAX_INCREMENT_DIVERSIFIER, total);
+		return Math.max(1/Properties.MAX_INCREMENT_DIVERSIFIER, total);		
 	}	
 	
 	public Map<String, Double> getBuyInvestmentByCategory () {

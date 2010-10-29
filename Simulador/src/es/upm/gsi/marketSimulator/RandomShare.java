@@ -7,15 +7,15 @@ public class RandomShare extends Share{
 	//private double ultimoPorcentaje;
 	private double max;
 	private double min;
-	private int maxReached;
-	private int minReached;
 	private double maximumVariation;
 	private Random random;	
 	
 	//Statistics
 	public double variationUp = 0;
 	public double variationDown = 0;
-
+	private int maxReached;
+	private int minReached;
+	
 	public RandomShare(String companyName, String stockCategory, double value, 
 			double ultimoPorcentaje, double max, double min, double maximumVariation){
 		this.name = companyName;
