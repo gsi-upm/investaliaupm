@@ -311,5 +311,6 @@ public class MessagesFromAPI {
 	    ArrayList<Message> message = new ArrayList<Message>();
 	    message.add(MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser));
 	    MysqlInterface.updateReadAndLiked( message,  idUser);
+	    System.out.println("Gusta el mensaje "  + idMessageAPI);
 	}
 }

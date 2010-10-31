@@ -85,9 +85,13 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         		Long.toString(MysqlInterface.getDateLastMessage("Muro").getTime())))
         	MysqlInterface.saveMessage(mes);
         
-        ArrayList<String[]> ratings = (ArrayList<String[]>) MessagesFromAPI.getRatings("0000000000");
+        ArrayList<String[]> ratings = (ArrayList<String[]>) MessagesFromAPI.getRatings(
+        		//Date of last update is the same.
+        		Long.toString(MysqlInterface.getDateLastMessage("Muro").getTime()));
         for(String[] array:ratings){
-            MessagesFromAPI.getRecommendationsFromAPI(Long.parseLong(array[1]),Integer.parseInt(array[2]));
+        	int idUserDB = MysqlInterface.getUser(array[0].toLowerCase()).getId();
+        	System.out.println("El id que hemos recuperado es " +array[0] );
+            MessagesFromAPI.getRecommendationsFromAPI(Long.parseLong(array[1]),idUserDB);
         }
         
         // Get the message list, tags and recommendations from db
