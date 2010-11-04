@@ -113,6 +113,32 @@ public class MysqlInterface {
 		}
 		closeConnectionDatabase();
 	}
+	
+
+	/**
+	 * Updates the read and liked properties for a message and user
+	 */
+	public static boolean updateRead(Message m, int idUser) {
+
+		try {
+			// Increase timesRead
+			connectToDatabase();
+			int rs = stmt.executeUpdate("UPDATE messages"
+					+ " SET times_read = (times_read + 1)"
+					+ " WHERE idMessage = " + m.getId());
+			// Add row in read table
+			stmt.executeUpdate("INSERT INTO users_messages VALUES (Null, "
+					+ m.getId() + ", " + idUser + ", "
+					+ (m.isLiked() ? 1 : 0) + ", Null)");
+			closeConnectionDatabase();
+
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 
 	/**
 	 * Updates the read and liked properties for a message and user

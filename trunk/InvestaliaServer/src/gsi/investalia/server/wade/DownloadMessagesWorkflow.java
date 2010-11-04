@@ -93,6 +93,15 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         	System.out.println("El id que hemos recuperado es " +array[0] );
             MessagesFromAPI.getRecommendationsFromAPI(Long.parseLong(array[1]),idUserDB);
         }
+
+        ArrayList<String[]> read = (ArrayList<String[]>) MessagesFromAPI.getRead(
+        		//Date of last update is the same.
+        		Long.toString(MysqlInterface.getDateLastMessage("Muro").getTime()));
+        for(String[] array:read){
+        	int idUserDB = MysqlInterface.getUser(array[0].toLowerCase()).getId();
+        	System.out.println("El id que hemos recuperado es " +array[0] );
+        	MessagesFromAPI.getReadFromAPI(Long.parseLong(array[1]),idUserDB);
+        }
         
         // Get the message list, tags and recommendations from db
         List<Message> messages = MysqlInterface.getMessagesIncludingRecommended(userName, lastUpdate);          

@@ -313,4 +313,42 @@ public class MessagesFromAPI {
 	    MysqlInterface.updateReadAndLiked(messages,  idUser);
 	    System.out.println("Gusta el mensaje "  + idMessageAPI);
 	}
+	
+
+    public static void getReadFromAPI(long idMessageAPI,int idUser){
+        Message message = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
+        MysqlInterface.updateRead( message,  idUser);
+        System.out.println("Gusta el mensaje "  + idMessageAPI);
+    }
+
+    public static List<String[]> getRead (String lastUpdate){
+            /* Last Update es un número correspondiende con la última fecha que se actualizó */
+            /*Ej: 0000000000 devuelve todos los mensajes */
+
+            ArrayList<String[]> msgs = new ArrayList<String[]>();
+
+            try{
+
+                    JSONObject result;
+                    String resultFromAPI = connect(ratings_TOKEN1+ratings_TOKEN2+lastUpdate);
+                    result = new JSONObject(resultFromAPI);
+                    result=result.getJSONObject("result");/*Get rid of the extra field */
+                    JSONArray blogs = result.getJSONArray("valoraciones"); /*Array of all the ratings since last update*/
+                    for(int i = 0;i<blogs.length();i++){
+                            if(blogs.getJSONObject(i).getInt("value")<2 ){
+                                    /*Los que tienen una valoracion menor que 2 se han leido, pero no gustado*/
+                                    String idUser = blogs.getJSONObject(i).getString("owner_name");
+                                    System.out.println(idUser);
+                                    String idBlog = blogs.getJSONObject(i).getString("entity_guid");
+                                    System.out.println(idBlog);
+                                    System.out.println(blogs.getJSONObject(i).getInt("value"));
+                                    String[] toBeAdded = {idUser,idBlog};
+                                    msgs.add(toBeAdded);
+                            }
+                    }
+            }catch(Exception e){
+                    System.err.println(e.getMessage());
+            }
+            return msgs;
+    }
 }
