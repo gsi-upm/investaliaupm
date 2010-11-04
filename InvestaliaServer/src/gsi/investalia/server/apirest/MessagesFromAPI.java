@@ -275,7 +275,7 @@ public class MessagesFromAPI {
 		return msgs;
 	}
 
-	
+
 	public static List<String[]> getRatings (String lastUpdate){
 		/* Last Update es un número correspondiende con la última fecha que se actualizó */
 		/*Ej: 0000000000 devuelve todos los mensajes */
@@ -308,9 +308,9 @@ public class MessagesFromAPI {
 	}
 
 	public static void getRecommendationsFromAPI(long idMessageAPI,int idUser){
-	    ArrayList<Message> message = new ArrayList<Message>();
-	    message.add(MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser));
-	    MysqlInterface.updateReadAndLiked( message,  idUser);
+	    ArrayList<Message> messages = new ArrayList<Message>();
+	    messages.add(MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser));
+	    MysqlInterface.updateReadAndLiked(messages,  idUser);
 	    System.out.println("Gusta el mensaje "  + idMessageAPI);
 	}
 }

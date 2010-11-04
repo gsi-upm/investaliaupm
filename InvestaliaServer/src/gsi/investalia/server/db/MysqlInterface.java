@@ -4,6 +4,7 @@ import es.upm.multidimensional.RecommendationGenerator;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
+import gsi.investalia.server.conf.ConfigManager;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -34,19 +35,20 @@ public class MysqlInterface {
 	public static final int LIMIT_ALL = 20;
 	public static final int LIMIT_SUBSCRIBED = 20;
 	public static final int LIMIT_RECOMMENDATIONS = 20;
+	
+	public static final String CONNECTION_URL = ConfigManager.getDatabaseUrl();
+	public static final String CONNECTION_DBNAME = ConfigManager.getDatabaseName();
+	public static final String CONNECTION_USER = ConfigManager.getDatabaseUser();
+	public static final String CONNECTION_PASS = ConfigManager.getDatabasePass();
 
 	/**
 	 * Connects to the database
 	 */
 	public static void connectToDatabase() {
 		try {
-			String url = "jdbc:mysql://localhost/";
-			String dbName = "investalia";
-			String userName = "root";
-			String pass = "root";
-
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection(url + dbName, userName, pass);
+			con = DriverManager.getConnection(CONNECTION_URL + CONNECTION_DBNAME, 
+					CONNECTION_USER, CONNECTION_PASS);
 			stmt = con.createStatement();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -58,7 +60,7 @@ public class MysqlInterface {
 	 */
 	public static void saveMessage(Message message) {
 
-		// If the author is not registered, saved on the database
+		// If the author is not registered, save on the database
 		String authorName = message.getUserName();
 		User author = getUser(authorName);
 		if (author == null) {
@@ -109,17 +111,7 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		closeConnectionDatabase();
-	}
-
-	/**
-	 * Updates the read and liked properties for a message list and user
-	 */
-	public static void updateReadAndLiked(List<Message> messages, int idUser) {
-		for (Message m : messages) {
-			updateReadAndLiked(m, idUser);
-		}
 	}
 
 	/**
@@ -436,27 +428,6 @@ public class MysqlInterface {
 		closeConnectionDatabase();
 		return message;
 	}
-	
-	
-	/**
-	 * Gets a message with the read and liked attributes for a given user
-	 */
-	private static Message getMessage(Message m, int idUser) {
-		connectToDatabase();
-		Message message = null;
-		try {
-			ResultSet rs = stmt
-					.executeQuery("SELECT * FROM messages WHERE idMessage = "
-							+ m.getId());
-			if (rs.next()) {
-				message = getMessageFromRS(rs, idUser);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		closeConnectionDatabase();
-		return message;
-	}
 
 	private static List<Message> getMessagesFromQuery(String query, int idUser) {
 		connectToDatabase();
@@ -504,6 +475,7 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		closeConnectionDatabase();
 		return user;
 	}
 	
@@ -519,11 +491,19 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		closeConnectionDatabase();
 		return userName;
 	}
+	
+    /**
+     * Updates the read and liked properties for a message list and user
+     */
+    public static void updateReadAndLiked(List<Message> messages, int idUser) {
+            for (Message m : messages) {
+                    updateReadAndLiked(m, idUser);
+            }
+    }
 
-	// TODO: Perdonadme, en serio, pero con las prisas necesito este método
-	// público...
 	public static List<Tag> getTagsFollowing(int idUser) {
 		return getTagListFromQuery("SELECT t.* FROM users_tags AS ut, tags AS t WHERE t.idTag = ut.idTag AND idUser = "
 				+ idUser);
@@ -536,8 +516,10 @@ public class MysqlInterface {
 
 	public static List<Tag> getTagsSinceLast(int idLastTag) {
 		connectToDatabase();
-		return getTagListFromQuery("SELECT * FROM tags WHERE idtag > "
+		List<Tag> tags = getTagListFromQuery("SELECT * FROM tags WHERE idtag > "
 				+ idLastTag);
+		closeConnectionDatabase();
+		return tags;
 	}
 
 	private static void setMessageId(Message message, int idAuthor) {
@@ -560,7 +542,6 @@ public class MysqlInterface {
 	 * Checks and sets the read and liked attribute for a given message and user
 	 */
 	private static void setReadAndLiked(Message m, int idUser) {
-		//connectToDatabase();
 		try {
 			ResultSet rs = stmt
 					.executeQuery("SELECT liked FROM users_messages WHERE iduser = "
@@ -575,7 +556,6 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		//closeConnectionDatabase();
 	}
 
 	private static Message getMessageFromRS(ResultSet rs, int idUser) {
@@ -598,39 +578,6 @@ public class MysqlInterface {
 		// Constructor:
 		// id,userName,title,text,tags,date,read,liked,rating,timesRead
 		// Db: IDMESSAGE,IDUSER,TITLE,TEXT,DATE,RATING,TIMES_READ
-	}
-
-	private static HashMap<Long, HashMap<Long, Float>> getUsersMessagesReadAndLiked(
-			int idUser) {
-		connectToDatabase();
-
-		HashMap<Long, HashMap<Long, Float>> userHashMap = null;
-		HashMap<Long, Float> auxHashMapRead = new HashMap<Long, Float>();
-		HashMap<Long, Float> auxHashMapLiked = new HashMap<Long, Float>();
-
-		try {
-			ResultSet rs = stmt
-					.executeQuery("SELECT idmessage liked FROM users_messages WHERE iduser = "
-							+ idUser);
-			while (rs.next()) {
-				if (rs.getInt("users_messages.liked") == 0)
-					auxHashMapRead.put(Long.valueOf(rs
-							.getInt("users_messages.idmessage")), new Float(1));
-				else
-					auxHashMapLiked.put(Long.valueOf(rs
-							.getInt("users_messages.idmessage")), new Float(1));
-			}
-
-			userHashMap = new HashMap<Long, HashMap<Long, Float>>();
-			userHashMap.put(Long.valueOf(idUser), auxHashMapRead);
-			userHashMap.put(Long.valueOf(idUser), auxHashMapLiked);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		closeConnectionDatabase();
-		return userHashMap;
 	}
 
 	public static void takeRecommendationData(
@@ -780,13 +727,12 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-
+		closeConnectionDatabase();
 	}
 
 	public static HashMap<Long, Float> getUserRecommendationData(String userName) {
 
 		connectToDatabase();
-
 		HashMap<Long, Float> userRecommendationData = new HashMap<Long, Float>();
 
 		String query = "SELECT idMessage, user_affinity"
@@ -850,13 +796,15 @@ public class MysqlInterface {
 		try {
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				return rs.getTimestamp("m.date");
+				Timestamp t = rs.getTimestamp("m.date");
+				closeConnectionDatabase();
+				return t;
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		closeConnectionDatabase();
 		return new Timestamp(0);
 	}
 }
