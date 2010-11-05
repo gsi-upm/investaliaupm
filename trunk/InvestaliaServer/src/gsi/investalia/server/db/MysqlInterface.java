@@ -517,7 +517,7 @@ public class MysqlInterface {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		closeConnectionDatabase();
+		//closeConnectionDatabase();
 		return userName;
 	}
 	
