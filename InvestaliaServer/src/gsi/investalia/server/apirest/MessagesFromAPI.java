@@ -309,16 +309,21 @@ public class MessagesFromAPI {
 
 	public static void getRecommendationsFromAPI(long idMessageAPI,int idUser){
 	    ArrayList<Message> messages = new ArrayList<Message>();
-	    messages.add(MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser));
+	    Message add = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
+	    add.setLiked(true);
+	    messages.add(add);
 	    MysqlInterface.updateReadAndLiked(messages,  idUser);
 	    System.out.println("Gusta el mensaje "  + idMessageAPI);
 	}
 	
 
     public static void getReadFromAPI(long idMessageAPI,int idUser){
-        Message message = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
-        MysqlInterface.updateRead( message,  idUser);
-        System.out.println("Gusta el mensaje "  + idMessageAPI);
+	    ArrayList<Message> messages = new ArrayList<Message>();
+	    Message add = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
+	    add.setLiked(false);
+	    messages.add(add);
+	    MysqlInterface.updateReadAndLiked(messages,  idUser);
+	    System.out.println("Leido el mensaje "  + idMessageAPI);
     }
 
     public static List<String[]> getRead (String lastUpdate){
