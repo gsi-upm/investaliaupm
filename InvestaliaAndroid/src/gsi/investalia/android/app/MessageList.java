@@ -41,6 +41,8 @@ public class MessageList extends Activity implements OnItemClickListener {
 	private String whichMessages;
 	private ArrayAdapter<Message> arrayAdapter;
 	private int selectedIndex;
+	public static final int IDREFRESH = -2; // Id of the unreal message to ask
+											// for the previous
 
 	// Jade
 	private JadeAdapter jadeAdapter;
@@ -79,54 +81,59 @@ public class MessageList extends Activity implements OnItemClickListener {
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View itemView;
 
-				// Get the views
-				if (convertView == null) {
-					itemView = inflater.inflate(R.layout.message_item, null);
-				} else {
-					itemView = convertView;
-				}
-
-				TextView userView = (TextView) itemView.findViewById(R.id.user);
-				TextView colorView = (TextView) itemView
-						.findViewById(R.id.colorView);
-				TextView titleView = (TextView) itemView
-						.findViewById(R.id.title);
-				TextView dateView = (TextView) itemView.findViewById(R.id.date);
-				TextView tagsView = (TextView) itemView.findViewById(R.id.tags);
-				ImageView imageView = (ImageView) itemView
-						.findViewById(R.id.user_image);
-
-				// Inflate the views
+				// Get the message
 				Message m = getItem(position);
 
-				if (m.getAffinity() > 0) {
-					colorView.setBackgroundResource(R.color.blue);
-				}
-				else if (!m.isRead()) {
-					colorView.setBackgroundResource(R.color.green);
-				} else if (m.isLiked()) {
-					colorView.setBackgroundResource(R.color.yellow);
+				// Get the views
+				if (m.getId() == IDREFRESH) {
+					itemView = inflater.inflate(R.layout.refresh_item, null);
 				} else {
-					// If read and not liked, remove the background
-					colorView.setBackgroundResource(0);
+					itemView = inflater.inflate(R.layout.message_item, null);
 				}
 
-				userView.setText("@" + m.getUserName());
-				titleView.setText(m.getTitle());
-				String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW)
-						.format(m.getDate());
-				dateView.setText(dateStr);
+				if (m.getId() != IDREFRESH) {
+					TextView userView = (TextView) itemView
+							.findViewById(R.id.user);
+					TextView colorView = (TextView) itemView
+							.findViewById(R.id.colorView);
+					TextView titleView = (TextView) itemView
+							.findViewById(R.id.title);
+					TextView dateView = (TextView) itemView
+							.findViewById(R.id.date);
+					TextView tagsView = (TextView) itemView
+							.findViewById(R.id.tags);
+					ImageView imageView = (ImageView) itemView
+							.findViewById(R.id.user_image);
 
-				// Tags
-				String tagsStr = "";
-				for (int i = 0; i < m.getTags().size(); i++) {
-					tagsStr += m.getTags().get(i).getTagName();
-					if (i < m.getTags().size() - 1) {
-						tagsStr += ", ";
+					// Inflate the views
+					if (m.getAffinity() > 0) {
+						colorView.setBackgroundResource(R.color.blue);
+					} else if (!m.isRead()) {
+						colorView.setBackgroundResource(R.color.green);
+					} else if (m.isLiked()) {
+						colorView.setBackgroundResource(R.color.yellow);
+					} else {
+						// If read and not liked, remove the background
+						colorView.setBackgroundResource(0);
 					}
+
+					userView.setText("@" + m.getUserName());
+					titleView.setText(m.getTitle());
+					String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW)
+							.format(m.getDate());
+					dateView.setText(dateStr);
+
+					// Tags
+					String tagsStr = "";
+					for (int i = 0; i < m.getTags().size(); i++) {
+						tagsStr += m.getTags().get(i).getTagName();
+						if (i < m.getTags().size() - 1) {
+							tagsStr += ", ";
+						}
+					}
+					tagsStr.toUpperCase();
+					tagsView.setText(tagsStr);
 				}
-				tagsStr.toUpperCase();
-				tagsView.setText(tagsStr);
 
 				// Return the view
 				return itemView;
@@ -174,13 +181,19 @@ public class MessageList extends Activity implements OnItemClickListener {
 	 */
 	@Override
 	public void onItemClick(AdapterView av, View v, int index, long arg3) {
-		// Send the message id
-		Bundle bundle = new Bundle();
-		selectedIndex = index;
-		bundle.putInt("message_id", messages.get(index).getId());
-		Intent intent = new Intent(this, ReadMessage.class);
-		intent.putExtras(bundle);
-		startActivity(intent);
+		Message selectedMessage = messages.get(index);
+		if(selectedMessage.getId() == IDREFRESH) {
+			jadeAdapter.donwloadOldMessages();
+		}
+		else {
+			// Send the message id
+			Bundle bundle = new Bundle();
+			selectedIndex = index;
+			bundle.putInt("message_id", selectedMessage.getId());
+			Intent intent = new Intent(this, ReadMessage.class);
+			intent.putExtras(bundle);
+			startActivity(intent);
+		}
 	}
 
 	/**

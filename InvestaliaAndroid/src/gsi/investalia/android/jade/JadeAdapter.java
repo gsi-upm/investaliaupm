@@ -2,6 +2,7 @@ package gsi.investalia.android.jade;
 
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.PreviousMessagesData;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 import jade.android.ConnectionListener;
@@ -61,6 +62,7 @@ public class JadeAdapter implements ConnectionListener {
 	public static final String LOGIN_AGENT = "login";
 	public static final String POSTING_AGENT = "posting";
 	public static final String DOWNLOAD_MESSAGES_AGENT = "downloadMessages";
+	public static final String DOWNLOAD_OLD_MESSAGES_AGENT = "downloadOldMessages";
 	public static final String NEW_USER_AGENT = "newUser";
 	public static final String UPDATE_USER_AGENT = "updateUser";
 	public static final String UPDATE_MESSAGE_AGENT = "updateMessage";
@@ -125,6 +127,31 @@ public class JadeAdapter implements ConnectionListener {
 		// Send the message
 		try {
 			gateway.execute(new SenderBehaviour(DOWNLOAD_MESSAGES_AGENT, content));
+		} catch (Exception e) {
+			Log.e("ANDROID", "Error connecting to JADE (download messages)");
+		}
+	}
+	
+	public void donwloadOldMessages() {
+		Log.i("ANDROID", "Ask for old messages");
+
+		// Pass the first idMessage, idMessage following and idMessage recommendation
+		String content;
+		try {
+			PreviousMessagesData data = 
+				new PreviousMessagesData(
+						SQLiteInterface.getFirstIdMessageNotFollowing(activity),
+						SQLiteInterface.getFirstIdMessageFollowing(activity),
+						SQLiteInterface.getFirstIdMessageRecommended(activity));
+			content = JSONAdapter.previousMessagesDataToJSON(data).toString();
+		} catch (JSONException e1) {
+			Log.e(TAG_LOGGER, "Error parsing JSON (download messages)");
+			return;
+		}
+
+		// Send the message
+		try {
+			gateway.execute(new SenderBehaviour(DOWNLOAD_OLD_MESSAGES_AGENT, content));
 		} catch (Exception e) {
 			Log.e("ANDROID", "Error connecting to JADE (download messages)");
 		}

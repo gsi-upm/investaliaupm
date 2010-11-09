@@ -1,5 +1,6 @@
 package gsi.investalia.android.db;
 
+import gsi.investalia.android.app.MessageList;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
@@ -139,8 +140,6 @@ public class SQLiteInterface {
 		// Clear the list
 		messages.clear();
 
-		int idLoggedUser = getLoggedUser(activity).getId();
-
 		try {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -186,6 +185,12 @@ public class SQLiteInterface {
 			dbHelper.close();
 		}
 		Log.i("DATABASE", messages.size() + " messages from db");
+		// Add a message to represent the message refresh
+		if (!messages.isEmpty()) {
+			Log.i("DATABSE", "Added refresh message");
+			messages.add(new Message(MessageList.IDREFRESH, "Refresh", "", "",
+					new ArrayList<Tag>(), new Date(), false, false, 0, 0, 0, 0));
+		}
 	}
 
 	public static Message getMessage(Activity activity, int idMessage) {
@@ -273,9 +278,7 @@ public class SQLiteInterface {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-			// TODO
 			Log.i(TAG_LOGGER, "tag count: " + tags.size());
-
 			for (Tag tag : tags) {
 				// Container for the values
 				ContentValues tagValues = new ContentValues();
@@ -382,5 +385,93 @@ public class SQLiteInterface {
 			return 0;
 		}
 		return tags.get(tags.size() - 1).getId();
+	}
+	
+	/**
+	 * Gets the the id of the first following message saved in database
+	 */
+	public static int getFirstIdMessageNotFollowing(Activity activity) {
+		List<Message> messages = new ArrayList<Message>();
+		addMessages(activity, messages, ALL, MessagesDBHelper.IDMESSAGE);
+		User user = getLoggedUser(activity);
+		
+		for (int i = messages.size() - 2; i >= 0; i--) {
+			Message m = messages.get(i);
+			if(m.getAffinity() > 0.0) {
+				continue;
+			}
+			boolean following = false;
+			secondFor:
+			for(Tag t1: m.getTags()) {
+				for(Tag t2: user.getTagsFollowing()) {
+					if(t1.equals(t2)) {
+						following = true;
+						break secondFor;
+					}
+				}
+			}
+			if(!following) {
+				return m.getId();
+			}	
+		}
+		return 0;
+	}
+	
+	/**
+	 * Gets the the id of the first message saved in database
+	 */
+	public static int getFirstIdMessageFollowing(Activity activity) {
+		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
+		try {
+			// Get the database
+			SQLiteDatabase db = dbHelper.getReadableDatabase();
+			Log.d("DATABASE", "Database obtained");
+
+			String query = "SELECT DISTINCT * FROM messages AS m, messages_tags AS mt WHERE " 
+				+ MessagesDBHelper.AFFINITY + " = 0.0 AND mt.idtag IN ("
+						+ getUserTagsAsStringList(activity)
+						+ ") ORDER BY " + 
+				MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
+			
+			Cursor cursor = db.rawQuery(query, null);
+			activity.startManagingCursor(cursor);
+			Log.d("DATABASE", "Query for messages executed");
+
+			if (cursor.moveToNext()) {
+				return cursor.getInt(0);
+			}		
+		} finally {
+			// Always close the subjectsData
+			dbHelper.close();
+		}
+		return 0;
+	}
+	
+	/**
+	 * Gets the the id of the first message saved in database
+	 */
+	public static int getFirstIdMessageRecommended(Activity activity) {
+		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
+		try {
+			// Get the database
+			SQLiteDatabase db = dbHelper.getReadableDatabase();
+			Log.d("DATABASE", "Database obtained");
+
+			String query = "SELECT * FROM messages WHERE " 
+				+ MessagesDBHelper.AFFINITY + " > 0.0 ORDER BY " + 
+				MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
+			
+			Cursor cursor = db.rawQuery(query, null);
+			activity.startManagingCursor(cursor);
+			Log.d("DATABASE", "Query for messages executed");
+
+			if (cursor.moveToNext()) {
+				return cursor.getInt(0);
+			}		
+		} finally {
+			// Always close the subjectsData
+			dbHelper.close();
+		}
+		return 0;
 	}
 }
