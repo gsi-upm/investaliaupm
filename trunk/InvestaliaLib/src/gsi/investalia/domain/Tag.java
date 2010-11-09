@@ -25,4 +25,8 @@ public class Tag {
 	public void setTagName(String tagName) {
 		this.tagName = tagName;
 	}
+	
+	public boolean equals(Tag other) {
+		return this.id == other.getId();
+	}
 }

@@ -431,6 +431,32 @@ public class MysqlInterface {
 		return getMessagesFromQuery(query, idUser);
 	}
 	
+	/**
+	 * Gets some old messages: subscribed, not subscribed and recommended
+	 * according to the limits 
+	 * Uses the default limit
+	 */
+	public static List<Message> getOldMessagesIncludingRecommended(String userName,
+			int idMessage, int idMessageFollowing, int idMessageRecommended) {
+		int idUser = getUser(userName).getId();
+		String query = "(SELECT * FROM messages AS m, "
+			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
+			+ "AND ur.iduser = "+ idUser + " AND m.idmessage < " + idMessageRecommended
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
+			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
+			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
+			+ "WHERE m.idmessage < " + idMessage 
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
+			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
+			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
+			+ "AND ur.iduser = "+ idUser + "), "
+			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
+			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
+			+ idUser + ") AND m.idmessage < " + idMessageFollowing 
+			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+		return getMessagesFromQuery(query, idUser);
+	}
+	
 	
 	
 

@@ -7,24 +7,21 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ConfigManager {
-	public static final String FILE_NAME = "db.properties";
-	public static final String FILE_DIR = "./cfg"; // Project home 
+	public static final String CONFIG_NAME = "db.properties";
+	
+	public static final String PROJECT_DIR = "./projects";
+	public static final String PROJECT_NAME = "investalia.properties";
 	
 	public static final String DATABASE_URL = "database_url";
 	public static final String DATABASE_NAME = "database_name";
 	public static final String DATABASE_USER = "database_user";
 	public static final String DATABASE_PASS = "database_pass";
+	public static final String PROJECT_HOME = "project-home";
 	private static Properties props = readFile();
 
-	private static Properties readFile() {
+	private static Properties getProperties(String dir, String name) {
 		props = new Properties();
-		File file = new File(FILE_DIR, FILE_NAME);
-		try {
-			file.createNewFile();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		File file = new File(dir, name);
 		try {
 			props.load(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
@@ -35,6 +32,12 @@ public class ConfigManager {
 			e.printStackTrace();
 		}
 		return props;
+	}
+	
+	private static Properties readFile() {
+		Properties invProps = getProperties(PROJECT_DIR, PROJECT_NAME);
+		String config_dir = invProps.getProperty(PROJECT_HOME) + "/cfg";
+		return getProperties(config_dir, CONFIG_NAME);
 	}
 	
 	public static String getDatabaseUser() {

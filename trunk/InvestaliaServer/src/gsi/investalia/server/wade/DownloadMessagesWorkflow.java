@@ -108,7 +108,6 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         System.out.println("message count: " + messages.size());
         List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
         System.out.println("tags count: " + tags.size());
-        
         // Generate the content
         String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
         System.out.println("content sent: " + content);

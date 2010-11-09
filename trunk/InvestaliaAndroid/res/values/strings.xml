@@ -74,6 +74,7 @@
 <string name="profile_save_cancel">Datos restablecidos</string>
 <string name="profile_save_ok">Datos guardados correctamente</string>
 <string name="logout">Cerrar sesión</string>
+<string name="download_previous">Descargar mensajes anteriores</string>
 
 
 </resources>

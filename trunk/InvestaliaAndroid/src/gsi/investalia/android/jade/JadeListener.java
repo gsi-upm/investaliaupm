@@ -1,7 +1,6 @@
 package gsi.investalia.android.jade;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONException;
@@ -13,7 +12,6 @@ import android.util.Log;
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
-import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 
 import android.content.Context;
@@ -61,7 +59,6 @@ public class JadeListener implements ACLMessageListener {
 
 		} else if (message.getPerformative() == ACLMessage.CONFIRM) {
 			Log.i(TAG_LOGGER, "Confirm. Message sent");
-			// TODO
 			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));
 
 		} else if (message.getPerformative() == ACLMessage.PROPOSE) {
@@ -71,7 +68,6 @@ public class JadeListener implements ACLMessageListener {
 				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
 				List<Message> messages = new ArrayList<Message>();
 				List<Tag> tags = new ArrayList<Tag>();
-				HashMap<Long,Float> recommendations = new HashMap<Long,Float>();
 				JSONAdapter.JSONToMessageListAndTagList(message.getContent(),
 						messages, tags);
 				SQLiteInterface.saveMessages(context, messages);

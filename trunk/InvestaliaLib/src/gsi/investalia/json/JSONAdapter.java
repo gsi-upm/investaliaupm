@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import gsi.investalia.domain.Message;
+import gsi.investalia.domain.PreviousMessagesData;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
 
@@ -34,6 +35,9 @@ public class JSONAdapter {
 	public static final String PASSWORD = "password";
 	public static final String LAST_TAG = "last_tag";
 	public static final String LAST_UPDATE = "last_update";
+	public static final String FIRST_MESSAGE = "fm";
+	public static final String FIRST_RECOMMENDATION = "fr";
+	public static final String FIRST_FOLLOWING = "ff";
 	public static final String AFFINITY = "aff";
 	public static final String IDMESSAGE_API = "idapi";
 
@@ -66,8 +70,8 @@ public class JSONAdapter {
 				JSONToTagList(jsonObj.getString(TAGS)), new Date(jsonObj
 						.getLong(DATE_MILIS)), jsonObj.getBoolean(READ),
 				jsonObj.getBoolean(LIKED), jsonObj.getInt(RATING), jsonObj
-						.getInt(TIMES_READ), jsonObj.getDouble(AFFINITY), 
-						jsonObj.getLong(IDMESSAGE_API));
+						.getInt(TIMES_READ), jsonObj.getDouble(AFFINITY),
+				jsonObj.getLong(IDMESSAGE_API));
 	}
 
 	public static void JSONToMessageList(String jsonStr, List<Message> messages)
@@ -185,6 +189,23 @@ public class JSONAdapter {
 		jsonObj.put(LAST_TAG, lastTag);
 		return jsonObj;
 	}
+
+	public static JSONObject previousMessagesDataToJSON(
+			PreviousMessagesData data) throws JSONException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put(FIRST_MESSAGE, data.getFirstIdMessage());
+		jsonObj.put(FIRST_FOLLOWING, data.getFistIdMessageFollowing());
+		jsonObj.put(FIRST_RECOMMENDATION, data.getFirstIdMessageRecommended());
+		return jsonObj;
+	}
+	
+	public static PreviousMessagesData JSONToPreviousMessagesData(String jsonStr) throws JSONException {
+		JSONObject jsonObj = new JSONObject(jsonStr);
+		return new PreviousMessagesData(jsonObj.getInt(FIRST_MESSAGE), 
+				jsonObj.getInt(FIRST_FOLLOWING), 
+				jsonObj.getInt(FIRST_RECOMMENDATION));
+	}
+	
 
 	public static int JSONToLastUpdate(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
