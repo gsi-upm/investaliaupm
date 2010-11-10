@@ -21,8 +21,8 @@ public class RandomInvestor extends InvestorType {
 	}
 
 	@Override
-	public void jugarEnBolsa(Ibex35 stock) {
-		HashMap<String, Share> shares = stock.getAcciones();
+	public void playInStock(Ibex35 stock) {
+		HashMap<String, Share> shares = stock.getShares();
 		for(int id = 0; id < myPortfolio.size(); id++) {
 			if(investor.randomInRange(0.0,1.0) > sellProbability)
 				continue;

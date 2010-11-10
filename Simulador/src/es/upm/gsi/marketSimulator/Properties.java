@@ -101,6 +101,7 @@ public class Properties {
 	
 	public static int INITIAL_LIQUIDITY = 10000;
 	public static double MAX_BUY_VALUE = INITIAL_LIQUIDITY * 0.1;
+	public static double MAX_BUY_VALUE_BY_LIQUIDITY = 0.08;
 	public static double IMPULSIVE_INCREMENTATION = 2;
 	public static double MAX_INCREMENT_DIVERSIFIER = 3;
 	public static double BUY_PROFITABILITY[] = {-0.09,-0.03}; //{-0.13,-0.04}

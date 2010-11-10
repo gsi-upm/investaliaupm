@@ -30,8 +30,8 @@ public class AmateurInvestor extends InvestorType {
 	}
 
 	@Override
-	public void jugarEnBolsa(Ibex35 miBolsa) {
-		HashMap<String, Share> shares = miBolsa.getAcciones();
+	public void playInStock(Ibex35 stock) {
+		HashMap<String, Share> shares = stock.getShares();
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
 			for(int id = 0; id < myPortfolio.size(); id++) {
 				Investment myInversion = myPortfolio.get(id);

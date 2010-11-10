@@ -21,7 +21,7 @@ public class Investment {
 	}
 	
 	public double getRentability (Ibex35 ibex35) {
-		Share share = ibex35.getAcciones().get(idCompany);
+		Share share = ibex35.getShares().get(idCompany);
 		return (share.getValue() - buyValue) / buyValue;
 	}
 

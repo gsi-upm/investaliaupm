@@ -43,43 +43,42 @@ public class SimulateSocialExchange extends Scape {
         
         socialSpace = new Scape(new Array2DVonNeumann());
         socialSpace.setPrototypeAgent(new HostCell());
-        socialSpace.setExtent(50, 50); //spaceSocial.setExtent(30, 30);        
         socialSpace.setName("Web Site");
+        socialSpace.setExtent(50, 50);  //spaceSocial.setExtent(30, 30);            
+        socialSpace.setExecutionOrder(Scape.RULE_ORDER);
         
         myStock = new Ibex35();
         myStock.setHostScape(socialSpace);
         stock = new Scape(new Array1D(), "Bolsa- ibex35", myStock);    
         stock.setExecutionOrder(Scape.RULE_ORDER);
-        Investors miInversor = new Investors();
         
+        Investors miInversor = new Investors();        
         miInversor.setHostScape(socialSpace);
         people = new Scape();
         people.setName("Investors");
         people.setPrototypeAgent(miInversor);
-        people.setExecutionOrder(Scape.RULE_ORDER);
-        
-        
-        
+        people.setExecutionOrder(Scape.RULE_ORDER);        
+	    
         add(socialSpace);
         add(stock);	
-        add(people);        
-	
-        Rule jugarEnBolsa = new Rule("Invest in stock") {
+        add(people); 
+        
+        Rule playInStock = new Rule("Invest in stock") {
 	        private static final long serialVersionUID = 665608531104091849L;
 	
 	        public void execute(Agent a) {
-	        	((Investors) a).jugarEnBolsa(myStock);
-	        }
-	    };
-	    people.addRule(jugarEnBolsa);			
-		Rule tipoInversor = new Rule("Choose the type of the investor") {	        
-	        private static final long serialVersionUID = 66560843110409183L;	
-	        public void execute(Agent a) {
-	        	((Investors) a).eligeInversor();
+	        	((Investors) a).playInStock(myStock);
 	        }
 	    };	    
-	    people.addInitialRule(tipoInversor);
-	    Rule readAndCommentNeighbors = new Rule("Reading and commenting to his neighbours") {	        
+	    people.addRule(playInStock);			
+		Rule chooseInvestor = new Rule("Choose the type of the investor") {	        
+	        private static final long serialVersionUID = 66560843110409183L;	
+	        public void execute(Agent a) {
+	        	((Investors) a).defineInvestor();
+	        }
+	    };	    
+	    people.addInitialRule(chooseInvestor);
+	    Rule readAndCommentNeighbors = new Rule("Reading, commenting, scoring to his neighbours") {	        
 	        private static final long serialVersionUID = 66560843110409123L;	
 	        public void execute(Agent a) {
 	        	((Investors) a).chooseNeighborToPlay();
