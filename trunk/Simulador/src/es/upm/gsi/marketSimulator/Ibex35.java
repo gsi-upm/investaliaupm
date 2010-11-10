@@ -47,7 +47,7 @@ public class Ibex35 extends CellOccupant {
 		ibex35.put("Iberdrola",new HistoryFileShare("Iberdrola","Power","FinancialFiles/Iberdrola.txt"));
 		ibex35.put("GasNatural",new HistoryFileShare("GasNatural","Power","FinancialFiles/GasNatural.txt"));
 		
-		System.out.println("RandomShare rellenadas");
+		System.out.println("Shares filled");
 	}
 
 	public void update() {
@@ -62,7 +62,7 @@ public class Ibex35 extends CellOccupant {
 		}
 	}
 		
-	public HashMap<String,Share> getAcciones() {
+	public HashMap<String,Share> getShares() {
 		return ibex35;
 	}
 	

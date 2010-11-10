@@ -17,12 +17,12 @@ public abstract class InvestorType {
 	protected double buyProbability;
 	protected double sellProbability;
 	//profitability
-	protected double rentabilidadVenta;
-	protected double rentabilidadCompra;
+	//protected double rentabilidadVenta;
+	protected double rentabilityToBuy;
 	/* Thresholds to sell (buy). If a share get down (up) a number of
 	 * iteracionesVenta (iteracionesCompra) the investor makes a decision */
-	protected int iteracionesVenta;
-	protected int iteraccionesCompra;
+	//protected int iteracionesVenta;
+	protected int iterationsToBuy;
 	protected Investors investor;
 	protected double sellTable[][];
 	protected double sellAll[];
@@ -38,7 +38,7 @@ public abstract class InvestorType {
 	//For debug
 	static int debugParam;
 	
-	public abstract void jugarEnBolsa(Ibex35 miBolsa);
+	public abstract void playInStock(Ibex35 miBolsa);
 	
 	public abstract String getAgentTypeToString();	
 
@@ -48,7 +48,7 @@ public abstract class InvestorType {
 	}
 	
 	public double getActualCapital(Ibex35 miBolsa){
-		HashMap<String, Share> shares = miBolsa.getAcciones();
+		HashMap<String, Share> shares = miBolsa.getShares();
 		double sum = 0;
 		for(Investment myInversion : myPortfolio){
 			Share share = shares.get(myInversion.getIdCompany());
