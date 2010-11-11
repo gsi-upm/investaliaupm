@@ -763,14 +763,16 @@ public class MysqlInterface {
 	}
 
 	public static List<Tag> getAllTags() {
-		return getTagListFromQuery("SELECT * FROM tags");
+		connectToDatabase();
+		List<Tag> tags = new ArrayList<Tag>();
+		tags = getTagListFromQuery("SELECT * FROM tags");
+		closeConnectionDatabase();
+		return tags;
 	}
 
 	public static void insertTag(String abb, String description) {
 
-		if (con == null) {
-			connectToDatabase();
-		}
+		connectToDatabase();
 		String query = "insert into tags(TAGABBREVIATION, DESCRIPTION) values ('"
 				+ abb + "', '" + description + "')";
 		try {
