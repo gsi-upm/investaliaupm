@@ -154,11 +154,13 @@ public class MessagesFromAPI {
 							MysqlInterface.insertTag(tags_j.getString(j), "description");
 						}
 						allTags = MysqlInterface.getAllTags();
+						names.clear();
 						for( Tag thisTag:allTags){
 							names.add(thisTag.getTagName());
 						}
 						int index = names.indexOf(tags_j.getString(j));	
 						Tag tag = new Tag(index, tags_j.getString(j));
+						tags.add(tag);
 					}
 				}
 				catch(JSONException je){
@@ -310,20 +312,24 @@ public class MessagesFromAPI {
 	public static void getRecommendationsFromAPI(long idMessageAPI,int idUser){
 	    ArrayList<Message> messages = new ArrayList<Message>();
 	    Message add = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
-	    add.setLiked(true);
-	    messages.add(add);
-	    MysqlInterface.updateReadAndLiked(messages,  idUser);
-	    System.out.println("Gusta el mensaje "  + idMessageAPI);
+	    if (add!=null) {
+			add.setLiked(true);
+			messages.add(add);
+			MysqlInterface.updateReadAndLiked(messages, idUser);
+			System.out.println("Gusta el mensaje " + idMessageAPI);
+		}
 	}
 	
 
     public static void getReadFromAPI(long idMessageAPI,int idUser){
 	    ArrayList<Message> messages = new ArrayList<Message>();
 	    Message add = MysqlInterface.getMessageByItsIdAPI(idMessageAPI, idUser);
-	    add.setLiked(false);
-	    messages.add(add);
-	    MysqlInterface.updateReadAndLiked(messages,  idUser);
-	    System.out.println("Leido el mensaje "  + idMessageAPI);
+	    if (add!=null) {
+			add.setLiked(false);
+			messages.add(add);
+			MysqlInterface.updateReadAndLiked(messages, idUser);
+			System.out.println("Leido el mensaje " + idMessageAPI);
+		}
     }
 
     public static List<String[]> getRead (String lastUpdate){
