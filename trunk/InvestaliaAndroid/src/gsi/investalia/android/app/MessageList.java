@@ -117,7 +117,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 						colorView.setBackgroundResource(0);
 					}
 
-					userView.setText("@" + m.getUserName());
+					userView.setText(m.getUserName());
 					titleView.setText(m.getTitle());
 					String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW)
 							.format(m.getDate());
