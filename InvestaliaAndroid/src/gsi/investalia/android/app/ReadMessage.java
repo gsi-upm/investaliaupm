@@ -70,7 +70,7 @@ public class ReadMessage extends Activity {
 			}
 		});
 
-		user.setText("@" + message.getUserName());
+		user.setText(message.getUserName());
 		String dateStr = new SimpleDateFormat(DATE_FORMAT_SHOW).format(message
 				.getDate());
 		date.setText(dateStr);
