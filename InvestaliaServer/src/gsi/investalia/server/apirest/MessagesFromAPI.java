@@ -132,7 +132,7 @@ public class MessagesFromAPI {
 			result=result.getJSONObject("result");/*Get rid of the extra field */
 			JSONArray blogs = result.getJSONArray("blogs"); /*Array of all the blogs since last update*/
 			for(int i = 0;i<blogs.length();i++){
-				int id =Integer.parseInt(blogs.getJSONObject(i).getString("guid"));
+				long idMessageAPI = Long.parseLong(blogs.getJSONObject(i).getString("guid"));
 				String userName = blogs.getJSONObject(i).getString("owner_name");
 				String title= blogs.getJSONObject(i).getString("title");
 				String text = parseHTML(blogs.getJSONObject(i).getString("description"));
@@ -143,28 +143,14 @@ public class MessagesFromAPI {
 				//If so, we add the tag to this blog' ones in the database
 				//If not,we first insert the tag into the Tag database, and then to the blog one.
 				try{
-					List <Tag> allTags = MysqlInterface.getAllTags();
-					List<String> names = new ArrayList<String>();
-					for( Tag thisTag:allTags){
-						names.add(thisTag.getTagName());
-					}
+								
 					JSONArray tags_j = blogs.getJSONObject(i).getJSONArray("tags");
-					for(int j=0;j<tags_j.length();j++){
-						if(!names.contains(tags_j.getString(j))){
-							MysqlInterface.insertTag(tags_j.getString(j), "description");
-						}
-						allTags = MysqlInterface.getAllTags();
-						names.clear();
-						for( Tag thisTag:allTags){
-							names.add(thisTag.getTagName());
-						}
-						int index = names.indexOf(tags_j.getString(j));	
-						Tag tag = new Tag(index, tags_j.getString(j));
-						tags.add(tag);
-					}
-				}
-				catch(JSONException je){
-					tags.add(new Tag(0,blogs.getJSONObject(i).getString("tags")));
+					for(int j=0;j<tags_j.length();j++)					
+						addTag(tags_j.getString(j), tags);
+					
+				} catch(JSONException je){
+					String blogTag = blogs.getJSONObject(i).getString("tags");
+					addTag(blogTag, tags);
 				}
 
 				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
@@ -180,17 +166,26 @@ public class MessagesFromAPI {
 
 				int timesRead = 0; //Por defecto, 0
 				double affinity = 0; 
-				long idMessageAPI = 0; // TODO
-				Message toBeAdded = new Message(id, userName, title, text,
+				Message toBeAdded = new Message((int)idMessageAPI, userName, title, text,
 						tags, date, read, liked,rating, timesRead, affinity,
 						idMessageAPI);
-				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
 			System.err.println(e.getMessage());
 		}
 		return msgs;
+	}
+
+	private static void addTag(String blogTag, List<Tag> tags) {
+		if(!blogTag.equalsIgnoreCase("null")) {
+			int idTag = MysqlInterface.getIdTag(blogTag);
+			if(idTag == -1){
+				MysqlInterface.insertTag(blogTag, blogTag);
+				idTag = MysqlInterface.getIdTag(blogTag);
+			}
+			tags.add(new Tag (idTag, blogTag));
+		}
 	}
 
 	public static List<Message> getNotesInTheWallFromAPI (String lastUpdate){
@@ -205,28 +200,26 @@ public class MessagesFromAPI {
 			String resultFromAPI = connect(wall_TOKEN1+wall_TOKEN2+lastUpdate);
 			result = new JSONObject(resultFromAPI);
 			result=result.getJSONObject("result");/*Get rid of the extra field */
-			JSONArray blogs = result.getJSONArray("mensajes"); /*Array of all the annotations since last update*/
-			for(int i = 0;i<blogs.length();i++){
-				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
-				String userName = blogs.getJSONObject(i).getString("owner_name");
-				String title= "Anotación en el tablón de "+
-				blogs.getJSONObject(i).getString("entity_guid");
-				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
+			JSONArray notes = result.getJSONArray("mensajes"); /*Array of all the annotations since last update*/
+			for(int i = 0;i<notes.length();i++){
+				long idMessageAPI = Long.parseLong(notes.getJSONObject(i).getString("id"));
+				String userName = notes.getJSONObject(i).getString("owner_name");
+				String title= "@"+
+				notes.getJSONObject(i).getString("messageboard_owner");
+				String text = parseHTML(notes.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(37,"Muro"));
 
-				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
+				Date date = new Date(Long.parseLong(notes.getJSONObject(i).getString("time_created"))*1000L);
 				boolean read =false;
 				boolean liked = false;
 				int rating=0;	
 
 				int timesRead = 0; //Por defecto, 0
 				double affinity = 0; 
-				long idMessageAPI = 0; //TODO
-				Message toBeAdded = new Message(id, userName, title, text, 
+				Message toBeAdded = new Message((int)idMessageAPI, userName, title, text, 
 						tags, date, read, liked,rating, timesRead, affinity,
 						idMessageAPI);
-				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
@@ -247,28 +240,26 @@ public class MessagesFromAPI {
 			String resultFromAPI = connect(comments_TOKEN1+comments_TOKEN2+lastUpdate);
 			result = new JSONObject(resultFromAPI);
 			result=result.getJSONObject("result");/*Get rid of the extra field */
-			JSONArray blogs = result.getJSONArray("comentarios"); /*Array of all the annotations since last update*/
-			for(int i = 0;i<blogs.length();i++){
-				int id =Integer.parseInt(blogs.getJSONObject(i).getString("id"));
-				String userName = blogs.getJSONObject(i).getString("owner_name");
-				String title= "Comentario sobre "+
-				blogs.getJSONObject(i).getString("entity_guid");
-				String text = parseHTML(blogs.getJSONObject(i).getString("value"));
+			JSONArray comments = result.getJSONArray("comentarios"); /*Array of all the annotations since last update*/
+			for(int i = 0;i<comments.length();i++){
+				long idMessageAPI = Long.parseLong(comments.getJSONObject(i).getString("id"));
+				String userName = comments.getJSONObject(i).getString("owner_name");
+				String title= "@"+
+				MysqlInterface.getMessageTitleByItsIdAPI(Long.parseLong(comments.getJSONObject(i).getString("entity_guid")));
+				String text = parseHTML(comments.getJSONObject(i).getString("value"));
 				List<Tag> tags = new ArrayList<Tag>();
 				tags.add(new Tag(36,"Comentarios"));
 
-				Date date = new Date(Long.parseLong(blogs.getJSONObject(i).getString("time_created"))*1000L);
+				Date date = new Date(Long.parseLong(comments.getJSONObject(i).getString("time_created"))*1000L);
 				boolean read =false;
 				boolean liked = false;
 				int rating=0;	
 
 				int timesRead = 0; //Por defecto, 0
 				double affinity = 0; 
-				long idMessageAPI = 0; // TODO
-				Message toBeAdded = new Message(id, userName, title, 
+				Message toBeAdded = new Message((int)idMessageAPI, userName, title, 
 						text,tags, date, read, liked, rating,timesRead,
 						affinity, idMessageAPI);
-				toBeAdded.setIdMessageAPI((long)id);
 				msgs.add(toBeAdded);
 			}
 		}catch(Exception e){
