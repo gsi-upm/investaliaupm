@@ -8,7 +8,7 @@ public class AmateurInvestor extends InvestorType {
 	public AmateurInvestor(Investors investor) {
 		initialCapital = Properties.INITIAL_LIQUIDITY;
 		liquidity = initialCapital; //setLiquidez(randomInRange(3000,10000));
-        maxValorCompra = Properties.MAX_BUY_VALUE;
+        maxBuyValue = Properties.MAX_BUY_VALUE;
         buyProbability = Properties.BUY_PROBABILITY;
         sellProbability = Properties.SELL_PROBABILITY/Properties.PERCEPTION_DEGRADATION;
         this.investor = investor;
@@ -71,27 +71,30 @@ public class AmateurInvestor extends InvestorType {
 				ArrayList<Double> historico = share.getVariationsHistory();				
 				if(historico.size() == 0 || historico.get(historico.size()-1) >= 0) 
 					continue;	//accionesBolsa.getUltimoPorcentaje() >= 0			
-				int limite1 = (int)Math.floor(maxValorCompra / share.getValue());
+				int limite1 = (int)Math.floor(maxBuyValue / share.getValue());
 				int limite2 = (int)(liquidity / share.getValue());
 				int number2buy = 0;
 				if (limite1 > 0 && limite2 > 0){
 					buys++;
 					number2buy =  ((int)investor.randomInRange(1, limite1));
-					if(number2buy > limite2)
+					if(number2buy > limite2) {
 						number2buy = limite2;
+						withoutLiquidity++;
+					}
 					Investment accionComprada = new Investment(number2buy, share.getValue(),
 							share.getName(), share.getCategory(), investor.getTime());
 					liquidity -=  number2buy * share.getValue();
 					investCapital += number2buy * share.getValue();
 					myPortfolio.add(accionComprada);									
-				}
+				} else
+					withZero++;
 				//if(investor.getId() == debugParam)
 				//	System.out.println("id:"+investor.getId()+"["+investor.getTime()+"] "+accionesBolsa.getNombre()+" compra "
 				//			+number2buy+" con val:"+accionesBolsa.getValor()+" y liq post:"+liquidez+" num:"+investor.misAcciones.size());
 			}
 			//Estimates the capital I have.
 			//investor.setCapital(miBolsa, liquidez);
-			this.maxValorCompra = Math.max(Properties.MAX_BUY_VALUE, liquidity*0.1);
+			this.maxBuyValue = Math.max(Properties.MAX_BUY_VALUE, liquidity*0.1);
 		}		
 	}
 	

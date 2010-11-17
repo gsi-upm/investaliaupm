@@ -7,7 +7,7 @@ public class RandomInvestor extends InvestorType {
 	public RandomInvestor(Investors investor) {
 		initialCapital = Properties.INITIAL_LIQUIDITY;
 		liquidity = initialCapital;
-		maxValorCompra = Properties.MAX_BUY_VALUE;
+		maxBuyValue = Properties.MAX_BUY_VALUE;
 		sellProbability = Properties.RAND_INV_SELL_PROBABILITY;
 		buyProbability = Properties.RAND_INV_BUY_PROBABILITY;		
 		this.investor = investor;
@@ -55,25 +55,28 @@ public class RandomInvestor extends InvestorType {
 			for (Share share : shares.values()) {
 				if(investor.randomInRange(0.0,1.0) > buyProbability)
 					continue;
-				int limit1 = (int)Math.floor(maxValorCompra / share.getValue());
+				int limit1 = (int)Math.floor(maxBuyValue / share.getValue());
 				int limit2 = (int)(liquidity / share.getValue());
 				int number2buy = 0;
 				if (limit1 > 0 && limit2 > 0){
 					buys++;
 					number2buy =  ((int)investor.randomInRange(1, limit1));
-					if(number2buy > limit2)
+					if(number2buy > limit2) {
+						withoutLiquidity++;
 						number2buy = limit2;
+					}
 					Investment accionComprada = new Investment(number2buy, share.getValue(),
 							share.getName(), share.getCategory(), investor.getTime());
 					liquidity -=  number2buy*share.getValue();
 					investCapital += number2buy*share.getValue();
 					myPortfolio.add(accionComprada);									
-				}
+				} else
+					withZero++;
 			}			
 		}
 		//Estimates the capital I have.
 		//investor.setCapital(miBolsa, liquidez);
-		this.maxValorCompra = Math.max(Properties.MAX_BUY_VALUE, liquidity*0.1);
+		this.maxBuyValue = Math.max(Properties.MAX_BUY_VALUE, liquidity*0.1);
 	}
 
 }

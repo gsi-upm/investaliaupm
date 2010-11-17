@@ -27,7 +27,7 @@ public class IntelligentInvestor extends InvestorType {
         //iteracionesVenta = 5;
         initialCapital = Properties.INITIAL_LIQUIDITY;
         liquidity = initialCapital; //setLiquidez(randomInRange(3000,10000));
-        maxValorCompra = Properties.MAX_BUY_VALUE;
+        maxBuyValue = Properties.MAX_BUY_VALUE;
         buyProbability = Properties.BUY_PROBABILITY;
         sellProbability = Properties.SELL_PROBABILITY;
         //if one share along the movements decrease his value in 15% you might buy
@@ -95,7 +95,7 @@ public class IntelligentInvestor extends InvestorType {
 		}
 		//	memoryPonderation = new HashMap<String, Double>();
 		if(impulsive)
-			maxValorCompra *= Properties.IMPULSIVE_INCREMENTATION;
+			maxBuyValue *= Properties.IMPULSIVE_INCREMENTATION;
 	}
 	
 	private void configureIntelligent (boolean perception, boolean anxiety, boolean memory,
@@ -137,7 +137,7 @@ public class IntelligentInvestor extends InvestorType {
 		//if(memory)
 		//	memoryPonderation = new HashMap<String, Double>();
 		if(impulsive)
-			maxValorCompra *= Properties.IMPULSIVE_INCREMENTATION;
+			maxBuyValue *= Properties.IMPULSIVE_INCREMENTATION;
 	}
 	
 	public void playInStock(Ibex35 stock){
@@ -145,13 +145,15 @@ public class IntelligentInvestor extends InvestorType {
 		if (investor.randomInRange(0.0,1.0) < sellProbability){
 			//elegir empresa antes?, ver la mejor*probabilidad de vender??			
 			//For each share of exchange, I have look for my shares checking up on which I have it
-			//and checking up on the profitability. If it is good, sell the share.			
+			//and checking up on the profitability. If it is good, sell the share.
+			//TODO: conviene quitar getActualCapital()??
+			Double capital = getActualCapital(stock);
 			for(int id = 0; id < myPortfolio.size(); id++) {
 				Investment myInversion = myPortfolio.get(id);
 				Share share = shares.get(myInversion.getIdCompany());
 				int inversionClusterTime = (investor.getTime() - myInversion.getDate()) / Properties.TIME_CLUSTER;							
 				int sharesToSell = (int) (myInversion.getInitialQuantity() * 
-					getPercentToSell(share.getValue(),myInversion.getBuyValue(),inversionClusterTime)/100);
+					getPercentToSell(share.getValue(),myInversion.getBuyValue(),inversionClusterTime,capital)/100);
 				if (sharesToSell > 0){
 					sells++;
 					if(sharesToSell > myInversion.getQuantity())
@@ -204,16 +206,8 @@ public class IntelligentInvestor extends InvestorType {
 					break;				
 				if(isDiversifier && capitalByStockCategory == null) {
 					capitalByStockCategory = getBuyInvestmentByCategory();					
-				}
-				/*if(isDiversifier) {
-					double actualInversion = actualInversionOnShare(share);
-					double buyProbability = Properties.MAX_BUY_VALUE/(actualInversion*2);
-					if(impulsive)
-						buyProbability *= Math.abs(suma/rentabilityToBuy);
-					if(actualInversion > 0 && investor.randomInRange(0.0,1.0) > buyProbability)
-						continue;
-				}*/
-				int limite1 = (int)Math.floor(maxValorCompra / share.getValue());
+				}				
+				int limite1 = (int)Math.floor(maxBuyValue / share.getValue());
 				int limite2 = (int)(liquidity / share.getValue());
 				int number2buy = 0;
 				if (limite1 > 0 && limite2 > 0){										
@@ -222,6 +216,8 @@ public class IntelligentInvestor extends InvestorType {
 						Double incrementByCategory = 
 								getIncrementByStockCategory(number2buy,share,capitalByStockCategory);
 						number2buy *= incrementByCategory;
+						if(!impulsive && number2buy > limite1)
+							number2buy = limite1;
 						/*totalIncrementAverage += forDebug;
 						totalAverage++;
 						if(forDebug > 2)
@@ -231,14 +227,15 @@ public class IntelligentInvestor extends InvestorType {
 							System.out.println(investor.getId()+": "+share.getName()+forDebug + 
 									" < 0.5  ("+totalIncrementAverage/totalAverage);*/
 					}
+					//TODO: sirve para algo esta impuslividad????
 					if(impulsive) {
 						if(suma/rentabilityToBuy > 1)
-							number2buy = (int) Math.abs(number2buy * suma/rentabilityToBuy);
-						//if(number2buy <= 0)
-						//	continue;
+							number2buy = (int) Math.abs(number2buy * suma/rentabilityToBuy);						
 					}
-					if(number2buy > limite2)
+					if(number2buy > limite2) {
 						number2buy = limite2;
+						withoutLiquidity++;
+					}
 					buys++;
 					liquidity -=  number2buy*share.getValue();
 					investCapital += number2buy*share.getValue();
@@ -247,11 +244,12 @@ public class IntelligentInvestor extends InvestorType {
 
 					//System.out.println("("+ time +") id :" + getId() + ", compro(" + number2buy + ") 
 					//de " + accionesBolsa.getNombre()+ ",tot: " + number2buy*accionesBolsa.getValor());					
-				}				
+				} else
+					withZero++;
 			}
 			//Estimates the capital I have.
 			//investor.setCapital(miBolsa, liquidez);
-			this.maxValorCompra = Math.max(Properties.MAX_BUY_VALUE, liquidity
+			this.maxBuyValue = Math.max(Properties.MAX_BUY_VALUE, liquidity
 					* Properties.MAX_BUY_VALUE_BY_LIQUIDITY);
 		}		
 	}
@@ -264,12 +262,16 @@ public class IntelligentInvestor extends InvestorType {
 		Double total = 0.0;
 		for(Double categoryInversion : capitalByStockCategory.values())
 			total += categoryInversion;
-		total += number2buy * share.getValue();
+		//New Form
+		//total += number2buy * share.getValue();
 		Double categoryCapital = capitalByStockCategory.get(share.getCategory());
 		if(categoryCapital == null) {
-			total /= (capitalByStockCategory.size()+1) * (number2buy * share.getValue());
-		} else
+			total /= (capitalByStockCategory.size() * number2buy * share.getValue());
+			//total /= ((capitalByStockCategory.size()+1) * (number2buy * share.getValue()));
+		} else {
+			total += number2buy * share.getValue();
 			total /= capitalByStockCategory.size() * (number2buy * share.getValue() + categoryCapital);
+		}
 		total = Math.min(Properties.MAX_INCREMENT_DIVERSIFIER, total);
 		return Math.max(1/Properties.MAX_INCREMENT_DIVERSIFIER, total);		
 	}	
@@ -301,10 +303,12 @@ public class IntelligentInvestor extends InvestorType {
 		return actualInversion;
 	}
 	
-	private double getPercentToSell (double actualValue, double firstValue, int clusterTime) {
+	private double getPercentToSell (double actualValue, double firstValue, 
+			int clusterTime, double actualCapital) {
 		int value = 0;
 		double inversionReturn = (actualValue - firstValue) / firstValue;
-		if(liquidity < (Properties.MAX_BUY_VALUE*4)) {
+		//if(if(liquidity < (Properties.MAX_BUY_VALUE*4)){
+		if(liquidity < actualCapital * Properties.CAPITAL_DECREMENT_TO_SELL_ALL) {
 			if(clusterTime > sellAll[1]) {
 				sellsAll1++;
 				return 100;

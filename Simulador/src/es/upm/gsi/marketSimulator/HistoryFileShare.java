@@ -49,5 +49,9 @@ public class HistoryFileShare extends Share {
 		value = values[++iteration];
 		addHistory((value - values[iteration-1])/values[iteration-1]);
 	}
+	
+	int getNumValues() {
+		return values.length;
+	}
 
 }
