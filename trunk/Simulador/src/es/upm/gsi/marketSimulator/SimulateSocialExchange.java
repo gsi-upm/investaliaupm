@@ -167,7 +167,25 @@ public class SimulateSocialExchange extends Scape {
                 return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
                 		((IntelligentInvestor)((Investors)object).getInvestor()).memory == false);
             }
-        };        
+        }; 
+        StatCollector FinRepEImpY = new StatCollectorCondCSAMM("FinRep EXP Imp Y") {
+            public double getValue(Object object) {
+               return ((Investors) object).getInvestor().getFinancialReputation();
+            }
+            public boolean meetsCondition(Object object) {
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).impulsive == true);
+            }
+        };
+        StatCollector FinRepEImpN = new StatCollectorCondCSAMM("FinRep EXP Imp N") {
+            public double getValue(Object object) {
+               return ((Investors) object).getInvestor().getFinancialReputation();
+            }
+            public boolean meetsCondition(Object object) {
+                return (((Investors) object).getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR &&
+                		((IntelligentInvestor)((Investors)object).getInvestor()).impulsive == false);
+            }
+        };
         StatCollector FinRepAMA = new StatCollectorCondCSAMM("FinRepAMA") {
             public double getValue(Object object) {
                return ((Investors) object).getInvestor().getFinancialReputation();
@@ -274,7 +292,7 @@ public class SimulateSocialExchange extends Scape {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;	            	
             		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
-	            	for(int i = 0; i < 10; i++) {
+	            	for(int i = investors.size()-1; i >= investors.size()-10; i--) {
 	            		Investors investor = investors.get(i);
 	            		if(investor.getAgentType()[0] == Investors.EXPERIMENTED_INVESTOR)
 	            			sum++;
@@ -291,7 +309,7 @@ public class SimulateSocialExchange extends Scape {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;	            	
             		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
-	            	for(int i = 0; i < 10; i++) {
+	            	for(int i = investors.size()-1; i >= investors.size()-10; i--) {
 	            		Investors investor = investors.get(i);
 	            		if(investor.getAgentType()[0] == Investors.AMATEUR_INVESTOR)
 	            			sum++;
@@ -308,7 +326,7 @@ public class SimulateSocialExchange extends Scape {
             		if(((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance() == null)
 	            		return 0;
             		List<Investors> investors = ((SimulateSocialExchange)scape.getRoot()).getSortInvestorByFinance();
-	            	for(int i = 0; i < 10; i++) {
+	            	for(int i = investors.size()-1; i >= investors.size()-10; i--) {
 	            		Investors investor = investors.get(i);
 	            		if(investor.getAgentType()[0] == Investors.RANDOM_INVESTOR)
 	            			sum++;
@@ -317,6 +335,128 @@ public class SimulateSocialExchange extends Scape {
 	            return sum;
             }           
         };
+
+        StatCollector TotalPlay = new StatCollectorCSAMM("TotalPlay") {
+            public double getValue(Object object) {
+            	return ((Investors)object).getPlay();
+            }        
+        };
+        
+        StatCollector Top10_Play = new StatCollectorCondCSAMM("Top10_Play") {
+            public double getValue(Object object) {
+            	return ((Investors)object).getPlay();
+            }
+            public boolean meetsCondition(Object object) {
+            	List<Investors> investors = getSortInvestorByFinance();
+            	if(investors == null)
+            		return false;
+            	int size = investors.size();
+            	for(int i = size-1; i >= size-10; i--) {
+            		if(object == investors.get(i))
+            			return true;
+            	}
+            	return false;
+            }
+        };
+        
+        StatCollector Bottom10_Play = new StatCollectorCondCSAMM("Bottom10_Play") {
+            public double getValue(Object object) {
+            	return ((Investors)object).getPlay();
+            }
+            public boolean meetsCondition(Object object) {
+            	List<Investors> investors = getSortInvestorByFinance();
+            	if(investors == null)
+            		return false;
+            	for(int i = 0; i < 10; i++) {
+            		if(object == investors.get(i))
+            			return true;
+            	}
+            	return false;
+            }
+        };
+        
+        StatCollector Telefonica = new StatCollectorCSAMM("Telefonica") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("Telefonica");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector Cepsa = new StatCollectorCSAMM("Cepsa") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("Cepsa");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector Santander = new StatCollectorCSAMM("Santander") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("Santander");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector BBVA = new StatCollectorCSAMM("BBVA") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("BBVA");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector Endesa = new StatCollectorCSAMM("Endesa") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("Endesa");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector Iberdrola = new StatCollectorCSAMM("Iberdrola") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("Iberdrola");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector GasNatural = new StatCollectorCSAMM("GasNatural") {
+            public double getValue(Object object) {
+            	Share share = getStock().getShares().get("GasNatural");
+            	if(share == null)
+            		return 0;
+            	else {
+            		return share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            }           
+        };
+        StatCollector TotalStock = new StatCollectorCSAMM("TotalStock") {
+            public double getValue(Object object) {
+            	if(getStock().getShares().size() == 0)
+            		return 0;
+            	Double total = 0.0;
+            	for(Share share : getStock().getShares().values()) {
+            		total += share.getVariationsHistory().get(share.getVariationsHistory().size()-1);
+            	}
+            	return total/getStock().getShares().size();
+            }           
+        };
+        
         
         /*ActRepFRE_GOW_NFRIE.setAutoCollect(false);
         ActRepFRE_GOW_FRIE.setAutoCollect(false);
@@ -336,6 +476,8 @@ public class SimulateSocialExchange extends Scape {
         people.addStatCollector(FinRepEDivN);
         people.addStatCollector(FinRepEMenY);
         people.addStatCollector(FinRepEMenN);
+        people.addStatCollector(FinRepEImpY);
+        people.addStatCollector(FinRepEImpN);
         people.addStatCollector(FinRepAMA);        
         people.addStatCollector(FinRepRAM);        
         
@@ -346,11 +488,24 @@ public class SimulateSocialExchange extends Scape {
         people.addStatCollector(ActRepFRE_BAW_NFRIE);
         people.addStatCollector(ActRepFRE_BAW_FRIE);
         people.addStatCollector(ActRepOCA_BAW_NFRIE);
-        people.addStatCollector(ActRepOCA_BAW_FRIE);        
+        people.addStatCollector(ActRepOCA_BAW_FRIE); 
+        
+        people.addStatCollector(TotalPlay);
+        people.addStatCollector(Top10_Play);
+        people.addStatCollector(Bottom10_Play);
         
         addStatCollector(Top10_PRU);
         addStatCollector(Top10_AMA);
         addStatCollector(Top10_RAM);
+        
+        stock.addStatCollector(Telefonica);
+        stock.addStatCollector(Cepsa);
+        stock.addStatCollector(Santander);
+        stock.addStatCollector(BBVA);
+        stock.addStatCollector(Iberdrola);
+        stock.addStatCollector(Endesa);
+        stock.addStatCollector(GasNatural);
+        stock.addStatCollector(TotalStock);
 	}
 	
 	public void scapeSetup(ScapeEvent scapeEvent) {
@@ -367,23 +522,68 @@ public class SimulateSocialExchange extends Scape {
         //latticeView.setDrawNetwork(true);
         socialSpace.addView(latticeView); 
         
+        ChartView financialIntelligentChart = new ChartView("Intelligent Reputation");
+        people.addView(financialIntelligentChart);
+        financialIntelligentChart.addSeries("Average FinRepEXP", Color.RED);
+        financialIntelligentChart.addSeries("Average FinRep EXP Per Y", Color.BLACK);
+        financialIntelligentChart.addSeries("Average FinRep EXP Per N", Color.CYAN);
+        financialIntelligentChart.addSeries("Average FinRep EXP Anx Y", Color.YELLOW);
+        financialIntelligentChart.addSeries("Average FinRep EXP Anx N", Color.BLUE);
+        financialIntelligentChart.addSeries("Average FinRep EXP Div Y", Color.MAGENTA); //.orange);
+        financialIntelligentChart.addSeries("Average FinRep EXP Div N", Color.PINK);
+        financialIntelligentChart.addSeries("Average FinRep EXP Alcista", Color.GRAY);
+        financialIntelligentChart.addSeries("Average FinRep EXP Bajista", Color.GREEN);
+        financialIntelligentChart.setDisplayPoints(10000);
+        
+        ChartView financialIMPIntelligentChart = new ChartView("Impulsive Intelligent Reputation");
+        people.addView(financialIMPIntelligentChart);
+        financialIMPIntelligentChart.addSeries("Average FinRep EXP Imp Y", Color.BLACK);
+        financialIMPIntelligentChart.addSeries("Average FinRep EXP Imp N", Color.RED);
+         
+        ChartView financialANXIntelligentChart = new ChartView("Anxiety Intelligent Reputation");
+        people.addView(financialANXIntelligentChart);
+        financialANXIntelligentChart.addSeries("Average FinRep EXP Anx Y", Color.BLACK);
+        financialANXIntelligentChart.addSeries("Average FinRep EXP Anx N", Color.RED);
+        
+        ChartView financialMEMIntelligentChart = new ChartView("Memory Intelligent Reputation");
+        people.addView(financialMEMIntelligentChart);
+        financialMEMIntelligentChart.addSeries("Average FinRep EXP Alcista", Color.BLACK);
+        financialMEMIntelligentChart.addSeries("Average FinRep EXP Bajista", Color.RED);
+        
+        ChartView financialPERIntelligentChart = new ChartView("Perception Intelligent Reputation");
+        people.addView(financialPERIntelligentChart);
+        financialPERIntelligentChart.addSeries("Average FinRep EXP Per Y", Color.BLACK);
+        financialPERIntelligentChart.addSeries("Average FinRep EXP Per N", Color.RED);
+        
+        ChartView financialDIVIntelligentChart = new ChartView("Diversifier Intelligent Reputation");
+        people.addView(financialDIVIntelligentChart);
+        financialDIVIntelligentChart.addSeries("Average FinRep EXP Div Y", Color.BLACK);
+        financialDIVIntelligentChart.addSeries("Average FinRep EXP Div N", Color.RED);
+        
         ChartView financialChart = new ChartView("Financial Reputation");
         people.addView(financialChart);
         financialChart.addSeries("Average FinRepEXP", Color.RED);
-        financialChart.addSeries("Average FinRep EXP Per Y", Color.BLACK);
+        /*financialChart.addSeries("Average FinRep EXP Per Y", Color.BLACK);
         financialChart.addSeries("Average FinRep EXP Per N", Color.CYAN);
         financialChart.addSeries("Average FinRep EXP Anx Y", Color.YELLOW);
         financialChart.addSeries("Average FinRep EXP Anx N", Color.GRAY);
-        financialChart.addSeries("Average FinRep EXP Div Y", Color.MAGENTA); //.orange);
+        financialChart.addSeries("Average FinRep EXP Div Y", Color.MAGENTA);
         financialChart.addSeries("Average FinRep EXP Div N", Color.PINK);
         financialChart.addSeries("Average FinRep EXP Alcista", Color.DARK_GRAY);
-        financialChart.addSeries("Average FinRep EXP Bajista", Color.ORANGE);
+        financialChart.addSeries("Average FinRep EXP Bajista", Color.ORANGE);*/
         financialChart.addSeries("Average FinRepAMA", Color.BLUE);
-        financialChart.addSeries("Average FinRepRAM", Color.GREEN);
+        financialChart.addSeries("Average FinRepRAM", Color.GREEN);        
         financialChart.setDisplayPoints(10000);
-        System.out.println("componets:"+financialChart.getPanel().getRootPane().getComponents()+", "
-        		+financialChart.getPanel().getComponentPopupMenu()+"  -  "+
-        		financialChart.getPanel().getRootPane().getParent().getComponents());
+        
+        ChartView playChart = new ChartView("Play Iteraction Number");
+        people.addView(playChart);
+        playChart.addSeries("Average TotalPlay", Color.RED);
+        playChart.addSeries("Average Top10_Play", Color.BLUE);
+        playChart.addSeries("Average Bottom10_Play", Color.GREEN);
+        
+        //System.out.println("componets:"+financialChart.getPanel().getRootPane().getComponents()+", "
+        //		+financialChart.getPanel().getComponentPopupMenu()+"  -  "+
+        //		financialChart.getPanel().getRootPane().getParent().getComponents());
         
         ChartView activityChart = new ChartView("Activity Reputation");
         people.addView(activityChart);
@@ -403,9 +603,20 @@ public class SimulateSocialExchange extends Scape {
         top10Chart.addSeries("Maximum Amateur Investors", Color.blue);
         top10Chart.addSeries("Maximum Random Investors", Color.green);
         
-        financialChart.setIterationsPerRedraw(Properties.STATISTICS_INTERVAL);
-        activityChart.setIterationsPerRedraw(Properties.STATISTICS_INTERVAL);
-        top10Chart.setIterationsPerRedraw(Properties.STATISTICS_INTERVAL);
+        ChartView stockChart = new ChartView("Stock Variation");
+        stock.addView(stockChart);
+        //stockChart.addSeries("Maximum Telefonica", Color.red);
+        //stockChart.addSeries("Maximum Cepsa", Color.black);
+        //stockChart.addSeries("Maximum Santander", Color.cyan);
+        //stockChart.addSeries("Maximum BBVA", Color.YELLOW);
+        //stockChart.addSeries("Maximum Iberdrola", Color.magenta);
+        //stockChart.addSeries("Maximum Endesa", Color.PINK);
+        // stockChart.addSeries("Maximum GasNatural", Color.blue);
+        stockChart.addSeries("Maximum TotalStock", Color.BLACK);
+        
+        financialChart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
+        activityChart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
+        top10Chart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
         /*ChartView activityChart1 = new ChartView(ChartView.HISTOGRAM);
         people.addView(activityChart1);
         activityChart1.addSeries("Average FinRepEXP");

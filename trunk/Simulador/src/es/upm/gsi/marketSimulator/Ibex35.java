@@ -7,7 +7,7 @@ import org.ascape.model.rule.Rule;
 
 public class Ibex35 extends CellOccupant {		
 	private static final long serialVersionUID = 4200869887037516524L;
-	HashMap<String,Share> ibex35 = new HashMap<String,Share>(35);
+	private HashMap<String,Share> ibex35 = new HashMap<String,Share>(35);
 	
 	
 	//create the list of rules for scape
@@ -48,6 +48,13 @@ public class Ibex35 extends CellOccupant {
 		ibex35.put("GasNatural",new HistoryFileShare("GasNatural","Power","FinancialFiles/GasNatural.txt"));
 		
 		System.out.println("Shares filled");
+		int pausePeriod = 100000;
+		for(Share share : ibex35.values()) {			
+			if(share instanceof HistoryFileShare) {
+				pausePeriod = Math.min(((HistoryFileShare)share).getNumValues()-2, pausePeriod);			
+			}
+		}
+		((SimulateSocialExchange)getRoot()).setPausePeriod(pausePeriod);
 	}
 
 	public void update() {

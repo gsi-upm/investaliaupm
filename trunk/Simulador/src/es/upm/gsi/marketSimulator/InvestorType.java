@@ -12,7 +12,7 @@ public abstract class InvestorType {
 	protected ArrayList<Investment> myPortfolio = new ArrayList<Investment>();
 	private double financialReputation = 0;
 	// The limit of money that one investor can invest
-	protected double maxValorCompra;
+	protected double maxBuyValue;
 	// activity factor
 	protected double buyProbability;
 	protected double sellProbability;
@@ -34,6 +34,8 @@ public abstract class InvestorType {
 	int sellsAll1 = 0;
 	double capitalWithNegativeReturn = 0;
 	double investCapital = 0;
+	int withZero = 0;
+	int withoutLiquidity = 0;
 	
 	//For debug
 	static int debugParam;
@@ -136,19 +138,27 @@ public abstract class InvestorType {
 		financialReputation = capitalRentability * Properties.CAPITAL_INCREMENT_WEIGHT +
 				financialReputation * Properties.OPERATIONS_WEIGHT;
 		
-		System.out.println("id:"+investor.getId()+"("+getClass()+") OC:"+operationsClosed+
+		if(investor.getIteration() % Properties.STATISTICS_INTERVAL == 0) {
+			System.out.println("id:"+investor.getId()+"("+getClass()+") OC:"+operationsClosed+
 				" OO:"+operationOpened+" capC:"+capitalClosed+" capO:"+capitalOpened+" CR:"+capitalRentability
 				+" fr:"+financialReputation);
+		}
 	}	
 	
 	public double getFinancialReputation() {
 		return financialReputation;
 	}
 	
-	public void addCapitalToHistory (double capital) {
+	public void addCapitalToHistory(double capital) {
 		if(capitalHistory.size() == Properties.CAPITAL_TIME_DIFFERENCE)
 			capitalHistory.remove(0);
 		capitalHistory.add(capital);
+	}
+	
+	public double getLastCapital() {
+		if(capitalHistory.size() < 1)
+			return initialCapital;
+		return capitalHistory.get(capitalHistory.size()-1);
 	}
 	
 }
