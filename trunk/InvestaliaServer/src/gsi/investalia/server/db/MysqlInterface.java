@@ -480,6 +480,24 @@ public class MysqlInterface {
 		closeConnectionDatabase();
 		return message;
 	}
+	
+	public static String getMessageTitleByItsIdAPI(long idMessageAPI) {
+		
+		connectToDatabase();
+		String title = null;
+		try {
+			ResultSet rs = stmt
+					.executeQuery("SELECT title FROM messages WHERE idMessageAPI = "
+							+ idMessageAPI + " LIMIT 1");
+			if (rs.next()) {
+				title = rs.getString("title");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		closeConnectionDatabase();
+		return title;
+	}
 
 	private static List<Message> getMessagesFromQuery(String query, int idUser) {
 		connectToDatabase();
@@ -772,16 +790,36 @@ public class MysqlInterface {
 
 	public static void insertTag(String abb, String description) {
 
+		int maxLengthAbb = 25;
+		if(abb.length() > maxLengthAbb)
+			abb.substring(0, maxLengthAbb-1);
+		
 		connectToDatabase();
 		String query = "insert into tags(TAGABBREVIATION, DESCRIPTION) values ('"
 				+ abb + "', '" + description + "')";
 		try {
 			stmt.executeUpdate(query);
-			System.out.println("Tag insertada correctamente");
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 		closeConnectionDatabase();
+	}
+	
+	public static int getIdTag(String abb) {
+
+		connectToDatabase();
+		int idTag = -1;
+		String query = "select idTag from tags where TAGABBREVIATION = '" + abb + "'";
+		try {
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				idTag = rs.getInt("idTag");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		closeConnectionDatabase();
+		return idTag;
 	}
 
 	public static HashMap<Long, Float> getUserRecommendationData(String userName) {
