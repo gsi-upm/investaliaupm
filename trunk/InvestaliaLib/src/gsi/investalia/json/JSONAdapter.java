@@ -182,10 +182,10 @@ public class JSONAdapter {
 		return jsonArr;
 	}
 
-	public static JSONObject updatesToJSON(int lastUpdate, int lastTag)
+	public static JSONObject updatesToJSON(Message lastMessage, int lastTag)
 			throws JSONException {
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(LAST_UPDATE, lastUpdate);
+		jsonObj.put(LAST_UPDATE, messageToJSON(lastMessage));
 		jsonObj.put(LAST_TAG, lastTag);
 		return jsonObj;
 	}
@@ -193,23 +193,23 @@ public class JSONAdapter {
 	public static JSONObject previousMessagesDataToJSON(
 			PreviousMessagesData data) throws JSONException {
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(FIRST_MESSAGE, data.getFirstIdMessage());
-		jsonObj.put(FIRST_FOLLOWING, data.getFistIdMessageFollowing());
-		jsonObj.put(FIRST_RECOMMENDATION, data.getFirstIdMessageRecommended());
+		jsonObj.put(FIRST_MESSAGE, messageToJSON(data.getFirstMessage()));
+		jsonObj.put(FIRST_FOLLOWING, messageToJSON(data.getFistMessageFollowing()));
+		jsonObj.put(FIRST_RECOMMENDATION, messageToJSON(data.getFirstMessageRecommended()));
 		return jsonObj;
 	}
 	
 	public static PreviousMessagesData JSONToPreviousMessagesData(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
-		return new PreviousMessagesData(jsonObj.getInt(FIRST_MESSAGE), 
-				jsonObj.getInt(FIRST_FOLLOWING), 
-				jsonObj.getInt(FIRST_RECOMMENDATION));
+		return new PreviousMessagesData(JSONToMessage(jsonObj.getJSONObject(FIRST_MESSAGE).toString()), 
+				JSONToMessage(jsonObj.getJSONObject(FIRST_FOLLOWING).toString()), 
+						JSONToMessage(jsonObj.getJSONObject(FIRST_RECOMMENDATION).toString()));
 	}
 	
 
-	public static int JSONToLastUpdate(String jsonStr) throws JSONException {
+	public static Message JSONToLastMessage(String jsonStr) throws JSONException {
 		JSONObject jsonObj = new JSONObject(jsonStr);
-		return jsonObj.getInt(LAST_UPDATE);
+		return JSONToMessage(jsonObj.getJSONObject(LAST_UPDATE).toString());
 	}
 
 	public static int JSONToLastTag(String jsonStr) throws JSONException {
@@ -241,5 +241,4 @@ public class JSONAdapter {
 		}
 		return jsonArr;
 	}
-
 }

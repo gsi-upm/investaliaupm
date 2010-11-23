@@ -1,34 +1,39 @@
 package gsi.investalia.domain;
 
 public class PreviousMessagesData {
-	private int firstIdMessage;
-	private int fistIdMessageFollowing;
-	private int firstIdMessageRecommended;
+	private Message firstMessage;
+	private Message fistMessageFollowing;
+	private Message firstMessageRecommended;
 	
-	public PreviousMessagesData(int firstIdMessage,
-			int fistIdMessageFollowing, int firstIdMessageRecommended) {
+	public PreviousMessagesData(Message firstMessage,
+			Message fistMessageFollowing, Message firstMessageRecommended) {
 		super();
-		this.firstIdMessage = firstIdMessage;
-		this.fistIdMessageFollowing = fistIdMessageFollowing;
-		this.firstIdMessageRecommended = firstIdMessageRecommended;
+		this.firstMessage = firstMessage;
+		this.fistMessageFollowing = fistMessageFollowing;
+		this.firstMessageRecommended = firstMessageRecommended;
 	}
-	
-	public int getFirstIdMessage() {
-		return firstIdMessage;
+
+	public Message getFirstMessage() {
+		return firstMessage;
 	}
-	public void setFirstIdMessage(int firstIdMessage) {
-		this.firstIdMessage = firstIdMessage;
+
+	public void setFirstMessage(Message firstMessage) {
+		this.firstMessage = firstMessage;
 	}
-	public int getFistIdMessageFollowing() {
-		return fistIdMessageFollowing;
+
+	public Message getFistMessageFollowing() {
+		return fistMessageFollowing;
 	}
-	public void setFistIdMessageFollowing(int fistIdMessageFollowing) {
-		this.fistIdMessageFollowing = fistIdMessageFollowing;
+
+	public void setFistMessageFollowing(Message fistMessageFollowing) {
+		this.fistMessageFollowing = fistMessageFollowing;
 	}
-	public int getFirstIdMessageRecommended() {
-		return firstIdMessageRecommended;
+
+	public Message getFirstMessageRecommended() {
+		return firstMessageRecommended;
 	}
-	public void setFirstIdMessageRecommended(int firstIdMessageRecommended) {
-		this.firstIdMessageRecommended = firstIdMessageRecommended;
+
+	public void setFirstMessageRecommended(Message firstMessageRecommended) {
+		this.firstMessageRecommended = firstMessageRecommended;
 	}
 }

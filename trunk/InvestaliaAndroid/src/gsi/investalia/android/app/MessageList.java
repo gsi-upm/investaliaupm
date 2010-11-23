@@ -4,8 +4,6 @@ import gsi.investalia.android.db.MessagesDBHelper;
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.android.jade.JadeAdapter;
 import gsi.investalia.domain.Message;
-import gsi.investalia.domain.Tag;
-import gsi.investalia.domain.User;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

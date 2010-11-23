@@ -76,8 +76,8 @@ public class DownloadOldMessagesWorkflow extends WorkflowBehaviour {
 		 // Get the message list, tags and recommendations from db
 		 List<Message> messages = 
 			 MysqlInterface.getOldMessagesIncludingRecommended(userName, 
-		 	data.getFirstIdMessage(), data.getFistIdMessageFollowing(), 
-		 	data.getFirstIdMessageRecommended()); 
+		 	data.getFirstMessage(), data.getFistMessageFollowing(), 
+		 	data.getFirstMessageRecommended()); 
 		 System.out.println("message count: " + messages.size()); 
 		 List<Tag> tags = new ArrayList<Tag>();
 		 

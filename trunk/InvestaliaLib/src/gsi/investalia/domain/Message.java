@@ -1,5 +1,6 @@
 package gsi.investalia.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +37,11 @@ public class Message {
 		this.idMessageAPI = idMessageAPI;
 	}
 	
+	public static Message getZeroMessage() {
+		return new Message(0, "", "", "", new ArrayList<Tag>(), 
+				new Date(0), false, false,
+				0, 0, 0, 0);
+	}	
 
 	public int getId() {
 		return id;
