@@ -195,7 +195,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 	private void sendRecommendations(Long userID, HashMap<Long, Float> userRecommendations) {
 		
 		// Send it as a message
-		ACLMessage msg = new ACLMessage(ACLMessage.CFP);
+		ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
 
 		// Set the content
 		String content = null;
@@ -211,7 +211,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 
 		myAgent.send(msg);
 		
-		System.out.println("Message sent");
+		System.out.println("Message sent " + content);
 	}
 	
 	protected boolean checkRefresh() throws Exception{
