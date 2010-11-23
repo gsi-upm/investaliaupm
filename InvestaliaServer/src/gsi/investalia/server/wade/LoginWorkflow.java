@@ -88,7 +88,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	protected void executeCheckLogin() throws Exception {	
 		// Disorder dates in test database 
 		// TODO: Delete it
-		DateChaosGenerator.generateChaos();
+		//DateChaosGenerator.generateChaos();
 		
 		System.out.println("Check login");
 	
