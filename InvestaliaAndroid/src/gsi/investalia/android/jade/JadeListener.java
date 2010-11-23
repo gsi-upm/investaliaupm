@@ -14,6 +14,7 @@ import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -26,10 +27,12 @@ import android.content.Intent;
 public class JadeListener implements ACLMessageListener {
 
 	private Context context; // Necessary for broadcasting
+	private Activity activity;
 	private final static String TAG_LOGGER = "JADE LISTENER";
 
-	public JadeListener(Context context) {
-		this.context = context;
+	public JadeListener(Activity activity) {
+		this.context = activity;
+		this.activity = activity;
 	}
 
 	public void onMessageReceived(ACLMessage message) {
@@ -88,14 +91,14 @@ public class JadeListener implements ACLMessageListener {
 			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));
 		} else if (message.getPerformative() == ACLMessage.INFORM_REF) {
 			Log.i(TAG_LOGGER, "User modified");
-			
 			// Save the user
 			SQLiteInterface.saveLoggedUser(message.getContent(), context);
-
-			// TODO Decide if deleting or not
+			// Delete old messages
 			SQLiteInterface.deleteAllMessages(context);
-			
 			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));
+		} else if (message.getPerformative() == ACLMessage.PROPAGATE) {
+			Log.i(TAG_LOGGER, "Recommendations updated");
+			SQLiteInterface.updateRecommendations(message.getContent(), activity);
 		}
 	}
 }
