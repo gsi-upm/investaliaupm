@@ -13,13 +13,10 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.imtp.leap.JICP.JICPProtocol;
 import jade.lang.acl.ACLMessage;
 import jade.util.leap.Properties;
-import jade.wrapper.ControllerException;
-import jade.wrapper.StaleProxyException;
 
 import java.net.ConnectException;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -117,7 +114,7 @@ public class JadeAdapter implements ConnectionListener {
 		// Pass the last idMessage and last idTag in the content
 		String content;
 		try {
-			content = JSONAdapter.updatesToJSON(SQLiteInterface.getLastIdMessage(activity),
+			content = JSONAdapter.updatesToJSON(SQLiteInterface.getLastMessage(activity),
 					SQLiteInterface.getLastIdTag(activity)).toString();
 		} catch (JSONException e1) {
 			Log.e(TAG_LOGGER, "Error parsing JSON (download messages)");
@@ -140,9 +137,9 @@ public class JadeAdapter implements ConnectionListener {
 		try {
 			PreviousMessagesData data = 
 				new PreviousMessagesData(
-						SQLiteInterface.getFirstIdMessageNotFollowing(activity),
-						SQLiteInterface.getFirstIdMessageFollowing(activity),
-						SQLiteInterface.getFirstIdMessageRecommended(activity));
+						SQLiteInterface.getFirstMessageNotFollowing(activity),
+						SQLiteInterface.getFirstMessageFollowing(activity),
+						SQLiteInterface.getFirstMessageRecommended(activity));
 			content = JSONAdapter.previousMessagesDataToJSON(data).toString();
 		} catch (JSONException e1) {
 			Log.e(TAG_LOGGER, "Error parsing JSON (download messages)");

@@ -57,7 +57,8 @@ public class SQLiteInterface {
 				messageValues.put(MessagesDBHelper.READ, m.isRead());
 				messageValues.put(MessagesDBHelper.RATING, m.getRating());
 				messageValues.put(MessagesDBHelper.AFFINITY, m.getAffinity());
-				messageValues.put(MessagesDBHelper.IDMESSAGE_API, m.getIdMessageAPI());
+				messageValues.put(MessagesDBHelper.IDMESSAGE_API, m
+						.getIdMessageAPI());
 				messageValues
 						.put(MessagesDBHelper.TIMES_READ, m.getTimesRead());
 
@@ -147,6 +148,9 @@ public class SQLiteInterface {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Log.d("DATABASE", "Database obtained");
 
+			if(orderBy.equals(MessagesDBHelper.DATE)) {
+				orderBy += " DESC, " + MessagesDBHelper.IDMESSAGE;
+			}
 			String query = "";
 			// If ordering by date, show the newer ones before
 			if (which.equals(ALL)) {
@@ -155,31 +159,15 @@ public class SQLiteInterface {
 				query = "SELECT DISTINCT m.* FROM messages AS m, messages_tags AS mt "
 						+ "WHERE m.idmessage = mt.idmessage AND idtag IN ("
 						+ getUserTagsAsStringList(activity)
-						+ ") ORDER BY " + orderBy + " DESC";		
-			} 
+						+ ") ORDER BY "
+						+ orderBy + " DESC";
+			}
 
 			Cursor cursor = db.rawQuery(query, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
-			while (cursor.moveToNext()) {
-				// Format the date
-				Date date;
-				try {
-					date = new SimpleDateFormat(DATE_FORMAT).parse(cursor
-							.getString(4));
-				} catch (ParseException e) {
-					Log.e("DATABASE", "Error parsing date");
-					date = new Date();
-				}
-				// Add the message
-				List<Tag> tags = getMessageTags(activity, cursor.getInt(0));
-				messages.add(new Message(cursor.getInt(0), cursor.getString(1),
-						cursor.getString(2), cursor.getString(3), tags, date,
-						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), cursor.getDouble(9),
-								cursor.getLong(10)));
-			}
+			addMessagesFromCursor(messages, cursor, activity);
 			Log.d("DATABASE", "Messages added to list");
 
 		} finally {
@@ -190,8 +178,32 @@ public class SQLiteInterface {
 		// Add a message to represent the message refresh
 		if (!messages.isEmpty()) {
 			Log.i("DATABSE", "Added refresh message");
-			messages.add(new Message(MessageList.IDREFRESH, "Refresh", "", "",
-					new ArrayList<Tag>(), new Date(), false, false, 0, 0, 0, 0));
+			messages
+					.add(new Message(MessageList.IDREFRESH, "Refresh", "", "",
+							new ArrayList<Tag>(), new Date(), false, false, 0,
+							0, 0, 0));
+		}
+	}
+	
+	private static void addMessagesFromCursor(List<Message> messages, Cursor cursor, 
+			Activity activity) {
+		while (cursor.moveToNext()) {
+			// Format the date
+			Date date;
+			try {
+				date = new SimpleDateFormat(DATE_FORMAT).parse(cursor
+						.getString(4));
+			} catch (ParseException e) {
+				Log.e("DATABASE", "Error parsing date");
+				date = new Date();
+			}
+			// Add the message
+			List<Tag> tags = getMessageTags(activity, cursor.getInt(0));
+			messages.add(new Message(cursor.getInt(0), cursor.getString(1),
+					cursor.getString(2), cursor.getString(3), tags, date,
+					1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
+							.getInt(7), cursor.getInt(8), cursor
+							.getDouble(9), cursor.getLong(10)));
 		}
 	}
 
@@ -227,8 +239,8 @@ public class SQLiteInterface {
 						cursor.getString(2), cursor.getString(3),
 						getMessageTags(activity, cursor.getInt(0)), date,
 						1 == cursor.getInt(5), 1 == cursor.getInt(6), cursor
-								.getInt(7), cursor.getInt(8), cursor.getDouble(9),
-								cursor.getLong(10));
+								.getInt(7), cursor.getInt(8), cursor
+								.getDouble(9), cursor.getLong(10));
 			}
 			Log.d("DATABASE", "Messages returned");
 
@@ -367,14 +379,14 @@ public class SQLiteInterface {
 	/**
 	 * Gets the the id of the last message saved in database
 	 */
-	public static int getLastIdMessage(Activity activity) {
+	public static Message getLastMessage(Activity activity) {
 		// Messages are ordered by its id
 		List<Message> messages = new ArrayList<Message>();
 		addMessages(activity, messages, ALL, MessagesDBHelper.IDMESSAGE);
-		if (messages.isEmpty()) {
-			return 0;
+		if(!messages.isEmpty()) {
+			return messages.get(0);
 		}
-		return messages.get(0).getId();
+		return Message.getZeroMessage();
 	}
 
 	/**
@@ -388,101 +400,109 @@ public class SQLiteInterface {
 		}
 		return tags.get(tags.size() - 1).getId();
 	}
-	
+
 	/**
 	 * Gets the the id of the first following message saved in database
 	 */
-	public static int getFirstIdMessageNotFollowing(Activity activity) {
+	public static Message getFirstMessageNotFollowing(Activity activity) {
 		List<Message> messages = new ArrayList<Message>();
-		addMessages(activity, messages, ALL, MessagesDBHelper.IDMESSAGE);
+		addMessages(activity, messages, ALL, MessagesDBHelper.DATE);
 		User user = getLoggedUser(activity);
-		
+
 		for (int i = messages.size() - 2; i >= 0; i--) {
 			Message m = messages.get(i);
-			if(m.getAffinity() > 0.0) {
+			if (m.getAffinity() > 0.0) {
 				continue;
 			}
 			boolean following = false;
-			secondFor:
-			for(Tag t1: m.getTags()) {
-				for(Tag t2: user.getTagsFollowing()) {
-					if(t1.equals(t2)) {
+			secondFor: for (Tag t1 : m.getTags()) {
+				for (Tag t2 : user.getTagsFollowing()) {
+					if (t1.equals(t2)) {
 						following = true;
 						break secondFor;
 					}
 				}
 			}
-			if(!following) {
-				return m.getId();
-			}	
+			if (!following) {
+				return m;
+			}
 		}
-		return 0;
+		return Message.getZeroMessage();
 	}
-	
+
 	/**
 	 * Gets the the id of the first message saved in database
 	 */
-	public static int getFirstIdMessageFollowing(Activity activity) {
+	public static Message getFirstMessageFollowing(Activity activity) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
 		try {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Log.d("DATABASE", "Database obtained");
 
-			String query = "SELECT DISTINCT * FROM messages AS m, messages_tags AS mt WHERE " 
-				+ MessagesDBHelper.AFFINITY + " = 0.0 AND mt.idtag IN ("
-						+ getUserTagsAsStringList(activity)
-						+ ") ORDER BY " + 
-				MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
-			
+			String query = "SELECT DISTINCT * FROM messages AS m, messages_tags AS mt WHERE "
+					+ MessagesDBHelper.AFFINITY
+					+ " = 0.0 AND mt.idtag IN ("
+					+ getUserTagsAsStringList(activity)
+					+ ") ORDER BY "
+					+ MessagesDBHelper.DATE
+					+ " ASC, "
+					+ MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
+
 			Cursor cursor = db.rawQuery(query, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
-			if (cursor.moveToNext()) {
-				return cursor.getInt(0);
-			}		
+			List<Message> messages = new ArrayList<Message>();
+			addMessagesFromCursor(messages, cursor, activity);
+			if(!messages.isEmpty()) {
+				return messages.get(0);
+			}
+			return Message.getZeroMessage();
 		} finally {
 			// Always close the subjectsData
 			dbHelper.close();
 		}
-		return 0;
 	}
-	
+
 	/**
 	 * Gets the the id of the first message saved in database
 	 */
-	public static int getFirstIdMessageRecommended(Activity activity) {
+	public static Message getFirstMessageRecommended(Activity activity) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
 		try {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Log.d("DATABASE", "Database obtained");
 
-			String query = "SELECT * FROM messages WHERE " 
-				+ MessagesDBHelper.AFFINITY + " > 0.0 ORDER BY " + 
-				MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
-			
+			String query = "SELECT * FROM messages WHERE "
+					+ MessagesDBHelper.AFFINITY + " > 0.0 ORDER BY "
+					+ MessagesDBHelper.DATE + " ASC, "
+					+ MessagesDBHelper.IDMESSAGE + " ASC LIMIT 1";
+
 			Cursor cursor = db.rawQuery(query, null);
 			activity.startManagingCursor(cursor);
 			Log.d("DATABASE", "Query for messages executed");
 
-			if (cursor.moveToNext()) {
-				return cursor.getInt(0);
-			}		
+			List<Message> messages = new ArrayList<Message>();
+			addMessagesFromCursor(messages, cursor, activity);
+			if(!messages.isEmpty()) {
+				return messages.get(0);
+			}
+			return Message.getZeroMessage();
 		} finally {
 			// Always close the subjectsData
 			dbHelper.close();
 		}
-		return 0;
 	}
-	
+
 	public static void updateRecommendations(String content, Activity activity) {
 
 		HashMap<Long, Float> recommendations = new HashMap<Long, Float>();
 		try {
 			JSONAdapter.JSONToRecommendations(content, recommendations);
-			Iterator<Long> recomendationsIterator = recommendations.keySet().iterator();
+			Iterator<Long> recomendationsIterator = recommendations.keySet()
+					.iterator();
 			while (recomendationsIterator.hasNext()) {
 				Long idMessage = recomendationsIterator.next();
 				Float ratingForIdMessage = recommendations.get(idMessage);

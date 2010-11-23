@@ -138,6 +138,24 @@ public class MysqlInterface {
 			return false;
 		}
 	}
+	
+	public static boolean updateDate(Message m) {
+
+		try {
+			// Increase timesRead
+			connectToDatabase();
+			stmt.executeUpdate("UPDATE messages"
+					+ " SET date = '" + getDateTimestamp(m) + "'"
+					+ " WHERE idMessage = " + m.getId());
+			
+			closeConnectionDatabase();
+
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 
 	/**
@@ -384,13 +402,16 @@ public class MysqlInterface {
 	 * userName is used to determine if the messages have been read or not
 	 */
 	public static List<Message> getAllMessages(String userName, int limit) {
-		int idUser = getUser(userName).getId();
+		int idUser = 0;
+		if(userName != null) {
+			idUser = getUser(userName).getId();
+		}
 		String limitStr = "";
 		if (limit > 0) {
 			limitStr = "LIMIT = " + limit;
 		}
-		return getMessagesFromQuery("SELECT * FROM messages " + limitStr,
-				idUser);
+		return getMessagesFromQuery("SELECT * FROM messages AS m LEFT JOIN users_recommendations AS ur "
+			+ " ON m.idMessage = ur.idmessage " + limitStr, idUser);
 	}
 
 	/**
@@ -400,8 +421,9 @@ public class MysqlInterface {
 	public static List<Message> getAllMessagesSinceLast(String userName,
 			int idMessageLast) {
 		int idUser = getUser(userName).getId();
-		String query = "SELECT * FROM messages WHERE idmessage > "
-				+ idMessageLast + " ORDER BY idmessage DESC LIMIT " + LIMIT_ALL;
+		String query = "SELECT * FROM messages AS m LEFT JOIN users_recommendations AS ur "
+			+ " ON m.idMessage = ur.idmessage " +
+				" LIMIT " + LIMIT_ALL;
 		return getMessagesFromQuery(query, idUser);
 	}
 	
@@ -411,22 +433,25 @@ public class MysqlInterface {
 	 * Uses the default limit
 	 */
 	public static List<Message> getMessagesIncludingRecommended(String userName,
-			int idMessageLast) {
+			Message lastMessage) {
 		int idUser = getUser(userName).getId();
 		String query = "(SELECT * FROM messages AS m, "
 			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
-			+ "AND ur.iduser = "+ idUser + " AND m.idmessage > " + idMessageLast
+			+ "AND ur.iduser = "+ idUser + " AND m.date >= '" + getDateTimestamp(lastMessage)
+			+ "' AND m.idmessage > " + lastMessage.getId() 
 			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
 			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
-			+ "WHERE m.idmessage > " + idMessageLast 
+			+ "WHERE m.date >= '" + getDateTimestamp(lastMessage)
+			+ "' AND m.idmessage > " + lastMessage.getId() 
 			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
 			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + "), "
 			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
 			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
-			+ idUser + ") AND m.idmessage > " + idMessageLast 
+			+ idUser + ") AND m.date >= '" + getDateTimestamp(lastMessage)
+			+ "' AND m.idmessage > " + lastMessage.getId()  
 			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
 		return getMessagesFromQuery(query, idUser);
 	}
@@ -437,26 +462,30 @@ public class MysqlInterface {
 	 * Uses the default limit
 	 */
 	public static List<Message> getOldMessagesIncludingRecommended(String userName,
-			int idMessage, int idMessageFollowing, int idMessageRecommended) {
+			Message lastMessage, Message lastMessageFollowing, Message lastMessageRecommended) {
 		int idUser = getUser(userName).getId();
 		String query = "(SELECT * FROM messages AS m, "
 			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
-			+ "AND ur.iduser = "+ idUser + " AND m.idmessage < " + idMessageRecommended
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
+			+ "AND ur.iduser = "+ idUser + " AND m.date < '" + getDateTimestamp(lastMessageRecommended)
+			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
 			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
-			+ "WHERE m.idmessage < " + idMessage 
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
+			+ "WHERE m.date < '" + getDateTimestamp(lastMessage)
+			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
 			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + "), "
 			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
 			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
-			+ idUser + ") AND m.idmessage < " + idMessageFollowing 
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+			+ idUser + ") AND m.date < '" + getDateTimestamp(lastMessageFollowing)
+			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+		System.out.println(query); // TODO
 		return getMessagesFromQuery(query, idUser);
 	}
 	
+	private static String getDateTimestamp(Message message) {
+		return new Timestamp(message.getDate().getTime()).toString();
+	}
 	
 	
 
@@ -498,9 +527,11 @@ public class MysqlInterface {
 		closeConnectionDatabase();
 		return title;
 	}
-
+	
 	private static List<Message> getMessagesFromQuery(String query, int idUser) {
 		connectToDatabase();
+		// TODO
+		System.out.println(query + " iduser " + idUser);
 		List<Message> messages = new ArrayList<Message>();
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -642,8 +673,10 @@ public class MysqlInterface {
 			System.out.println("SQL Exception");
 			return null;
 		}
-		// Set the read and liked properties
-		setReadAndLiked(m, idUser);
+		if(idUser > 0) {
+			// Set the read and liked properties
+			setReadAndLiked(m, idUser);
+		}
 		return m;
 		// Constructor:
 		// id,userName,title,text,tags,date,read,liked,rating,timesRead

@@ -61,7 +61,7 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
 
         // Get data
         String jsonStr = aclMessage.getContent();
-        int lastUpdate = JSONAdapter.JSONToLastUpdate(jsonStr); 
+        Message lastMessage = JSONAdapter.JSONToLastMessage(jsonStr); 
         int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
         String userName = aclMessage.getSender().getLocalName();
         
@@ -104,7 +104,7 @@ public class DownloadMessagesWorkflow extends WorkflowBehaviour {
         }
         
         // Get the message list, tags and recommendations from db
-        List<Message> messages = MysqlInterface.getMessagesIncludingRecommended(userName, lastUpdate);          
+        List<Message> messages = MysqlInterface.getMessagesIncludingRecommended(userName, lastMessage);          
         System.out.println("message count: " + messages.size());
         List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
         System.out.println("tags count: " + tags.size());
