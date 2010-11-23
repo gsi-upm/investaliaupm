@@ -9,6 +9,8 @@ import gsi.investalia.json.JSONAdapter;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -473,5 +475,25 @@ public class SQLiteInterface {
 			dbHelper.close();
 		}
 		return 0;
+	}
+	
+	public static void updateRecommendations(String content, Activity activity) {
+
+		HashMap<Long, Float> recommendations = new HashMap<Long, Float>();
+		try {
+			JSONAdapter.JSONToRecommendations(content, recommendations);
+			Iterator<Long> recomendationsIterator = recommendations.keySet().iterator();
+			while (recomendationsIterator.hasNext()) {
+				Long idMessage = recomendationsIterator.next();
+				Float ratingForIdMessage = recommendations.get(idMessage);
+				Message message = getMessage(activity, idMessage.intValue());
+				if (message != null) {
+					message.setAffinity(ratingForIdMessage);
+					updateMessage(activity, message);
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }
