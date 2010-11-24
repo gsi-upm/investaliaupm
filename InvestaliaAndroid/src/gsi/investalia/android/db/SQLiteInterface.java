@@ -33,13 +33,18 @@ public class SQLiteInterface {
 	public static final String FOLLOWING = "following";
 	public static final String ALL = "all";
 
-	public static void saveMessages(Context context, List<Message> messages) {
+	public static void saveMessages(Context context, Activity activity, List<Message> messages) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
 			// Get the database
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 			for (Message m : messages) {
+				
+				Message mes = getMessage(activity, m.getId());
+				
+				if (mes == null) {
+				
 				// Container for the values
 				ContentValues messageValues = new ContentValues();
 
@@ -75,7 +80,8 @@ public class SQLiteInterface {
 					db.insertOrThrow(MessagesDBHelper.MESSAGES_TAGS_TABLE,
 							null, tagsValues);
 				}
-				Log.i("DATABASE", "Inserted into db");
+					Log.i("DATABASE", "Inserted into db");
+				}
 			}
 		} catch (Exception e) {
 			Log.e("DATABASE", "Error in db " + e);
