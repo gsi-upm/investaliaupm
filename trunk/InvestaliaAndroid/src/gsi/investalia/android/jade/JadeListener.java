@@ -73,7 +73,7 @@ public class JadeListener implements ACLMessageListener {
 				List<Tag> tags = new ArrayList<Tag>();
 				JSONAdapter.JSONToMessageListAndTagList(message.getContent(),
 						messages, tags);
-				SQLiteInterface.saveMessages(context, messages);
+				SQLiteInterface.saveMessages(context, activity, messages);
 				SQLiteInterface.saveTags(context, tags);
 
 				// Broadcast reception
