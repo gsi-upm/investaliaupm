@@ -6,7 +6,6 @@ import gsi.investalia.domain.User;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.json.JSONAdapter;
 import gsi.investalia.server.apirest.MessagesFromAPI;
-import gsi.investalia.server.db.DateChaosGenerator;
 import gsi.investalia.server.db.MysqlInterface;
 import jade.lang.acl.ACLMessage;
 
@@ -86,10 +85,6 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeCheckLogin() throws Exception {	
-		// Disorder dates in test database 
-		// TODO: Delete it
-		//DateChaosGenerator.generateChaos();
-		
 		System.out.println("Check login");
 	
 		// Json to User
