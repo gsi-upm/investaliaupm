@@ -19,13 +19,13 @@ import com.tilab.wade.performer.Transition;
 import com.tilab.wade.performer.WorkflowBehaviour;
 
 @WorkflowLayout(entryPoint = @MarkerLayout(position = "(29,74)", activityName = "WaitForLogin"), activities = {
-		@ActivityLayout(position = "(336,71)", name = "Refresh"),
-		@ActivityLayout(position = "(137,69)", name = "WaitForProposal"),
-		@ActivityLayout(position = "(195,34)", name = "LoginSuccesful"),
-		@ActivityLayout(position = "(207,121)", name = "CheckLogin"),
-		@ActivityLayout(position = "(85,151)", name = "WaitForLogin"),
-		@ActivityLayout(position = "(333,199)", name = "LoginFailure") })
-public class DownloadOldMessagesWorkflow extends WorkflowBehaviour {
+	@ActivityLayout(position = "(336,71)", name = "Refresh"),
+	@ActivityLayout(position = "(137,69)", name = "WaitForProposal"),
+	@ActivityLayout(position = "(195,34)", name = "LoginSuccesful"),
+	@ActivityLayout(position = "(207,121)", name = "CheckLogin"),
+	@ActivityLayout(position = "(85,151)", name = "WaitForLogin"),
+	@ActivityLayout(position = "(333,199)", name = "LoginFailure") })
+	public class DownloadOldMessagesWorkflow extends WorkflowBehaviour {
 
 	ACLMessage aclMessage;
 
@@ -68,29 +68,31 @@ public class DownloadOldMessagesWorkflow extends WorkflowBehaviour {
 		// Get data
 		String jsonStr = aclMessage.getContent();
 		PreviousMessagesData data = JSONAdapter
-				.JSONToPreviousMessagesData(jsonStr);
+		.JSONToPreviousMessagesData(jsonStr);
+		int lastTag = JSONAdapter.JSONToLastTag(jsonStr);
 		String userName = aclMessage.getSender().getLocalName();
-		
+
 		System.out.println("content: " + jsonStr);
-		
-		 // Get the message list, tags and recommendations from db
-		 List<Message> messages = 
-			 MysqlInterface.getOldMessagesIncludingRecommended(userName, 
-		 	data.getFirstMessage(), data.getFistMessageFollowing(), 
-		 	data.getFirstMessageRecommended()); 
-		 System.out.println("message count: " + messages.size()); 
-		 List<Tag> tags = new ArrayList<Tag>();
-		 
+
+		// Get the message list, tags and recommendations from db
+		List<Message> messages = 
+			MysqlInterface.getOldMessagesIncludingRecommended(userName, 
+					data.getFirstMessage(), data.getFistMessageFollowing(), 
+					data.getFirstMessageRecommended()); 
+		System.out.println("message count: " + messages.size()); 
+		List<Tag> tags = MysqlInterface.getTagsSinceLast(lastTag);
+		System.out.println("tags count: " + tags.size());
+
 		// Generate the content 
-		 String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
-		 System.out.println("content sent: " + content);
-		 
-		 // Send it as reply. Propose, so the android app will act as when 
-		  //we are sending new messages 
-		  ACLMessage reply =
-		  aclMessage.createReply(); reply.setPerformative(ACLMessage.PROPOSE);
-		reply.setContent(content); myAgent.send(reply);
-		 
+		String content = JSONAdapter.messageListAndTagListToJSON(messages, tags).toString();
+		System.out.println("content sent: " + content);
+
+		// Send it as reply. Propose, so the android app will act as when 
+		//we are sending new messages 
+		ACLMessage reply =
+			aclMessage.createReply(); reply.setPerformative(ACLMessage.PROPOSE);
+			reply.setContent(content); myAgent.send(reply);
+
 	}
 
 	protected boolean checkMessageReceived() throws Exception {
