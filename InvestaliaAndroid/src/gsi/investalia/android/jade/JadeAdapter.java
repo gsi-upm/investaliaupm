@@ -3,6 +3,7 @@ package gsi.investalia.android.jade;
 import gsi.investalia.android.db.SQLiteInterface;
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.PreviousMessagesData;
+import gsi.investalia.domain.Tag;
 import gsi.investalia.domain.User;
 import gsi.investalia.json.JSONAdapter;
 import jade.android.ConnectionListener;
@@ -15,6 +16,8 @@ import jade.lang.acl.ACLMessage;
 import jade.util.leap.Properties;
 
 import java.net.ConnectException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONException;
 
@@ -129,18 +132,25 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 	
-	public void donwloadOldMessages() {
+	public void donwloadOldMessages(boolean first) {
 		Log.i("ANDROID", "Ask for old messages");
+		
+		PreviousMessagesData data;
+
+		if (first) {
+			Message currentDateMessage = new Message (0, "", "", "", new ArrayList<Tag>(), 
+						new Date(), false, false, 0, 0, 0, 0);
+			data = new PreviousMessagesData(currentDateMessage, currentDateMessage, currentDateMessage);
+		} else {
+			data = new PreviousMessagesData(SQLiteInterface.getFirstMessageNotFollowing(activity),
+					SQLiteInterface.getFirstMessageFollowing(activity),
+					SQLiteInterface.getFirstMessageRecommended(activity));
+		}
 
 		// Pass the first idMessage, idMessage following and idMessage recommendation
 		String content;
 		try {
-			PreviousMessagesData data = 
-				new PreviousMessagesData(
-						SQLiteInterface.getFirstMessageNotFollowing(activity),
-						SQLiteInterface.getFirstMessageFollowing(activity),
-						SQLiteInterface.getFirstMessageRecommended(activity));
-			content = JSONAdapter.previousMessagesDataToJSON(data).toString();
+			content = JSONAdapter.previousMessagesDataToJSON(data, SQLiteInterface.getLastIdTag(activity)).toString();
 		} catch (JSONException e1) {
 			Log.e(TAG_LOGGER, "Error parsing JSON (download messages)");
 			return;
