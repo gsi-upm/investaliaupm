@@ -191,11 +191,12 @@ public class JSONAdapter {
 	}
 
 	public static JSONObject previousMessagesDataToJSON(
-			PreviousMessagesData data) throws JSONException {
+			PreviousMessagesData data, int lastTag) throws JSONException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put(FIRST_MESSAGE, messageToJSON(data.getFirstMessage()));
 		jsonObj.put(FIRST_FOLLOWING, messageToJSON(data.getFistMessageFollowing()));
 		jsonObj.put(FIRST_RECOMMENDATION, messageToJSON(data.getFirstMessageRecommended()));
+		jsonObj.put(LAST_TAG, lastTag);
 		return jsonObj;
 	}
 	
