@@ -181,7 +181,7 @@ public class MessageList extends Activity implements OnItemClickListener {
 	public void onItemClick(AdapterView av, View v, int index, long arg3) {
 		Message selectedMessage = messages.get(index);
 		if(selectedMessage.getId() == IDREFRESH) {
-			jadeAdapter.donwloadOldMessages();
+			jadeAdapter.donwloadOldMessages(false);
 		}
 		else {
 			// Send the message id
