@@ -438,13 +438,13 @@ public class MysqlInterface {
 		String query = "(SELECT * FROM messages AS m, "
 			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + " AND m.date >= '" + getDateTimestamp(lastMessage)
-			+ "' AND m.idmessage > " + lastMessage.getId() 
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
+			+ "' AND m.date > " + lastMessage.getId() 
+			+ " ORDER BY m.date DESC LIMIT " + LIMIT_RECOMMENDATIONS 
 			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "WHERE m.date >= '" + getDateTimestamp(lastMessage)
-			+ "' AND m.idmessage > " + lastMessage.getId() 
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
+			+ "' AND m.date > " + lastMessage.getId() 
+			+ " ORDER BY m.date DESC LIMIT " + LIMIT_ALL + ") UNION "
 			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + "), "
@@ -452,7 +452,7 @@ public class MysqlInterface {
 			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
 			+ idUser + ") AND m.date >= '" + getDateTimestamp(lastMessage)
 			+ "' AND m.idmessage > " + lastMessage.getId()  
-			+ " ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+			+ " ORDER BY m.date DESC LIMIT " + LIMIT_SUBSCRIBED +");";
 		return getMessagesFromQuery(query, idUser);
 	}
 	
@@ -467,18 +467,18 @@ public class MysqlInterface {
 		String query = "(SELECT * FROM messages AS m, "
 			+ "users_recommendations AS ur WHERE m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + " AND m.date < '" + getDateTimestamp(lastMessageRecommended)
-			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_RECOMMENDATIONS 
+			+ "' ORDER BY m.date DESC LIMIT " + LIMIT_RECOMMENDATIONS 
 			+ ") UNION (SELECT * FROM messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "WHERE m.date < '" + getDateTimestamp(lastMessage)
-			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_ALL + ") UNION "
+			+ "' ORDER BY m.date DESC LIMIT " + LIMIT_ALL + ") UNION "
 			+ "(SELECT DISTINCT m.*, ur.* FROM (messages AS m LEFT JOIN "
 			+ "users_recommendations AS ur ON m.idmessage = ur.idmessage "
 			+ "AND ur.iduser = "+ idUser + "), "
 			+ "messages_tags AS mt WHERE m.idmessage = mt.idmessage AND "
 			+ "idtag IN (SELECT idtag FROM users_tags WHERE iduser = " 
 			+ idUser + ") AND m.date < '" + getDateTimestamp(lastMessageFollowing)
-			+ "' ORDER BY m.idmessage DESC LIMIT " + LIMIT_SUBSCRIBED +");";
+			+ "' ORDER BY m.date DESC LIMIT " + LIMIT_SUBSCRIBED +");";
 		System.out.println(query); // TODO
 		return getMessagesFromQuery(query, idUser);
 	}
