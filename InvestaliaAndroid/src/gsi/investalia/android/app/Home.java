@@ -108,7 +108,7 @@ public class Home extends Activity {
 			if (intent.getAction().equals(JadeAdapter.JADE_CONNECTED)) {
 				Log.i(TAG_LOGGER, "Download messages");
 				unregisterReceiver(broadcastReceiver);
-				jadeAdapter.donwloadNewMessages();
+				jadeAdapter.donwloadOldMessages(true);
 			}
 		}
 	}
