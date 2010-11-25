@@ -213,8 +213,6 @@ public class MessageList extends Activity implements OnItemClickListener {
 		if (item.getItemId() == R.id.menu_refresh) {
 			Log.i(TAG_LOGGER, "Message list: ask for new messages");
 			jadeAdapter.donwloadNewMessages();
-		} else if (item.getItemId() == R.id.menu_show) {
-			// TODO
 		} else {
 			item.setChecked(true);
 			String toastStr = "";

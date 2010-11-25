@@ -65,6 +65,7 @@ public class Compose extends Activity implements OnClickListener {
 		this.intentFilter.addAction(JadeAdapter.MESSAGE_FAIL);
 		registerReceiver(this.broadcastReceiver, this.intentFilter);		
 
+		// Buttons
 		Button topicButton = (Button) findViewById(R.id.compose_topic_button);
 		selectedTopicsText = (TextView) findViewById(R.id.compose_selected_topics_text);
 		title = (EditText) findViewById(R.id.compose_title);
@@ -89,7 +90,7 @@ public class Compose extends Activity implements OnClickListener {
 			selectedTags[i] = false;
 		}
 		
-		// Watcher para controlar cuando se introduce texto para activar el botón de enviar
+		// Check if there is enough information to activate the send button
 		TextWatcher watcher = new TextWatcher() { 
 			public void afterTextChanged(Editable s) {
 				enableSendButton();
@@ -140,6 +141,9 @@ public class Compose extends Activity implements OnClickListener {
 		}
 	}
 	
+	/**
+	 * Clean the information presented on the buttons 
+	 */
 	public void clearFields() {
 		title.setText("");
 		text.setText("");
@@ -152,8 +156,7 @@ public class Compose extends Activity implements OnClickListener {
 	}
 
 	/**
-	 * Método que lee de los cuadros de texto y de la lista de tag seleccionadas
-	 * para enviar los datos al Adapter
+	 * Read the information related to the message to send 
 	 */
 	private void sendData() {
 
@@ -180,7 +183,7 @@ public class Compose extends Activity implements OnClickListener {
 	}
 
 	/**
-	 * Creates the dialog to select tags
+	 * Create the dialog to select tags
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -203,8 +206,7 @@ public class Compose extends Activity implements OnClickListener {
 	}
 	
 	/**
-	 * Actualiza la lista de tags seleccionadas en la vista Actualiza el boton
-	 * de enviar
+	 * Update selected tags before sending a message
 	 */
 	private void refreshSelectedTags() {
 
@@ -226,8 +228,8 @@ public class Compose extends Activity implements OnClickListener {
 		}
 	}
 
-	/*
-	 * Actualiza el estado del botón enviar
+	/**
+	 * Update the send button 
 	 */
 	private void enableSendButton() {
 		if (tagEmpty || title.length() == 0 || text.length() == 0) {
@@ -237,7 +239,6 @@ public class Compose extends Activity implements OnClickListener {
 		}
 	}
 	
-
 	/**
 	 * Receiver to listen to updates
 	 */

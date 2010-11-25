@@ -7,11 +7,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.TabHost;
 
-/*
- *  Esta clase será la contenedora de todos los Tabs
- *  Cada tab será una actividad nueva
- */
-
 public class Main extends TabActivity {
 
 	// Jade
@@ -24,13 +19,13 @@ public class Main extends TabActivity {
 		Resources res = getResources();
 		TabHost host = getTabHost();
 
-		// Creamos un intent para cada actividad
+		// An intent to activate each activity
 		Intent home = new Intent(this, Home.class);
 		Intent messages = new Intent(this, MessageList.class);
 		Intent compose = new Intent(this, Compose.class);
 		Intent profile = new Intent(this, Profile.class);
 
-		// Añadimos al host de las Tabs cada Tab y la actividad a lanzar
+		// Link each activity to a tab
 		host.addTab(host.newTabSpec("home")
 				.setIndicator(this.getString(R.string.home),
 						res.getDrawable(R.drawable.home)).setContent(home));
@@ -46,7 +41,6 @@ public class Main extends TabActivity {
 		host.addTab(host.newTabSpec("profile").setIndicator(
 				this.getString(R.string.profile),
 				res.getDrawable(R.drawable.profile)).setContent(profile));
-		
 		
 	}
 	

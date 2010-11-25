@@ -85,8 +85,7 @@ public class Home extends Activity {
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		super.onMenuItemSelected(featureId, item);
-		// There is only one option: log out
-		
+		// There is only one option: log out		
 		logOut();	
 		return true;
 	}
