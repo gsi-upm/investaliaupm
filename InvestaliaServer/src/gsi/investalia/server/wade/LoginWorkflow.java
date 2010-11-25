@@ -29,8 +29,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 	public static final String LOGINFAILURE_ACTIVITY = "LoginFailure";
 	public static final String CHECKLOGIN_ACTIVITY = "CheckLogin";
 	public static final String LOGINSUCCESSFUL_ACTIVITY = "LoginSuccessful";
-	public static final String RECOMMENDATION_ACTIVITY = "Recommendation";
-
+	
 	/* Conditions for the transitions */
 	public static final String CORRECTLOGIN_CONDITION = "CorrectLogin";
 	public static final String WRONGLOGIN_CONDITION = "WrongLogin";
@@ -51,10 +50,6 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		CodeExecutionBehaviour loginSuccessfulActivity = new CodeExecutionBehaviour(
 				LOGINSUCCESSFUL_ACTIVITY, this);
 		registerActivity(loginSuccessfulActivity);
-		CodeExecutionBehaviour recommendationActivity = new CodeExecutionBehaviour(
-				RECOMMENDATION_ACTIVITY, this);
-		registerActivity(recommendationActivity);
-
 	}
 
 	private void defineTransitions() {
@@ -67,10 +62,7 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		registerTransition(new Transition(), LOGINFAILURE_ACTIVITY,
 				WAITFORLOGIN_ACTIVITY);
 		registerTransition(new Transition(MESSAGERECEIVED_CONDITION,this), 
-				LOGINSUCCESSFUL_ACTIVITY, RECOMMENDATION_ACTIVITY);
-		registerTransition(new Transition(), RECOMMENDATION_ACTIVITY,
-				WAITFORLOGIN_ACTIVITY);
-
+				LOGINSUCCESSFUL_ACTIVITY, WAITFORLOGIN_ACTIVITY);
 	}
 
 	protected void executeWaitForLogin() throws Exception {
@@ -111,11 +103,6 @@ public class LoginWorkflow extends WorkflowBehaviour {
 		successfulLogin = loggedUser != null;
 	}
 	
-	protected void executeRecommendation() throws Exception {
-		//TODO : Update the database with new recommendations , or something similar
-
-	}
-
 	protected void executeLoginFailure() throws Exception {
 		System.out.println("Login failure");
 		ACLMessage reply = aclMessage.createReply();

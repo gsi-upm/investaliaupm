@@ -74,7 +74,7 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 
 		System.out.println("content: " + jsonStr);
 
-		// Get the message list, tags and recommendations from db
+		// Get old messages and tags from db
 		List<Message> messages = 
 			MysqlInterface.getOldMessagesIncludingRecommended(userName, 
 					data.getFirstMessage(), data.getFistMessageFollowing(), 

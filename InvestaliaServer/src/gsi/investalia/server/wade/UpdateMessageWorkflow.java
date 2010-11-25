@@ -105,7 +105,6 @@ public class UpdateMessageWorkflow extends WorkflowBehaviour {
 
 	protected void executeUpdateFailure() throws Exception {
 		System.out.println("Message update failure");
-		// TODO 
 		/*
 		ACLMessage loginFailure = aclMessage.createReply();
 		loginFailure.setPerformative(ACLMessage.REJECT_PROPOSAL);

@@ -106,7 +106,6 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 			for(Long userID : ((HashMap<Long,HashMap<Long,Float>>) recommendationData.get(dimensions[0])).keySet()) {
 				
 				HashMap<Long,Float> userRecommendations = recommender.getRecommendations(userID, numOfRecommendations);
-			//	System.out.println(userID+" recommendation list: "+userRecommendations);
 				MysqlInterface.updateUserRecommendationData(userID.intValue(), userRecommendations);
 				if(userIsOn(activeAgents, userID))
 					sendRecommendations(userID, userRecommendations);
@@ -131,7 +130,6 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 			refresh = true;
 		
 		System.out.println(aclMessage.getSender().getName() + aclMessage.getContent());
-		
 		System.out.println("Refresh");
 	}
 	

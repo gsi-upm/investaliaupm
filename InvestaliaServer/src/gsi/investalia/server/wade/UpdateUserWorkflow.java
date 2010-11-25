@@ -82,7 +82,6 @@ public class UpdateUserWorkflow extends WorkflowBehaviour {
 	}
 
 	protected void executeUpdateFailure() throws Exception {
-		// TODO 
 		/*
 		System.out.println("Update failure");
 		ACLMessage loginFailure = aclMessage.createReply();
