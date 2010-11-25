@@ -54,20 +54,22 @@ public class JadeListener implements ACLMessageListener {
 			// Save the user
 			SQLiteInterface.saveLoggedUser(message.getContent(), context);
 
-			// TODO Decide if deleting or not
+			// Decide all messages
 			SQLiteInterface.deleteAllMessages(context);
 
 			// Correct parsing: logged user
 			context.sendBroadcast(new Intent(JadeAdapter.LOGGED_IN));
-
+			
+			// Correct message sent
 		} else if (message.getPerformative() == ACLMessage.CONFIRM) {
 			Log.i(TAG_LOGGER, "Confirm. Message sent");
 			context.sendBroadcast(new Intent(JadeAdapter.MESSAGE_OK));
 
+			// Correct message received
 		} else if (message.getPerformative() == ACLMessage.PROPOSE) {
 			Log.i(TAG_LOGGER, "Propose. Messages downloaded");
 			try {
-				// Save the messages to db
+				// Save the messages and tags to db
 				Log.i(TAG_LOGGER, "json message list: " + message.getContent());
 				List<Message> messages = new ArrayList<Message>();
 				List<Tag> tags = new ArrayList<Tag>();
@@ -83,12 +85,18 @@ public class JadeListener implements ACLMessageListener {
 			} catch (JSONException e) {
 				Log.e(TAG_LOGGER, "Error parsing JSON");
 			}
+		
+			// User created
 		} else if (message.getPerformative() == ACLMessage.AGREE) {
 			Log.i(TAG_LOGGER, "User created");
 			context.sendBroadcast(new Intent(JadeAdapter.USER_CREATED));
+			
+			// User non created
 		} else if (message.getPerformative() == ACLMessage.DISCONFIRM) {
-			Log.i(TAG_LOGGER, "wrong new user");
+			Log.i(TAG_LOGGER, "Wrong new user");
 			context.sendBroadcast(new Intent(JadeAdapter.WRONG_NEW_USER));
+		
+			// Profile user modified
 		} else if (message.getPerformative() == ACLMessage.INFORM_REF) {
 			Log.i(TAG_LOGGER, "User modified");
 			// Save the user
@@ -96,6 +104,8 @@ public class JadeListener implements ACLMessageListener {
 			// Delete old messages
 			SQLiteInterface.deleteAllMessages(context);
 			context.sendBroadcast(new Intent(JadeAdapter.USER_UPDATED));
+			
+			// Recommendations updated 
 		} else if (message.getPerformative() == ACLMessage.PROPAGATE) {
 			Log.i(TAG_LOGGER, "Recommendations updated");
 			SQLiteInterface.updateRecommendations(message.getContent(), activity);

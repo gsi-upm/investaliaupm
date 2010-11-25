@@ -12,7 +12,6 @@ public class RestartBehaviour extends OneShotBehaviour {
 	public void action() {
 		ACLMessage msg = new ACLMessage(ACLMessage.PROPOSE);
 		msg.setContent("DEAD");
-		//TODO: Change to select Login Agent automatically.
 		AID login = new AID("login", AID.ISLOCALNAME);
 		msg.addReceiver(login); 
 		myAgent.send(msg);

@@ -26,10 +26,7 @@ import android.content.Intent;
 import android.util.Log;
 
 /**
- * Clase que actúa de interfaz de la interacción con el agente JADE. Contiene
- * los métodos necesarios para la correcta conexión y para la comunicación con
- * el agente.
- * 
+ * Interface with JADE agent (connection and communication methods)
  */
 public class JadeAdapter implements ConnectionListener {
 
@@ -74,6 +71,9 @@ public class JadeAdapter implements ConnectionListener {
 		this.activity = activity;
 	}
 
+	/**
+	 * Login
+	 */
 	public void checkLogin(User user) {
 		Log.v("ANDROID", "Try to log, username: " + user.getUserName());
 		try {
@@ -85,6 +85,9 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 
+	/**
+	 * Save a new message
+	 */
 	public void saveNewMessage(Message message) {
 		Log.i(TAG_LOGGER, "Save new message");
 		// Send the message
@@ -111,6 +114,9 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 
+	/**
+	 * Download new messages
+	 */
 	public void donwloadNewMessages() {
 		Log.i("ANDROID", "Ask for new messages");
 
@@ -132,6 +138,9 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 	
+	/**
+	 * Download old messages
+	 */
 	public void donwloadOldMessages(boolean first) {
 		Log.i("ANDROID", "Ask for old messages");
 		
@@ -147,7 +156,7 @@ public class JadeAdapter implements ConnectionListener {
 					SQLiteInterface.getFirstMessageRecommended(activity));
 		}
 
-		// Pass the first idMessage, idMessage following and idMessage recommendation
+		// Pass the first non followed, followed and recommended message
 		String content;
 		try {
 			content = JSONAdapter.previousMessagesDataToJSON(data, SQLiteInterface.getLastIdTag(activity)).toString();
@@ -164,6 +173,9 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 
+	/**
+	 * Update a user profile
+	 */
 	public void updateUser(User user) {
 		String jsonStr;
 		try {
@@ -180,6 +192,9 @@ public class JadeAdapter implements ConnectionListener {
 		}
 	}
 
+	/**
+	 * New user
+	 */
 	public void newUser(User user) {
 		Log.i("ANDROID", "Try to create new user: " + user.getUserName());
 		try {
@@ -214,7 +229,7 @@ public class JadeAdapter implements ConnectionListener {
 		// Create JADE properties class
 		Properties props = new Properties();
 
-		// TODO: IMPORTANTE: añadir el host y puerto en el strings.xml
+		// TODO: Configure host and port in strings.xml
 		props.setProperty(Profile.MAIN_HOST, IP);
 		props.setProperty(Profile.MAIN_PORT, PORT);
 		props.setProperty(JICPProtocol.MSISDN_KEY, agentName);
