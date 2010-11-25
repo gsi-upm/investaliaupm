@@ -14,16 +14,15 @@ import com.tilab.wade.performer.WorkflowBehaviour;
 
 @WorkflowLayout(entryPoint = @MarkerLayout(position = "(75,138)", activityName = "WaitForProposal"), activities = {
 		@ActivityLayout(position = "(458,259)", name = "Posting"),
-		@ActivityLayout(size = "(140,50)", position = "(444,118)", name = "Recommendation"),
 		@ActivityLayout(size = "(136,50)", position = "(225,196)", name = "WaitForProposal") })
-public class PostingWorkflow extends WorkflowBehaviour {
+
+		public class PostingWorkflow extends WorkflowBehaviour {
 
 	ACLMessage aclMessage;
 
 	/* Activities for this workflow */
 	public static final String WAITFORPROPOSAL_ACTIVITY = "WaitForProposal";
 	public static final String POSTING_ACTIVITY = "Posting";
-	public static final String RECOMMENDATION_ACTIVITY = "Recommendation";
 
 	/* Conditions for the transitions */
 	public static final String MESSAGERECEIVED_CONDITION = "MessageReceived";
@@ -39,18 +38,13 @@ public class PostingWorkflow extends WorkflowBehaviour {
 		CodeExecutionBehaviour postingActivity = new CodeExecutionBehaviour(
 				POSTING_ACTIVITY, this);
 		registerActivity(postingActivity);
-		CodeExecutionBehaviour recommendationActivity = new CodeExecutionBehaviour(
-				RECOMMENDATION_ACTIVITY, this);
-		registerActivity(recommendationActivity);
 	}
 
 	private void defineTransitions() {
 		registerTransition(new Transition(MESSAGERECEIVED_CONDITION, this),
 				WAITFORPROPOSAL_ACTIVITY, POSTING_ACTIVITY);
 		registerTransition(new Transition(RECEIVEDCORRECTLY_CONDITION, this),
-				POSTING_ACTIVITY, RECOMMENDATION_ACTIVITY);
-		registerTransition(new Transition(), RECOMMENDATION_ACTIVITY,
-				WAITFORPROPOSAL_ACTIVITY);
+				POSTING_ACTIVITY, WAITFORPROPOSAL_ACTIVITY);
 		registerTransition(new Transition(NOTRECEIVED_CONDITION, this),
 				POSTING_ACTIVITY, WAITFORPROPOSAL_ACTIVITY);
 	}
@@ -62,12 +56,6 @@ public class PostingWorkflow extends WorkflowBehaviour {
 			/* We have received the new message to post */
 			messageReceived = true;
 		}
-	}
-
-	protected void executeRecommendation() throws Exception {
-		// TODO : Update the database with new recommendations , or something
-		// similar
-
 	}
 
 	protected void executePosting() throws Exception {

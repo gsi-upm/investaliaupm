@@ -1,7 +1,5 @@
 package gsi.investalia.server.apirest;
 
-
-
 import gsi.investalia.domain.Message;
 import gsi.investalia.domain.Tag;
 import gsi.investalia.server.db.MysqlInterface;
@@ -19,7 +17,6 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 
 public class MessagesFromAPI {
@@ -74,7 +71,7 @@ public class MessagesFromAPI {
 	}
 	
 	/**
-	 * Elimina etiquetas HTML y pone acentos bien.
+	 * HTML parser
 	 */
 	public static String parseHTML(String input){
 		return input
@@ -104,25 +101,8 @@ public class MessagesFromAPI {
 	}
 
 	public static List<Message> getBlogsFromAPI (String lastUpdate){
-		/* Last Update es un número correspondiende con la última fecha que se actualizó */
-		/*Ej: 0000000000 devuelve todos los mensajes */
 
 		ArrayList<Message> msgs = new ArrayList<Message>();
-
-		/* PARSEADO DEL XML , ya no es necesario.
-		 * try{
-	            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-	            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-	            Document doc = docBuilder.parse (blogs_TOKEN1+blogs_TOKEN2+lastUpdate);//Conecta a través de la URI
-	            doc.getDocumentElement ().normalize();
-	            NodeList titles = doc.getElementsByTagName("title");
-	            //doc.getDocumentElement().getChildNodes().item(0).get
-	            //System.out.println(titles.item(0).getTextContent());
-
-
-	        }catch(Exception e){
-	        	System.err.println(e.getMessage());
-	        }*/
 
 		try{
 
@@ -164,7 +144,7 @@ public class MessagesFromAPI {
 					rating = 0;
 				}		
 
-				int timesRead = 0; //Por defecto, 0
+				int timesRead = 0;
 				double affinity = 0; 
 				Message toBeAdded = new Message((int)idMessageAPI, userName, title, text,
 						tags, date, read, liked,rating, timesRead, affinity,
@@ -189,8 +169,6 @@ public class MessagesFromAPI {
 	}
 
 	public static List<Message> getNotesInTheWallFromAPI (String lastUpdate){
-		/* Last Update es un número correspondiende con la última fecha que se actualizó */
-		/*Ej: 0000000000 devuelve todos los mensajes */
 
 		ArrayList<Message> msgs = new ArrayList<Message>();
 
@@ -215,7 +193,7 @@ public class MessagesFromAPI {
 				boolean liked = false;
 				int rating=0;	
 
-				int timesRead = 0; //Por defecto, 0
+				int timesRead = 0;
 				double affinity = 0; 
 				Message toBeAdded = new Message((int)idMessageAPI, userName, title, text, 
 						tags, date, read, liked,rating, timesRead, affinity,
@@ -229,8 +207,6 @@ public class MessagesFromAPI {
 	}
 
 	public static List<Message> getCommentsFromAPI (String lastUpdate){
-		/* Last Update es un número correspondiende con la última fecha que se actualizó */
-		/*Ej: 0000000000 devuelve todos los mensajes */
 
 		ArrayList<Message> msgs = new ArrayList<Message>();
 
@@ -255,7 +231,7 @@ public class MessagesFromAPI {
 				boolean liked = false;
 				int rating=0;	
 
-				int timesRead = 0; //Por defecto, 0
+				int timesRead = 0;
 				double affinity = 0; 
 				Message toBeAdded = new Message((int)idMessageAPI, userName, title, 
 						text,tags, date, read, liked, rating,timesRead,
@@ -270,9 +246,7 @@ public class MessagesFromAPI {
 
 
 	public static List<String[]> getRatings (String lastUpdate){
-		/* Last Update es un número correspondiende con la última fecha que se actualizó */
-		/*Ej: 0000000000 devuelve todos los mensajes */
-
+	
 		ArrayList<String[]> msgs = new ArrayList<String[]>();
 
 		try{
@@ -284,7 +258,6 @@ public class MessagesFromAPI {
 			JSONArray blogs = result.getJSONArray("valoraciones"); /*Array of all the ratings since last update*/
 			for(int i = 0;i<blogs.length();i++){
 				if(blogs.getJSONObject(i).getInt("value")>=2){
-					/*Consideramos que han gustado los que tienen una valoracion mayor o igual que 2*/
 					String idUser = blogs.getJSONObject(i).getString("owner_name");
 					System.out.println(idUser);
 					String idBlog = blogs.getJSONObject(i).getString("entity_guid");
@@ -324,9 +297,7 @@ public class MessagesFromAPI {
     }
 
     public static List<String[]> getRead (String lastUpdate){
-            /* Last Update es un número correspondiende con la última fecha que se actualizó */
-            /*Ej: 0000000000 devuelve todos los mensajes */
-
+ 
             ArrayList<String[]> msgs = new ArrayList<String[]>();
 
             try{
@@ -338,7 +309,6 @@ public class MessagesFromAPI {
                     JSONArray blogs = result.getJSONArray("valoraciones"); /*Array of all the ratings since last update*/
                     for(int i = 0;i<blogs.length();i++){
                             if(blogs.getJSONObject(i).getInt("value")<2 ){
-                                    /*Los que tienen una valoracion menor que 2 se han leido, pero no gustado*/
                                     String idUser = blogs.getJSONObject(i).getString("owner_name");
                                     System.out.println(idUser);
                                     String idBlog = blogs.getJSONObject(i).getString("entity_guid");
