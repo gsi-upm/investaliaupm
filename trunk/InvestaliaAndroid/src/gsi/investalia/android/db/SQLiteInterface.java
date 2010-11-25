@@ -33,6 +33,9 @@ public class SQLiteInterface {
 	public static final String FOLLOWING = "following";
 	public static final String ALL = "all";
 
+	/**
+	 * Save messages
+	 */
 	public static void saveMessages(Context context, Activity activity, List<Message> messages) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
@@ -41,6 +44,7 @@ public class SQLiteInterface {
 
 			for (Message m : messages) {
 				
+				// Check if the message is already saved
 				Message mes = getMessage(activity, m.getId());
 				
 				if (mes == null) {
@@ -91,6 +95,9 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Update the info related to a message
+	 */
 	public static void updateMessage(Context context, Message message) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
@@ -116,6 +123,9 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Delete all messages
+	 */
 	public static void deleteAllMessages(Context context) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
@@ -130,6 +140,9 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Get tags followed by the logged user
+	 */
 	private static String getUserTagsAsStringList(Activity activity) {
 		User user = getLoggedUser(activity);
 		String str = "";
@@ -142,6 +155,9 @@ public class SQLiteInterface {
 		return str;
 	}
 
+	/**
+	 * Get all messages
+	 */
 	public static void addMessages(Activity activity, List<Message> messages,
 			String which, String orderBy) {
 		// Get the helper
@@ -191,6 +207,9 @@ public class SQLiteInterface {
 		}
 	}
 	
+	/**
+	 * Get messages from a cursor
+	 */
 	private static void addMessagesFromCursor(List<Message> messages, Cursor cursor, 
 			Activity activity) {
 		while (cursor.moveToNext()) {
@@ -213,6 +232,9 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Get a message from its id
+	 */
 	public static Message getMessage(Activity activity, int idMessage) {
 		// Get the helper
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
@@ -258,7 +280,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Saves the logged user into the android shared preferences
+	 * Save the logged user into the android shared preferences
 	 */
 	public static void saveLoggedUser(String loggedUserStr, Context context) {
 		context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
@@ -285,13 +307,16 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Deletes the logged user from the android shared preferences
+	 * Delete the logged user from the android shared preferences
 	 */
 	public static void removeLoggedUser(Context context) {
 		context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
 				.edit().remove(LOGGED_USER).commit();
 	}
 
+	/**
+	 * Save tags
+	 */
 	public static void saveTags(Context context, List<Tag> tags) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(context);
 		try {
@@ -318,6 +343,9 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Get tags
+	 */
 	public static List<Tag> getTags(Activity activity) {
 		// Get the helper
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
@@ -349,6 +377,9 @@ public class SQLiteInterface {
 		return tags;
 	}
 
+	/**
+	 * Get tags related to a message
+	 */
 	public static List<Tag> getMessageTags(Activity activity, int idMessage) {
 		// Get the helper
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
@@ -383,7 +414,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Gets the the id of the last message saved in database
+	 * Get the last message saved in database
 	 */
 	public static Message getLastMessage(Activity activity) {
 		// Messages are ordered by its id
@@ -396,7 +427,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Gets the the id of the last tag saved in database
+	 * Gets the id of the last tag saved in database
 	 */
 	public static int getLastIdTag(Activity activity) {
 		// Tags are ordered by its id
@@ -408,7 +439,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Gets the the id of the first following message saved in database
+	 * Gets the last not followed message saved in database
 	 */
 	public static Message getFirstMessageNotFollowing(Activity activity) {
 		List<Message> messages = new ArrayList<Message>();
@@ -437,7 +468,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Gets the the id of the first message saved in database
+	 * Gets the first followed message saved in database
 	 */
 	public static Message getFirstMessageFollowing(Activity activity) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
@@ -472,7 +503,7 @@ public class SQLiteInterface {
 	}
 
 	/**
-	 * Gets the the id of the first message saved in database
+	 * Gets the first recommended message saved in database
 	 */
 	public static Message getFirstMessageRecommended(Activity activity) {
 		MessagesDBHelper dbHelper = new MessagesDBHelper(activity);
@@ -502,8 +533,10 @@ public class SQLiteInterface {
 		}
 	}
 
+	/**
+	 * Updates recommendation info
+	 */
 	public static void updateRecommendations(String content, Activity activity) {
-
 		HashMap<Long, Float> recommendations = new HashMap<Long, Float>();
 		try {
 			JSONAdapter.JSONToRecommendations(content, recommendations);
