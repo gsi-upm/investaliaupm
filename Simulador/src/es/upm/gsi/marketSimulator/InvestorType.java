@@ -139,9 +139,9 @@ public abstract class InvestorType {
 				financialReputation * Properties.OPERATIONS_WEIGHT;
 		
 		if(investor.getIteration() % Properties.STATISTICS_INTERVAL == 0) {
-			System.out.println("id:"+investor.getId()+"("+getClass()+") OC:"+operationsClosed+
-				" OO:"+operationOpened+" capC:"+capitalClosed+" capO:"+capitalOpened+" CR:"+capitalRentability
-				+" fr:"+financialReputation);
+			//System.out.println("id:"+investor.getId()+"("+getClass()+") OC:"+operationsClosed+
+			//	" OO:"+operationOpened+" capC:"+capitalClosed+" capO:"+capitalOpened+" CR:"+capitalRentability
+			//	+" fr:"+financialReputation);
 		}
 	}	
 	

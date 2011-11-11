@@ -202,87 +202,83 @@ public class SimulateSocialExchange extends Scape {
                 return (((Investors) object).getAgentType()[0] == Investors.RANDOM_INVESTOR);
             }
         };
-        
-        StatCollector ActRepFRE_GOW_NFRIE = new StatCollectorCondCSAMM("ActRep FREQ GOWR NO_FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-                return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepFRE_GOW_FRIE = new StatCollectorCondCSAMM("ActRep FREQ GOWR FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepOCA_GOW_FRIE = new StatCollectorCondCSAMM("ActRep OCAS GOWR FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepOCA_GOW_NFRIE = new StatCollectorCondCSAMM("ActRep OCAS GOWR NO_FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepFRE_BAW_NFRIE = new StatCollectorCondCSAMM("ActRep FREQ BADWR NO_FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-                return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepFRE_BAW_FRIE = new StatCollectorCondCSAMM("ActRep FREQ BADWR FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepOCA_BAW_FRIE = new StatCollectorCondCSAMM("ActRep OCAS BADWR FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
-            }
-        };
-        StatCollector ActRepOCA_BAW_NFRIE = new StatCollectorCondCSAMM("ActRep OCAS BADWR NO_FRIEN") {
-            public double getValue(Object object) {
-               return ((Investors) object).getActivityReputation();
-            }
-            public boolean meetsCondition(Object object) {
-            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
-                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
-                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
-            }
-        };
+                
+        int type = MyStatCollectorCondCSAMM.FRIEND_REP;
+        for(int i = 0; i < /*Properties.MESSAGE_DEGRADATION_LOGARITHMIC_FACTOR.length *
+        		Properties.MINIMUM_MESSAGES_TO_DEGRADATE.length * */
+        		Properties.NO_COMMON_FRIEND_WEIGHT.length *
+        		Properties.FRIEND_DEGRADATION_FACTOR.length; i++) {        	
+	        StatCollector ActRepFRE_GOW_NFRIE = new MyStatCollectorCondCSAMM(
+	        		"FREQ GOWR NO_FRIEN",type,i) {
+	        	public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+	                 		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+	                 		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepFRE_GOW_FRIE = new MyStatCollectorCondCSAMM(
+	        		"FREQ GOWR FRIEN",type,i) {
+	        	public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
+	            }
+	        };	        
+	         
+	        StatCollector ActRepOCA_GOW_FRIE = new MyStatCollectorCondCSAMM(
+	        		"OCAS GOWR FRIEN",type,i) {
+	           public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepOCA_GOW_NFRIE = new MyStatCollectorCondCSAMM(
+	        		"OCAS GOWR NO_FRIEN",type,i) {
+	            public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.GOOD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepFRE_BAW_NFRIE = new MyStatCollectorCondCSAMM(
+	        		"FREQ BADWR NO_FRIEN",type,i) {
+	            public boolean meetsCondition(Object object) {
+	                return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepFRE_BAW_FRIE = new MyStatCollectorCondCSAMM("FREQ BADWR FRIEN",type,i) {
+	           public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.FREQUENT_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepOCA_BAW_FRIE = new MyStatCollectorCondCSAMM("OCAS BADWR FRIEN",type,i) {
+	            public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.FRIENDLY_USER);
+	            }
+	        };
+	        StatCollector ActRepOCA_BAW_NFRIE = new MyStatCollectorCondCSAMM("OCAS BADWR NO_FRIEN",type,i) {
+	           public boolean meetsCondition(Object object) {
+	            	return (((Investors) object).getAgentType()[1] == Investors.OCASIONAL_USER &&
+	                		((Investors) object).getAgentType()[2] == Investors.BAD_WRITER &&
+	                		((Investors) object).getAgentType()[3] == Investors.NO_FRIENDLY_USER);
+	            }
+	        };
+	        people.addStatCollector(ActRepFRE_GOW_NFRIE);
+	        people.addStatCollector(ActRepFRE_GOW_FRIE);
+	        people.addStatCollector(ActRepOCA_GOW_NFRIE);
+	        people.addStatCollector(ActRepOCA_GOW_FRIE);
+	        people.addStatCollector(ActRepFRE_BAW_NFRIE);
+	        people.addStatCollector(ActRepFRE_BAW_FRIE);
+	        people.addStatCollector(ActRepOCA_BAW_NFRIE);
+	        people.addStatCollector(ActRepOCA_BAW_FRIE);
+        }
         
         StatCollector Top10_PRU = new StatCollectorCSAMM("Prudent Investors") {
             public double getValue(Object object) {
@@ -338,13 +334,13 @@ public class SimulateSocialExchange extends Scape {
 
         StatCollector TotalPlay = new StatCollectorCSAMM("TotalPlay") {
             public double getValue(Object object) {
-            	return ((Investors)object).getPlay();
+            	return ((Investors)object).getPlays();
             }        
         };
         
         StatCollector Top10_Play = new StatCollectorCondCSAMM("Top10_Play") {
             public double getValue(Object object) {
-            	return ((Investors)object).getPlay();
+            	return ((Investors)object).getPlays();
             }
             public boolean meetsCondition(Object object) {
             	List<Investors> investors = getSortInvestorByFinance();
@@ -361,7 +357,7 @@ public class SimulateSocialExchange extends Scape {
         
         StatCollector Bottom10_Play = new StatCollectorCondCSAMM("Bottom10_Play") {
             public double getValue(Object object) {
-            	return ((Investors)object).getPlay();
+            	return ((Investors)object).getPlays();
             }
             public boolean meetsCondition(Object object) {
             	List<Investors> investors = getSortInvestorByFinance();
@@ -479,16 +475,9 @@ public class SimulateSocialExchange extends Scape {
         people.addStatCollector(FinRepEImpY);
         people.addStatCollector(FinRepEImpN);
         people.addStatCollector(FinRepAMA);        
-        people.addStatCollector(FinRepRAM);        
+        people.addStatCollector(FinRepRAM);     
         
-        people.addStatCollector(ActRepFRE_GOW_NFRIE);
-        people.addStatCollector(ActRepFRE_GOW_FRIE);
-        people.addStatCollector(ActRepOCA_GOW_NFRIE);
-        people.addStatCollector(ActRepOCA_GOW_FRIE);
-        people.addStatCollector(ActRepFRE_BAW_NFRIE);
-        people.addStatCollector(ActRepFRE_BAW_FRIE);
-        people.addStatCollector(ActRepOCA_BAW_NFRIE);
-        people.addStatCollector(ActRepOCA_BAW_FRIE); 
+         
         
         people.addStatCollector(TotalPlay);
         people.addStatCollector(Top10_Play);
@@ -520,8 +509,9 @@ public class SimulateSocialExchange extends Scape {
         latticeView = new Overhead2DView();
         latticeView.setCellSize(7); //15
         //latticeView.setDrawNetwork(true);
-        socialSpace.addView(latticeView); 
+        socialSpace.addView(latticeView);
         
+        /*
         ChartView financialIntelligentChart = new ChartView("Intelligent Reputation");
         people.addView(financialIntelligentChart);
         financialIntelligentChart.addSeries("Average FinRepEXP", Color.RED);
@@ -559,6 +549,7 @@ public class SimulateSocialExchange extends Scape {
         people.addView(financialDIVIntelligentChart);
         financialDIVIntelligentChart.addSeries("Average FinRep EXP Div Y", Color.BLACK);
         financialDIVIntelligentChart.addSeries("Average FinRep EXP Div N", Color.RED);
+        */
         
         ChartView financialChart = new ChartView("Financial Reputation");
         people.addView(financialChart);
@@ -585,17 +576,31 @@ public class SimulateSocialExchange extends Scape {
         //		+financialChart.getPanel().getComponentPopupMenu()+"  -  "+
         //		financialChart.getPanel().getRootPane().getParent().getComponents());
         
-        ChartView activityChart = new ChartView("Activity Reputation");
-        people.addView(activityChart);
-        activityChart.addSeries("Average ActRep FREQ GOWR NO_FRIEN", Color.red);
-        activityChart.addSeries("Average ActRep FREQ GOWR FRIEN", Color.black);
-        activityChart.addSeries("Average ActRep OCAS GOWR NO_FRIEN", Color.cyan);
-        activityChart.addSeries("Average ActRep OCAS GOWR FRIEN", Color.YELLOW);
-        activityChart.addSeries("Average ActRep FREQ BADWR NO_FRIEN", Color.magenta); //.orange);
-        activityChart.addSeries("Average ActRep FREQ BADWR FRIEN", Color.PINK);
-        activityChart.addSeries("Average ActRep OCAS BADWR NO_FRIEN", Color.blue);
-        activityChart.addSeries("Average ActRep OCAS BADWR FRIEN", Color.green);
-        activityChart.setDisplayPoints(3000);
+        
+        for(int i = 0; i < Properties.FRIEND_DEGRADATION_FACTOR.length *
+        		Properties.NO_COMMON_FRIEND_WEIGHT.length; i++) {
+	        ChartView activityChart = new ChartView(MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"Model ",i));
+	        people.addView(activityChart);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"FREQ GOWR NO_FRIEN",i), Color.red);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"FREQ GOWR FRIEN",i), Color.black);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"OCAS GOWR NO_FRIEN",i), Color.cyan);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"OCAS GOWR FRIEN",i), Color.YELLOW);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"FREQ BADWR NO_FRIEN",i), Color.magenta); //.orange);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"FREQ BADWR FRIEN",i), Color.PINK);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"OCAS BADWR NO_FRIEN",i), Color.blue);
+	        activityChart.addSeries("Average "+MyStatCollectorCondCSAMM.getName(
+	        		MyStatCollectorCondCSAMM.FRIEND_REP,"OCAS BADWR FRIEN",i), Color.green);
+	        activityChart.setDisplayPoints(3000);
+	        activityChart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);	        
+        }
         
         ChartView top10Chart = new ChartView("Top10");
         addView(top10Chart);
@@ -615,14 +620,7 @@ public class SimulateSocialExchange extends Scape {
         stockChart.addSeries("Maximum TotalStock", Color.BLACK);
         
         financialChart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
-        activityChart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
-        top10Chart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);
-        /*ChartView activityChart1 = new ChartView(ChartView.HISTOGRAM);
-        people.addView(activityChart1);
-        activityChart1.addSeries("Average FinRepEXP");
-        activityChart1.addSeries("Average FinRepAMA");
-        activityChart1.addSeries("Average FinRepRAM");
-        activityChart1.setDisplayPoints(300);*/
+        top10Chart.setIterationsPerRedraw(Properties.REPUTATION_INTERVAL);        
     }
 
 	public void setnInversores(int nInversores) {

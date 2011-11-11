@@ -16,40 +16,31 @@ public class Properties {
 	public static double DIVERSIFICATION_PROBABILITY = 0.5;
 	
 	public static double GOOD_WRITER_PROBABILITY = 0.5;
-	public static double GOOD_MESSAGES_PROBABILITY_LIMITS[] = {0.7,0.9};
-	public static double BAD_MESSAGES_PROBABILITY_LIMITS[] = {0,0.2};
+	public static double GOOD_MESSAGES_PROBABILITY_LIMITS[] = {0.75,0.85}; //Before {0.7,0.9}
+	public static double BAD_MESSAGES_PROBABILITY_LIMITS[] = {0.05,0.15}; //Before {0,0.2}
 	public static int MAXIMUM_SCORE = 5;
 	public static Integer GOOD_MESSAGES_SCORE_PROBABILITY[] = {3,MAXIMUM_SCORE};
-	public static Integer BAD_MESSAGES_SCORE_PROBABILITY[] = {0,3};
+	public static Integer BAD_MESSAGES_SCORE_PROBABILITY[] = {0,2};
 	
 	public static double FREQUENT_USER_PROBABILITY = 0.5;
-	public static double FREQ_USER_READ_PROBABILITY_LIMITS[] = {0.6,0.9};
-	public static double FREQ_USER_POST_PROBABILITY_LIMITS[] = {0.2,0.36};
+	public static double FREQ_USER_READ_PROBABILITY_LIMITS[] = {0.68,0.82}; //Before {0.6, 0.9}
+	public static double FREQ_USER_POST_PROBABILITY_LIMITS[] = {0.2,0.36}; //
 	public static double FREQ_USER_COMMENT_PROBABILITY_LIMITS[] = {0.08,0.14};
 	public static double FREQ_USER_SCORE_PROBABILITY_LIMITS[] = {0.1,0.34};
-	public static double OCA_USER_READ_PROBABILITY_LIMITS[] = {0.05,0.3};
-	public static double OCA_USER_POST_PROBABILITY_LIMITS[] = {0.03,0.08};
+	public static double OCA_USER_READ_PROBABILITY_LIMITS[] = {0.17,0.25};  //Before {0.12, 0.3}
+	public static double OCA_USER_POST_PROBABILITY_LIMITS[] = {0.04,0.08}; //Before {0.03,0.08}
 	public static double OCA_USER_COMMENT_PROBABILITY_LIMITS[] = {0.01,0.04};
 	public static double OCA_USER_SCORE_PROBABILITY_LIMITS[] = {0.1,0.3};
-	
-	public static int MINIMUM_MESSAGES_TO_DEGRADATE = 10;
-	public static double MESSAGE_DEGRADATION_LOGARITHMIC_FACTOR = Math.E; //10
-	public static double CONSECUTIVE_MESSAGE_CRONOLOGY_READ_DEGRADATION = 0.9;
-	public static double CONSECUTIVE_MESSAGE_RECOMMENDATION_READ_DEGRADATION = 0.9;
-	public static int NOT_READ_MESSAGES_TO_LEAVE_USER = 10;
-	
-	public static double POPULARITY_INCREMENTATION_LINEAL_FACTOR = 4;
+		
+	//public static double POPULARITY_INCREMENTATION_LINEAL_FACTOR = 4;
 	public static double POPULARITY_INCREMENTATION_EXPONENCIAL_FACTOR = 2;
-	public static double FINANCIAL_POPULARITY_EXPONENCIAL_FACTOR = 4;
-	public static double BAD_MESSAGE_DEGRADATION = 0.25;
-	public static double ALREADY_READ_MESSAGE = 0.2;
-	public static double ALREADY_COMMENTED_MESSAGE = 0.2;
-	public static double ALREADY_SCORED_MESSAGE = 0.2;
-	public static int TIME_CLUSTER = 100;
-	public static int MAX_DIFFERENCE_CLUSTERS = 6;
-	public static int TIME_LIMIT = TIME_CLUSTER * MAX_DIFFERENCE_CLUSTERS;	
+	public static double FINANCIAL_POPULARITY_EXPONENCIAL_FACTOR = 2.5; //4; -> too much?
 	
-	public static double CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR = 1.5;	
+	public static int TIME_CLUSTER = 30;   //100;
+	public static int MAX_DIFFERENCE_CLUSTERS = 11;   //6;
+	public static int TIME_LIMIT = TIME_CLUSTER * MAX_DIFFERENCE_CLUSTERS;	
+	public static double CRONOLOGY_DREGADATION_EXPONENCIAL_FACTOR = 1.6; //1.5;
+	
 	public static double READER_WEIGHT = 0.3;
 	public static double FOLLOWER_WEIGHT = 0.7;
 	public static double SCORER_WEIGHT = 0.24; //0.12, 0.5
@@ -57,7 +48,7 @@ public class Properties {
 	public static double TRUST_WEIGHT = 10 / Properties.USERS_TO_MAXIMUM_TRUST;	
 	
 	public static int REPUTATION_INTERVAL = 10; 
-	public static int STATISTICS_INTERVAL = 100 * REPUTATION_INTERVAL; 
+	public static int STATISTICS_INTERVAL = 10 * REPUTATION_INTERVAL; 
 		//multiple of REPUTATION_INTERVAL, TIME_CLUSTER;
 	public static int CAPITAL_TIME_DIFFERENCE = 180; //difference between reputation_interval 
 	public static int CLEAN_INTERVAL = 1000;
@@ -118,6 +109,17 @@ public class Properties {
 	public static double IF_RENTABILITY_NEGATIVE_DECREMENT = 1.5;	
 	
 	public static int NUM_INVESTORS = 400;
+	
+	//Make reads and comments
+	public static double CONSECUTIVE_MESSAGE_CRONOLOGY_READ_DEGRADATION = 0.94; //0.93; 0.9;
+	//public static double CONSECUTIVE_MESSAGE_RECOMMENDATION_READ_DEGRADATION = 0.9;
+	public static int NOT_READ_MESSAGES_TO_LEAVE_USER = 12;
+	public static double BAD_MESSAGE_DEGRADATION = 0.20; //0.25;
+	public static double ALREADY_READ_MESSAGE = 0.2;
+	public static double ALREADY_COMMENTED_MESSAGE = 0.2;
+	public static double ALREADY_SCORED_MESSAGE = 0.2;
+	
+	//Make Friends
 	public static int FRIEND_DEGRADATION = (int) Math.log10(NUM_INVESTORS) * 15;
 	public static double FRIENDLY_PROBABILITY = 0.5;
 	public static double FRIENDLY_COMMON = 0.3;
@@ -125,8 +127,13 @@ public class Properties {
 	public static double NO_FRIENDLY_PROBABILITY_LIMITS[] = {0.025,0.04}; //{0.015,0.02};
 	public static double LINEAL_FRIEND_STRENGH_INCREMENT = 3;
 	public static double EXPONENCIAL_FRIEND_STRENGH_DECREMENT = 3;
-	public static double COMMON_FRIEND_WEIGHT = 3;
-	public static double NO_COMMON_FRIEND_WEIGHT = 7;
+	
+	//Activity Reputation Sets
+	public static double COMMON_FRIEND_WEIGHT[] = {3,1,8};
+	public static double NO_COMMON_FRIEND_WEIGHT[] = {7,9,2};
+	public static double FRIEND_DEGRADATION_FACTOR[] = {0, Math.E};
+	public static int MINIMUM_MESSAGES_TO_DEGRADATE[] = {10,50};
+	public static double MESSAGE_DEGRADATION_LOGARITHMIC_FACTOR[] = {0,Math.E}; //0	= none
 	public static double FRIEND_WEIGHT = 1;
 	public static double MESSAGE_WEIGHT = 1;
 	
